@@ -1,3 +1,6 @@
+import sys
+from utils.error_functions import check_error_file
+
 __author__ = 'Arthur Fortes'
 
 '''
@@ -27,6 +30,7 @@ Methods:
 
 class ReadFile(object):
     def __init__(self, file_read, space_type='\t'):
+        check_error_file(file_read)
         self.file_read = file_read
         self.space_type = space_type
         self.list_users = set()
@@ -44,7 +48,11 @@ class ReadFile(object):
                 if line.strip():
                     inline = line.split(self.space_type)
                     self.number_interactions += 1
-                    user, item, feedback = int(inline[0]), int(inline[1]), inline[2]
+                    try:
+                        user, item, feedback = int(inline[0]), int(inline[1]), inline[2]
+                    except ValueError:
+                        print('Error: Space type is invalid!')
+                        sys.exit()
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
                     self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
                     self.list_users.add(user)
