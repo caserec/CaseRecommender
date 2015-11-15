@@ -11,6 +11,7 @@ class RatingPredictionEvaluation(object):
         self.space_type = space_type
 
     def simple_evaluation(self, file_result, file_test):
+        # Verify that the files are valid
         check_error_file(file_result)
         check_error_file(file_test)
 
@@ -51,9 +52,3 @@ class RatingPredictionEvaluation(object):
             list_mae.append(mae)
 
         return np.mean(list_rmse), np.std(list_rmse), np.mean(list_mae), np.std(list_mae)
-
-
-# a = RatingPredictionEvaluation('C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\
-# ml_2k\\folds\\0\\prediction_simple.dat',
-#                                'C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\ml_2k\\folds\\0\\test.dat')
-# print a.simple_evaluation()

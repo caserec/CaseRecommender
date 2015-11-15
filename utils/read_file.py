@@ -71,6 +71,30 @@ class ReadFile(object):
         self.list_users = sorted(self.list_users)
         self.list_items = sorted(self.list_items)
 
+    def main_information_item_recommendation(self):
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.space_type)
+                    self.number_interactions += 1
+                    try:
+                        user, item = int(inline[0]), int(inline[1])
+                    except ValueError:
+                        print('Error: Space type is invalid!')
+                        sys.exit()
+                    self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
+                    self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
+                    self.list_users.add(user)
+                    self.list_items.add(item)
+
+                    if user in self.user_interactions:
+                        self.user_interactions[user].append(item)
+                    else:
+                        self.user_interactions[user] = [item]
+
+        self.list_users = sorted(self.list_users)
+        self.list_items = sorted(self.list_items)
+
     def cross_fold_validation(self):
         with open(self.file_read) as infile:
             for line in infile:
