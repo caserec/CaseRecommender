@@ -32,12 +32,12 @@ Instructions
 
 To run this implementation:
 
->> CrossFoldValidation(dataset_file).divide_dataset()
+>> CrossFoldValidation(dataset_file)
 
 To write the results of the technical files, fill the variable dir_folds with the path of the directory
 that you want to write the folds with train and test files:
 
->> CrossFoldValidation(dataset_file, dir_folds='/home/Documents/').divide_dataset()
+>> CrossFoldValidation(dataset_file, dir_folds='/home/Documents/')
 
 * To change the number of folds, change n_folds var.
 * To change the spacing in the file, change the space_type var [default = \t].
