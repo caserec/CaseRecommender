@@ -16,7 +16,33 @@ text = '____________________________________________________________________\n' 
        '\t - Mean Average Precision (MAP) \n\n' \
        '\t * Protocol All-but-one \n' \
        '\nCommand: \n' \
-       '\t python evaluation_rating_prediction.py type_prediction prediction_file ... \n'
+       '\t python evaluation_item_recommendation.py \n' \
+       '\t\t Arguments:\n' \
+       '\t\t\t -h -> HELP\n' \
+       '\t\t\t -e or --evaluation_type=  -> Values: SimpleEvaluation | AllButOne | FoldsEvaluation\n' \
+       '\t\t\t -s or --space_type=       -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
+       '\t\t\t -r or --n_rank=           -> Number of evaluation rank positions - Default Values: 1,3,5,10 \n' \
+       '\t\t\t * IF -e SimpleEvaluation and AllButOne:\n' \
+       '\t\t\t\t -p or --predict_file=   -> prediction file with its directory \n' \
+       '\t\t\t\t -t or --test_file=      -> test file with its directory \n' \
+       '\t\t\t * IF -e FoldsEvaluation:\n' \
+       '\t\t\t\t -p or --predict_file=   -> only prediction file name without its directory \n' \
+       '\t\t\t\t -t or --test_file=      -> only test file name without its directory \n' \
+       '\t\t\t\t -d or --dir_fold=       -> folds directory \n' \
+       '\t\t\t\t -n or --num_fold=       -> number of folds - Default Value: 10\n' \
+       '\t\t\t\t -c or --type_fold_evaluation= -> Values: SimpleEvaluation | AllButOne' \
+       ' - Default Value: SimpleEvaluation \n' \
+       '\nExamples: \n ' \
+       '\t >> python evaluation_item_recommendation.py -e SimpleEvaluation -p home\\documents\\file.dat' \
+       '-t home\\documents\\test.dat -r 5,10\n' \
+       '\t >> python evaluation_item_recommendation.py -e AllButOne -p home\\documents\\file.dat' \
+       '-t home\\documents\\test.dat -r 5,10 -s comma \n' \
+       '\t >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 5 -c AllButOne ' \
+       '-p file.dat -t test.dat -r 5,10 -s comma \n' \
+       '\t >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 10 ' \
+       '-p file.dat -t test.dat -r 3,5,10 -s dot \n' \
+       '\nDetails: \n' \
+       '\t * In -r or --n_rank do not put space between commas. Wrong: -r 1, 3, 10 | Correct: 1,3,10\n'
 
 
 def main(argv):

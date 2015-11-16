@@ -11,7 +11,27 @@ text = '__________________________________________________________________\n' \
        'Evaluation Metrics:\n' \
        '\t - Root Mean Square Error (RMSE)\n' \
        '\t - Mean Absolute Error (MAE) \n' \
-       '\nCommand: \n'
+       '\nCommand: \n' \
+       '\t python evaluation_rating_prediction.py \n' \
+       '\t\t Arguments:\n' \
+       '\t\t\t -h -> HELP\n' \
+       '\t\t\t -e or --evaluation_type=  -> Values: SimpleEvaluation | FoldsEvaluation\n' \
+       '\t\t\t -s or --space_type=       -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
+       '\t\t\t * IF -e SimpleEvaluation:\n' \
+       '\t\t\t\t -p or --predict_file=   -> prediction file with its directory \n' \
+       '\t\t\t\t -t or --test_file=      -> test file with its directory \n' \
+       '\t\t\t * IF -e FoldsEvaluation:\n' \
+       '\t\t\t\t -p or --predict_file=   -> only prediction file name without its directory \n' \
+       '\t\t\t\t -t or --test_file=      -> only test file name without its directory \n' \
+       '\t\t\t\t -d or --dir_fold=       -> folds directory \n' \
+       '\t\t\t\t -n or --num_fold=       -> number of folds - Default Value: 10\n' \
+       '\nExamples: \n ' \
+       '\t >> python evaluation_rating_prediction.py -e SimpleEvaluation -p home\\documents\\file.dat' \
+       '-t home\\documents\\test.dat\n' \
+       '\t >> python evaluation_rating_prediction.py -e FoldsEvaluation -d home\\documents\\ -n 5 ' \
+       '-p file.dat -t test.dat -s comma \n' \
+       '\t >> python evaluation_rating_prediction.py -e FoldsEvaluation -d home\\documents\\ -n 10 ' \
+       '-p file.dat -t test.dat -s dot \n'
 
 
 def main(argv):
