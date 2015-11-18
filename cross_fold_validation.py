@@ -9,7 +9,18 @@ __author__ = 'Arthur Fortes'
 
 text = '__________________________________________________________________\n' \
        '\n  [Case Recommender Instructions] Cross Fold Validation  \n' \
-       '__________________________________________________________________\n\n'
+       '__________________________________________________________________\n\n'\
+       '\nCommand: \n' \
+       '\t python evaluation_rating_prediction.py \n' \
+       '\t\t Arguments:\n' \
+       '\t\t\t -h -> HELP\n' \
+       '\t\t\t -d or --dataset=     -> Dataset with directory \n' \
+       '\t\t\t -f or --dataset=     -> Directory where will be writing the folds \n' \
+       '\t\t\t -n or --num_fold=    -> Number of folds \n' \
+       '\t\t\t -s or --space_type=  -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
+       '\nExamples: \n ' \
+       '\t >> python cross_fold_validation.py -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
+       '-s comma\n'
 
 
 def main(argv):
