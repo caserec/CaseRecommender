@@ -147,14 +147,3 @@ class ItemRecommendationEvaluation(object):
             list_results.append([np.mean(list_partial), np.std(list_partial)])
 
         return list_results
-
-
-# a = ItemRecommendationEvaluation()
-# res = a.simple_evaluation('C:\\Users\\Arthur\OneDrive\\snn_experiment\\folds\\0\\final_rank.dat',
-#                           'C:\\Users\\Arthur\OneDrive\\snn_experiment\\folds\\0\\test_all.dat')
-
-# res = a.all_but_one_evaluation('C:\\Users\\Arthur\OneDrive\\snn_experiment\\folds\\0\\final_rank.dat',
-#                                 'C:\\Users\\Arthur\OneDrive\\snn_experiment\\folds\\0\\test_all.dat')
-#
-# print a.folds_evaluation('C:\\Users\\Arthur\OneDrive\\snn_experiment\\folds\\',
-#                          5, 'final_rank.dat', 'test_all.dat', 'abo')

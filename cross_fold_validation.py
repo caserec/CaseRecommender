@@ -20,7 +20,7 @@ text = '__________________________________________________________________\n' \
        '\t\t\t -s or --space_type=  -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
        '\nExamples: \n ' \
        '\t >> python cross_fold_validation.py -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
-       '-s comma\n'
+       ' -s comma\n'
 
 
 def main(argv):
