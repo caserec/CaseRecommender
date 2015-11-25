@@ -44,3 +44,10 @@ class WriteFile(object):
                 for triple in self.data[f]['test']:
                     infile.write(str(triple[0]) + self.space_type + str(triple[1]) +
                                  self.space_type + str(triple[2]) + '\n')
+
+    def write_prediction_file(self):
+        with open(self.file_write, 'w') as infile_write:
+            for user in self.data:
+                for item in user[1]:
+                    infile_write.write(str(user[0]) + self.space_type + str(item[0]) + self.space_type +
+                                       str(item[1]) + '\n')

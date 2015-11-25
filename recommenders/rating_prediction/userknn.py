@@ -1,9 +1,18 @@
-import time
+# coding=utf-8
 from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 import numpy as np
 
 __author__ = 'Arthur Fortes'
+
+'''
+
+User-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm matches similar
+users based on the similarity of their ratings on items.
+
+More details: http://files.grouplens.org/papers/algs.pdf
+
+'''
 
 
 class UserKNN(BaseRatingPrediction):
@@ -17,7 +26,6 @@ class UserKNN(BaseRatingPrediction):
         self.train_baselines()
         self.calculate_similarity()
         self.predict()
-        print('Fill matrix and trained baselines...')
 
     def calculate_similarity(self):
         self.du_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
@@ -33,6 +41,8 @@ class UserKNN(BaseRatingPrediction):
                     suv = (float(nuv)/float(nuv + 100)) * sim
                     self.du_matrix[u][v] = suv
                     self.du_matrix[v][u] = suv
+
+        del self.matrix
 
     def predict_items(self, user, user_interactions):
         list_items = list()
@@ -68,7 +78,6 @@ class UserKNN(BaseRatingPrediction):
         self.prediction_results.append([user, list_items])
 
     def predict(self):
-        print('prediction')
         if self.test != '':
             for user in self.test.list_users:
                 self.predict_items(user, self.test.user_interactions[user])
@@ -78,9 +87,3 @@ class UserKNN(BaseRatingPrediction):
                 self.predict_items(user, non_seen_items)
                 del self.bui[user]
                 del self.train.user_interactions[user]
-
-starting_point = time.time()
-test = UserKNN('C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\ml_2k\\folds\\0\\train.dat',
-               'C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\ml_2k\\folds\\0\\test.dat')
-elapsed_time = time.time() - starting_point
-print("Runtime: " + str(elapsed_time / 60) + " second(s)\n")

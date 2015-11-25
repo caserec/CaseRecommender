@@ -1,9 +1,18 @@
-import time
+# coding=utf-8
 from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 import numpy as np
 
 __author__ = 'Arthur Fortes'
+
+'''
+
+Its philosophy is as follows: in order to determine the rating of User u on Movie m, we can find other movies that are
+similar to Movie m, and based on User u’s ratings on those similar movies we infer his rating on Movie m.
+
+More details: http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOnCollaborativeFiltering.pdf
+
+'''
 
 
 class ItemKNN(BaseRatingPrediction):
@@ -13,47 +22,44 @@ class ItemKNN(BaseRatingPrediction):
         self.similarity_metric = similarity_metric
         self.prediction_results = list()
         self.di_matrix = list()
+        self.dict_nij = dict()
         self.fill_item_user_matrix()
         self.train_baselines()
         self.calculate_similarity()
         self.predict()
 
-        print('Fill matrix and trained baselines...')
-
     def calculate_similarity(self):
         self.di_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
+        self.di_matrix = 1 - self.di_matrix
 
-        for i, item in enumerate(self.train.list_items):
-            for j, item_j in enumerate(self.train.list_items[i+1:]):
-                sim = 1 - self.di_matrix[i][j]
-                if sim != 0:
-                    # Intersection between users
-                    list_i = set(self.train.item_interactions[item])
-                    list_j = set(self.train.item_interactions[item_j])
-                    nij = len(list_i & list_j)
-                    sij = (float(nij)/float(nij + 100)) * sim
-                    self.di_matrix[i][j] = sij
-                    self.di_matrix[j][i] = sij
+        for i, item_i in enumerate(self.dataset_items):
+            for j, item_j in enumerate(self.dataset_items[i+1:]):
+                b = list(self.train.item_interactions.get(item_i, {}))
+                c = list(self.train.item_interactions.get(item_j, {}))
+                nij = len(filter(set(b).__contains__, c))
 
-    def predict_items(self, user, items_for_interactions):
+                self.di_matrix[i][j] *= (float(nij)/float(nij + 100))
+                self.di_matrix[j][i] = self.di_matrix[i][j]
+
+        del self.matrix
+
+    def predict_items(self, user, items_for_prediction):
         list_items = list()
-
-        for item_i in items_for_interactions:
+        for item_i in items_for_prediction:
             sum_suv = 0
             sum_sim = 0
-            list_best = list()
+            total = list()
             i = self.dict_item_id[item_i]
 
             for item_j in self.train.user_interactions[user]:
                 j = self.dict_item_id[item_j]
-                sim = self.di_matrix[i][j]
-                if sim > 0:
-                    list_best.append([item_j, sim])
+                if self.di_matrix[j][i] > 0:
+                    total.append([item_j, self.di_matrix[j][i]])
 
-            if len(list_best) > self.k:
-                list_best.sort(key=lambda x: -x[1])
+            if len(total) > self.k:
+                total.sort(key=lambda x: -x[1])
 
-            for item_j in list_best:
+            for item_j in total[:self.k]:
                 rate_j = float(self.train.user_interactions[user].get(item_j[0], 0))
                 if rate_j != 0:
                     sum_suv += (rate_j - self.bui[user].get(item_j[0], 0)) * item_j[1]
@@ -77,7 +83,6 @@ class ItemKNN(BaseRatingPrediction):
         self.prediction_results.append([user, list_items])
 
     def predict(self):
-        print('prediction')
         if self.test != '':
             for user in self.test.list_users:
                 self.predict_items(user, self.test.user_interactions[user])
@@ -87,10 +92,3 @@ class ItemKNN(BaseRatingPrediction):
                 self.predict_items(user, non_seen_items)
                 del self.bui[user]
                 del self.train.user_interactions[user]
-
-
-starting_point = time.time()
-test = ItemKNN('C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\ml_2k\\folds\\0\\train.dat',
-               'C:\\Users\\Arthur\\Dropbox\\JournalWebSemantic\\ml_2k\\folds\\0\\test.dat')
-elapsed_time = time.time() - starting_point
-print("Runtime: " + str(elapsed_time / 60) + " second(s)\n")
