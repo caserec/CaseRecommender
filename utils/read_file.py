@@ -30,7 +30,6 @@ Methods:
 
 class ReadFile(object):
     def __init__(self, file_read, space_type='\t'):
-        check_error_file(file_read)
         self.file_read = file_read
         self.space_type = space_type
         self.list_users = set()
@@ -41,37 +40,34 @@ class ReadFile(object):
         self.num_user_interactions = dict()
         self.num_items_interactions = dict()
         self.triple_dataset = list()
+        self.individual_interaction = list()
 
     def main_information(self):
+        check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
                     inline = line.split(self.space_type)
-                    self.number_interactions += 1
+
                     try:
                         user, item, feedback = int(inline[0]), int(inline[1]), inline[2]
                     except ValueError:
                         print('Error: Space type is invalid!')
                         sys.exit()
+
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
                     self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
+                    self.user_interactions.setdefault(user, {}).update({item: feedback})
+                    self.item_interactions.setdefault(item, {}).update({user: feedback})
                     self.list_users.add(user)
                     self.list_items.add(item)
-
-                    if user in self.user_interactions:
-                        self.user_interactions[user].update({item: feedback})
-                    else:
-                        self.user_interactions[user] = {item: feedback}
-
-                    if item in self.item_interactions:
-                        self.item_interactions[item].update({user: feedback})
-                    else:
-                        self.item_interactions[item] = {user: feedback}
+                    self.number_interactions += 1
 
         self.list_users = sorted(self.list_users)
         self.list_items = sorted(self.list_items)
 
     def main_information_item_recommendation(self):
+        check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
@@ -82,20 +78,18 @@ class ReadFile(object):
                     except ValueError:
                         print('Error: Space type is invalid!')
                         sys.exit()
+
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
                     self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
                     self.list_users.add(user)
                     self.list_items.add(item)
-
-                    if user in self.user_interactions:
-                        self.user_interactions[user].append(item)
-                    else:
-                        self.user_interactions[user] = [item]
+                    self.user_interactions.setdefault(user, []).append(item)
 
         self.list_users = sorted(self.list_users)
         self.list_items = sorted(self.list_items)
 
     def cross_fold_validation(self):
+        check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
@@ -103,3 +97,17 @@ class ReadFile(object):
                     self.number_interactions += 1
                     user, item, feedback = int(inline[0]), int(inline[1]), inline[2]
                     self.triple_dataset.append([user, item, feedback])
+
+    def split_dataset(self):
+        for i, feedback in enumerate(self.file_read):
+            self.user_interactions = dict()
+            check_error_file(feedback)
+            with open(feedback) as infile:
+                for line in infile:
+                    if line.strip():
+                        inline = line.split(self.space_type)
+                        self.number_interactions += 1
+                        user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                        self.triple_dataset.append((user, item))
+                        self.user_interactions.setdefault(user, {}).update({item: feedback})
+            self.individual_interaction.append(self.user_interactions)
