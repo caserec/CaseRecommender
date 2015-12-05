@@ -14,7 +14,7 @@ user\titem\tinformation\n
 * To change the spacing in the file, change the space_type var (default = \t).
 
 Methods:
-    - [main_information]: returns a set of information about the dataset:
+    - [main_information] and [main_information_item_recommendation]: returns a set of information about the dataset:
             * list with all users
             * list with all items
             * number of interactions
@@ -24,6 +24,10 @@ Methods:
                                   number of interaction for each item)
 
     - [cross_fold_validation]: return triples [user, item, feedback] and number of interactions
+
+    - [split_dataset]: return triples [user, item, feedback], number of interactions and
+                       users interactions (dictionary with seen items and feedback for each user |
+                                  number of interaction for each user) for each feedback type.
 
 '''
 

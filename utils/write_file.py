@@ -12,7 +12,9 @@ user\titem\tinformation\n
 * To change the spacing in the file, change the space_type var [default = \t].
 
 Methods:
+    - [split_dataset]: write train and test files for n folds and individuals feedback
     - [cross_fold_validation]: write train and test files for n folds.
+    - [write_prediction_file]: write prediction files for rating prediction and item recommendation algorithms
 '''
 
 
@@ -61,7 +63,6 @@ class WriteFile(object):
                                 infile.write(str(user) + self.space_type + str(item) + self.space_type +
                                              str(feed[user][item]) + '\n')
 
-    # We used the variable self.file_write as directory path in this function.
     def cross_fold_validation(self):
         self.file_write += 'folds\\'
 
