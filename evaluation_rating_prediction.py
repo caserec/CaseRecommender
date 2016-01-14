@@ -55,7 +55,7 @@ def main(argv):
         if opt == "-h":
             print(text)
             sys.exit()
-        elif opt in ("-s", "--space_type="):
+        elif opt in ("-s", "--space_type"):
             space_type = arg
             if space_type == 'tabulation':
                 space_type = '\t'
@@ -66,15 +66,15 @@ def main(argv):
             else:
                 print(text)
                 sys.exit()
-        elif opt in ("-e", "--evaluation_type="):
+        elif opt in ("-e", "--evaluation_type"):
             evaluation_type = arg
-        elif opt in ("-p", "--predict_file="):
+        elif opt in ("-p", "--predict_file"):
             predict_file = arg
-        elif opt in ("-t", "--test_file="):
+        elif opt in ("-t", "--test_file"):
             test_file = arg
-        elif opt in ("-d", "--dir_fold="):
+        elif opt in ("-d", "--dir_fold"):
             dir_fold = arg
-        elif opt in ("-n", "--num_fold="):
+        elif opt in ("-n", "--num_fold"):
             num_fold = arg
 
     print("\n[Case Recommender - Evaluation Rating Prediction]")

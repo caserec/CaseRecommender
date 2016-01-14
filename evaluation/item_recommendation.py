@@ -1,4 +1,3 @@
-import random
 import sys
 import numpy as np
 from utils.error_functions import check_error_file
@@ -80,7 +79,7 @@ class ItemRecommendationEvaluation(object):
         final_values = list()
 
         for user in test.list_users:
-            test.user_interactions[user] = [random.choice(test.user_interactions[user])]
+            test.user_interactions[user] = [test.user_interactions[user][0]]
 
         for i, n in enumerate(n_ranks):
             if n < 1:

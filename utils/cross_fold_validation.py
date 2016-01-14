@@ -43,7 +43,7 @@ class CrossFoldValidation(object):
 
     def divide_dataset(self):
         tp = ReadFile(self.dataset, space_type=self.space_type)
-        tp.cross_fold_validation()
+        tp.triple_information()
         random.shuffle(tp.triple_dataset)
 
         # Get the number of interactions that each partition should have.

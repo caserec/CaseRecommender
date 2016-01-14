@@ -47,7 +47,7 @@ class SplitDataset(object):
             train = tp.triple_dataset[:sp]
             test = tp.triple_dataset[sp:]
             train.sort()
-            test.sort()
+            test.sort(key=lambda x: x[0])
             train_set = list()
             test_set = list()
 

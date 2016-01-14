@@ -45,6 +45,7 @@ class ReadFile(object):
         self.num_items_interactions = dict()
         self.triple_dataset = list()
         self.individual_interaction = list()
+        self.average_scores = dict()
 
     def main_information(self):
         check_error_file(self.file_read)
@@ -92,7 +93,7 @@ class ReadFile(object):
         self.list_users = sorted(self.list_users)
         self.list_items = sorted(self.list_items)
 
-    def cross_fold_validation(self):
+    def triple_information(self):
         check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
@@ -115,3 +116,17 @@ class ReadFile(object):
                         self.triple_dataset.append((user, item))
                         self.user_interactions.setdefault(user, {}).update({item: feedback})
             self.individual_interaction.append(self.user_interactions)
+
+    def read_rankings(self):
+        list_feedback = list()
+        check_error_file(self.file_read)
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.space_type)
+                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                    self.user_interactions.setdefault(user, {}).update({item: feedback})
+                    list_feedback.append(feedback)
+                    self.average_scores[user] = self.average_scores.get(user, 0) + feedback
+                    self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
+        return self.user_interactions, list_feedback

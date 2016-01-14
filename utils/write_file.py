@@ -34,7 +34,7 @@ class WriteFile(object):
                 else:
                     names.append(t[t.rfind('\\')+1:])
 
-        self.file_write += 'folds\\'
+        self.file_write += '\\folds\\'
 
         if not os.path.exists(self.file_write):
             os.mkdir(self.file_write)
@@ -64,7 +64,7 @@ class WriteFile(object):
                                              str(feed[user][item]) + '\n')
 
     def cross_fold_validation(self):
-        self.file_write += 'folds\\'
+        self.file_write += '\\folds\\'
 
         if not os.path.exists(self.file_write):
             os.mkdir(self.file_write)

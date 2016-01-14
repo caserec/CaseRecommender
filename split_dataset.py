@@ -27,7 +27,7 @@ text = '__________________________________________________________________\n' \
        '\nExamples: \n ' \
        '\t >> python split_dataset.py -t CrossFoldValidation -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
        ' -s comma\n' \
-       '\t >> python split_dataset.py -t SimpleSplit -d [home\\documents\\rate.dat, home\\documents\\rate.dat] ' \
+       '\t >> python split_dataset.py -t SimpleSplit -d "[home\\documents\\rate.dat, home\\documents\\rate.dat]" ' \
        '-f home\\documents\\ -n 5 -s comma -r 0.1\n'
 
 
@@ -50,7 +50,7 @@ def main(argv):
         if opt == "-h":
             print(text)
             sys.exit()
-        elif opt in ("-s", "--space_type="):
+        elif opt in ("-s", "--space_type"):
             space_type = arg
             if space_type == 'tabulation':
                 space_type = '\t'
@@ -61,15 +61,15 @@ def main(argv):
             else:
                 print(text)
                 sys.exit()
-        elif opt in ("-d", "--dataset="):
+        elif opt in ("-d", "--dataset"):
             dataset = arg
-        elif opt in ("-f", "--dir_fold="):
+        elif opt in ("-f", "--dir_fold"):
             dir_fold = arg
-        elif opt in ("-n", "--num_fold="):
+        elif opt in ("-n", "--num_fold"):
             num_fold = arg
-        elif opt in ("-t", "--split_type="):
+        elif opt in ("-t", "--split_type"):
             split_type = arg
-        elif opt in ("-r", "--test_ratio="):
+        elif opt in ("-r", "--test_ratio"):
             test_ratio = arg
 
     if dataset == '':
@@ -81,6 +81,7 @@ def main(argv):
         sys.exit()
 
     if dir_fold == '':
+        print(dir_fold)
         print("\nError: Please enter a directory to write folds!\n")
         print(text)
         sys.exit()
@@ -93,10 +94,12 @@ def main(argv):
     starting_point = time.time()
 
     if split_type == 'CrossFoldValidation':
-        CrossFoldValidation(dataset, space_type=space_type, dir_folds=dir_fold, n_folds=num_fold)
+        CrossFoldValidation(dataset, space_type=space_type, dir_folds=dir_fold, n_folds=int(num_fold))
     elif split_type == 'SimpleSplit':
-        print "Split dataset in train: ", (1-test_ratio) * 100, "% and test: ", test_ratio*100, "%"
-        SplitDataset(dataset, space_type=space_type, dir_folds=dir_fold, n_folds=num_fold, test_ratio=test_ratio)
+        dataset = dataset.replace('[', '').replace(']', '').replace(' ', '').split(',')
+        print "Split dataset in train: ", (1-float(test_ratio)) * 100, "% and test: ", float(test_ratio)*100, "%"
+        SplitDataset(dataset, space_type=space_type, dir_folds=dir_fold, n_folds=int(num_fold),
+                     test_ratio=float(test_ratio))
     else:
         print(text)
         sys.exit()

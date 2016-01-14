@@ -67,7 +67,7 @@ def main(argv):
         if opt == "-h":
             print(text)
             sys.exit()
-        elif opt in ("-s", "--space_type="):
+        elif opt in ("-s", "--space_type"):
             space_type = arg
             if space_type == 'tabulation':
                 space_type = '\t'
@@ -78,19 +78,19 @@ def main(argv):
             else:
                 print(text)
                 sys.exit()
-        elif opt in ("-e", "--evaluation_type="):
+        elif opt in ("-e", "--evaluation_type"):
             evaluation_type = arg
-        elif opt in ("-p", "--predict_file="):
+        elif opt in ("-p", "--predict_file"):
             predict_file = arg
-        elif opt in ("-t", "--test_file="):
+        elif opt in ("-t", "--test_file"):
             test_file = arg
-        elif opt in ("-d", "--dir_fold="):
+        elif opt in ("-d", "--dir_fold"):
             dir_fold = arg
-        elif opt in ("-n", "--num_fold="):
+        elif opt in ("-n", "--num_fold"):
             num_fold = arg
-        elif opt in ("-c", "--type_fold_evaluation="):
+        elif opt in ("-c", "--type_fold_evaluation"):
             tfe = arg
-        elif opt in ("-r", "--n_rank="):
+        elif opt in ("-r", "--n_rank"):
             n_rank = arg
             new_list = list()
             for n in n_rank.split(','):
@@ -108,7 +108,7 @@ def main(argv):
         result = ItemRecommendationEvaluation(space_type)
         list_results = result.simple_evaluation(predict_file, test_file, n_rank)
         elapsed_time = time.time() - starting_point
-        print("Runtime: " + str(elapsed_time / 60) + " second(s)\n")
+        print("Runtime: " + str(elapsed_time / 60) + " minute(s)\n")
         list_labels = list()
 
         for i in n_rank:
@@ -126,7 +126,7 @@ def main(argv):
         result = ItemRecommendationEvaluation(space_type)
         list_results = result.all_but_one_evaluation(predict_file, test_file, n_rank)
         elapsed_time = time.time() - starting_point
-        print("Runtime: " + str(elapsed_time / 60) + " second(s)\n")
+        print("Runtime: " + str(elapsed_time / 60) + " minute(s)\n")
 
         list_labels = list()
         for i in n_rank:
@@ -150,7 +150,7 @@ def main(argv):
         result = ItemRecommendationEvaluation(space_type)
         list_results = result.folds_evaluation(dir_fold, int(num_fold), predict_file, test_file, tfe, n_rank)
         elapsed_time = time.time() - starting_point
-        print("Runtime: " + str(elapsed_time / 60) + " second(s)\n")
+        print("Runtime: " + str(elapsed_time / 60) + " minute(s)\n")
 
         list_labels = list()
         for i in n_rank:
@@ -165,7 +165,6 @@ def main(argv):
             print(list_labels[n])
             print("Mean: " + str(res[0]))
             print("STD: " + str(res[1]))
-
         print("\n")
 
     else:
