@@ -145,197 +145,196 @@ def print_results(results_evaluation):
         print("p-value: " + str(res[1]))
     print("\n")
 
-
-def main(argv):
-    # dir_path = "C:\\Users\\Arthur\\OneDrive\\Experimentos_2015.12"
-    dir_path = ""
-
-    try:
-        opts, args = getopt.getopt(argv, "d:", ["dir_fold="])
-    except getopt.GetoptError:
-        print("Error: Please enter a valid directory!")
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt in ("-d", "--dir_fold"):
-            dir_path = arg
-
-    if dir_path == "":
-        print("Error:  Please enter a valid directory!")
-        sys.exit(2)
-
-    # ---------- LastFM Dataset ----------
-    print("Processing LastFM Dataset")
-    print("Dividing dataset...")
-    starting_point = time.time()
-
-    # Divide Dataset
-
-    history_file = dir_path + "\\lastfm\\dataset\\user_artists.dat"
-    tag_file = dir_path + "\\lastfm\\dataset\\user_tag_artist.dat"
-    dir_fold = dir_path + "\\lastfm\\"
-    SplitDataset([history_file, tag_file], dir_folds=dir_fold)
-
-    # Run baselines
-
-    print("Run Baselines...")
-    dir_folds_lastfm = dir_path + "\\lastfm\\folds\\"
-
-    # Visualization History (BPR MF)
-
-    history_train = "train_user_artists.dat"
-    history_rank = "rank_history.dat"
-    bprmf(dir_folds_lastfm, history_train, history_rank)
-
-    # Tags (BPR MF)
-    tag_train = "train_user_tag_artist.dat"
-    tag_rank = "rank_tags.dat"
-    bprmf(dir_folds_lastfm, tag_train, tag_rank)
-
-    # Ensembles (BPR Learning / Tag-based / Average-based)
-
-    for fold in xrange(1):
-        path_dir = dir_folds_lastfm + str(fold) + "\\"
-        file_write_bpr = path_dir + "rank_ensemble_bpr.dat"
-        file_write_tag = path_dir + "rank_ensemble_tags.dat"
-        file_write_average = path_dir + "rank_ensemble_average.dat"
-
-        history_t = path_dir + history_train
-        tag_t = path_dir + tag_train
-
-        history_r = path_dir + history_rank
-        tag_r = path_dir + tag_rank
-
-        list_train_files = [history_t, tag_t]
-        list_rank_files = [history_r, tag_r]
-
-        EnsembleTagBased(list_train_files, list_rank_files, file_write_tag, rank_number=10, space_type='\t')
-        EnsembleAverageBased(list_train_files, list_rank_files, file_write_average, rank_number=10, space_type='\t')
-        EnsembleLearningBPR(list_train_files, list_rank_files, file_write_bpr, rank_number=10, space_type='\t')
-
-    # Evaluation Results
-    print("Evaluating results...\n ")
-    results = ItemRecommendationEvaluation()
-    # History
-    list_results = results.folds_evaluation(dir_folds_lastfm, 10, history_rank, "test.dat", "AllButOne")
-    print("History Ranking \n")
-    print_results(list_results)
-    # Tags
-    list_results = results.folds_evaluation(dir_folds_lastfm, 10, tag_rank, "test.dat", "AllButOne")
-    print("Tags Ranking \n")
-    print_results(list_results)
-    # Ensemble Tags-based
-    list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_tags.dat.dat", "test.dat", "AllButOne")
-    print("Ensemble Tags-based Ranking \n")
-    print_results(list_results)
-    # Ensemble Average-based
-    list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_average", "test.dat", "AllButOne")
-    print("Ensemble Average-based Ranking \n")
-    print_results(list_results)
-    # Ensemble Bpr-Learning
-    list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_bpr.dat", "test.dat", "AllButOne")
-    print("Ensemble BPR-Learning Ranking \n")
-    print_results(list_results)
-
-    elapsed_time = time.time() - starting_point
-    print("\nRuntime: " + str(elapsed_time / 60) + " minute(s)")
-    print("Finished LastFm!\n")
-
-    # # ---------- MovieLens Dataset ----------
-    print("Processing MovieLens Dataset")
-    print("Dividing dataset...")
-    starting_point = time.time()
-
-    # Divide Dataset
-
-    history_file = dir_path + "\\movielens\\dataset\\user_movies.dat"
-    tag_file = dir_path + "\\movielens\\dataset\\user_tag_movies.dat"
-    dir_fold = dir_path + "\\movielens\\"
-    SplitDataset([history_file, tag_file], dir_folds=dir_fold)
-
-    # Run Baselines
-
-    print("Run Baselines...")
-    dir_folds_movielens = dir_path + "\\movielens\\folds\\"
-
-    # Visualization History (BPR MF)
-
-    history_train = "train.dat"
-    history_rank = "rank_history.dat"
-    bprmf(dir_folds_movielens, history_train, history_rank)
-
-    # Tags (BPR MF)
-
-    tag_train = "train_user_tag_movies.dat"
-    tag_rank = "rank_tags.dat"
-    bprmf(dir_folds_movielens, tag_train, tag_rank)
-
-    # Ratings (SVD++)
-
-    ratings_train = "train_user_movies.dat"
-    ratings_rank = "rank_ratings.dat"
-    create_test_svd(dir_folds_movielens, ratings_train)
-    svdplusplus(dir_folds_movielens, ratings_train, ratings_rank)
-
-    for fold in xrange(10):
-        path_dir = dir_folds_movielens + str(fold) + "\\"
-        file_write_bpr = path_dir + "rank_ensemble_bpr.dat"
-        file_write_tag = path_dir + "rank_ensemble_tags.dat"
-        file_write_average = path_dir + "rank_ensemble_average.dat"
-
-        history_t = path_dir + history_train
-        tag_t = path_dir + tag_train
-        ratings_t = path_dir + ratings_train
-
-        history_r = path_dir + history_rank
-        tag_r = path_dir + tag_rank
-        ratings_r = path_dir + ratings_rank
-
-        list_train_files = [history_t, tag_t, ratings_t]
-        list_rank_files = [history_r, tag_r, ratings_r]
-
-        EnsembleTagBased(list_train_files, list_rank_files, file_write_tag, rank_number=10, space_type='\t')
-        EnsembleAverageBased(list_train_files, list_rank_files, file_write_average, rank_number=10, space_type='\t')
-        EnsembleLearningBPR(list_train_files, list_rank_files, file_write_bpr, rank_number=10, space_type='\t')
-
-    # Evaluation Results
-    print("Evaluating results...\n ")
-    results = ItemRecommendationEvaluation()
-
-    # History
-    list_results = results.folds_evaluation(dir_folds_movielens, 10, history_rank, "test.dat", "AllButOne")
-    print("History Ranking \n")
-    print_results(list_results)
-
-    # Tags
-    list_results = results.folds_evaluation(dir_folds_movielens, 10, tag_rank, "test.dat", "AllButOne")
-    print("Tags Ranking \n")
-    print_results(list_results)
-
-    # Ratings
-    list_results = results.folds_evaluation(dir_folds_movielens, 10, ratings_rank, "test.dat", "AllButOne")
-    print("Ratings Ranking \n")
-    print_results(list_results)
-
-    # Ensemble Tags-based
-    list_results = results.folds_evaluation(dir_folds_movielens, 10,
-                                            "rank_ensemble_tags.dat.dat", "test.dat", "AllButOne")
-    print("Ensemble Tags-based Ranking \n")
-    print_results(list_results)
-
-    # Ensemble Average-based
-    list_results = results.folds_evaluation(dir_folds_movielens, 10, "rank_ensemble_average", "test.dat", "AllButOne")
-    print("Ensemble Average-based Ranking \n")
-    print_results(list_results)
-
-    # Ensemble Bpr-Learning
-    list_results = results.folds_evaluation(dir_folds_movielens, 10, "rank_ensemble_bpr.dat", "test.dat", "AllButOne")
-    print("Ensemble BPR-Learning Ranking \n")
-    print_results(list_results)
-
-    elapsed_time = time.time() - starting_point
-    print("\nRuntime: " + str(elapsed_time / 60) + " minute(s)")
-    print("Finished MovieLens!\n")
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+# def main(argv):
+#     # dir_path = "C:\\Users\\Arthur\\OneDrive\\Experimentos_2015.12"
+#     dir_path = ""
+#
+#     try:
+#         opts, args = getopt.getopt(argv, "d:", ["dir_fold="])
+#     except getopt.GetoptError:
+#         print("Error: Please enter a valid directory!")
+#         sys.exit(2)
+#
+#     for opt, arg in opts:
+#         if opt in ("-d", "--dir_fold"):
+#             dir_path = arg
+#
+#     if dir_path == "":
+#         print("Error:  Please enter a valid directory!")
+#         sys.exit(2)
+#
+#     # ---------- LastFM Dataset ----------
+#     print("Processing LastFM Dataset")
+#     print("Dividing dataset...")
+#     starting_point = time.time()
+#
+#     # Divide Dataset
+#
+#     history_file = dir_path + "\\lastfm\\dataset\\user_artists.dat"
+#     tag_file = dir_path + "\\lastfm\\dataset\\user_tag_artist.dat"
+#     dir_fold = dir_path + "\\lastfm\\"
+#     SplitDataset([history_file, tag_file], dir_folds=dir_fold)
+#
+#     # Run baselines
+#
+#     print("Run Baselines...")
+#     dir_folds_lastfm = dir_path + "\\lastfm\\folds\\"
+#
+#     # Visualization History (BPR MF)
+#
+#     history_train = "train_user_artists.dat"
+#     history_rank = "rank_history.dat"
+#     bprmf(dir_folds_lastfm, history_train, history_rank)
+#
+#     # Tags (BPR MF)
+#     tag_train = "train_user_tag_artist.dat"
+#     tag_rank = "rank_tags.dat"
+#     bprmf(dir_folds_lastfm, tag_train, tag_rank)
+#
+#     # Ensembles (BPR Learning / Tag-based / Average-based)
+#
+#     for fold in xrange(1):
+#         path_dir = dir_folds_lastfm + str(fold) + "\\"
+#         file_write_bpr = path_dir + "rank_ensemble_bpr.dat"
+#         file_write_tag = path_dir + "rank_ensemble_tags.dat"
+#         file_write_average = path_dir + "rank_ensemble_average.dat"
+#
+#         history_t = path_dir + history_train
+#         tag_t = path_dir + tag_train
+#
+#         history_r = path_dir + history_rank
+#         tag_r = path_dir + tag_rank
+#
+#         list_train_files = [history_t, tag_t]
+#         list_rank_files = [history_r, tag_r]
+#
+#         EnsembleTagBased(list_train_files, list_rank_files, file_write_tag, rank_number=10, space_type='\t')
+#         EnsembleAverageBased(list_train_files, list_rank_files, file_write_average, rank_number=10, space_type='\t')
+#         EnsembleLearningBPR(list_train_files, list_rank_files, file_write_bpr, rank_number=10, space_type='\t')
+#
+#     # Evaluation Results
+#     print("Evaluating results...\n ")
+#     results = ItemRecommendationEvaluation()
+#     # History
+#     list_results = results.folds_evaluation(dir_folds_lastfm, 10, history_rank, "test.dat", "AllButOne")
+#     print("History Ranking \n")
+#     print_results(list_results)
+#     # Tags
+#     list_results = results.folds_evaluation(dir_folds_lastfm, 10, tag_rank, "test.dat", "AllButOne")
+#     print("Tags Ranking \n")
+#     print_results(list_results)
+#     # Ensemble Tags-based
+#     list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_tags.dat.dat", "test.dat", "AllButOne")
+#     print("Ensemble Tags-based Ranking \n")
+#     print_results(list_results)
+#     # Ensemble Average-based
+#     list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_average", "test.dat", "AllButOne")
+#     print("Ensemble Average-based Ranking \n")
+#     print_results(list_results)
+#     # Ensemble Bpr-Learning
+#     list_results = results.folds_evaluation(dir_folds_lastfm, 10, "rank_ensemble_bpr.dat", "test.dat", "AllButOne")
+#     print("Ensemble BPR-Learning Ranking \n")
+#     print_results(list_results)
+#
+#     elapsed_time = time.time() - starting_point
+#     print("\nRuntime: " + str(elapsed_time / 60) + " minute(s)")
+#     print("Finished LastFm!\n")
+#
+#     # # ---------- MovieLens Dataset ----------
+#     print("Processing MovieLens Dataset")
+#     print("Dividing dataset...")
+#     starting_point = time.time()
+#
+#     # Divide Dataset
+#
+#     history_file = dir_path + "\\movielens\\dataset\\user_movies.dat"
+#     tag_file = dir_path + "\\movielens\\dataset\\user_tag_movies.dat"
+#     dir_fold = dir_path + "\\movielens\\"
+#     SplitDataset([history_file, tag_file], dir_folds=dir_fold)
+#
+#     # Run Baselines
+#
+#     print("Run Baselines...")
+#     dir_folds_movielens = dir_path + "\\movielens\\folds\\"
+#
+#     # Visualization History (BPR MF)
+#
+#     history_train = "train.dat"
+#     history_rank = "rank_history.dat"
+#     bprmf(dir_folds_movielens, history_train, history_rank)
+#
+#     # Tags (BPR MF)
+#
+#     tag_train = "train_user_tag_movies.dat"
+#     tag_rank = "rank_tags.dat"
+#     bprmf(dir_folds_movielens, tag_train, tag_rank)
+#
+#     # Ratings (SVD++)
+#
+#     ratings_train = "train_user_movies.dat"
+#     ratings_rank = "rank_ratings.dat"
+#     create_test_svd(dir_folds_movielens, ratings_train)
+#     svdplusplus(dir_folds_movielens, ratings_train, ratings_rank)
+#
+#     for fold in xrange(10):
+#         path_dir = dir_folds_movielens + str(fold) + "\\"
+#         file_write_bpr = path_dir + "rank_ensemble_bpr.dat"
+#         file_write_tag = path_dir + "rank_ensemble_tags.dat"
+#         file_write_average = path_dir + "rank_ensemble_average.dat"
+#
+#         history_t = path_dir + history_train
+#         tag_t = path_dir + tag_train
+#         ratings_t = path_dir + ratings_train
+#
+#         history_r = path_dir + history_rank
+#         tag_r = path_dir + tag_rank
+#         ratings_r = path_dir + ratings_rank
+#
+#         list_train_files = [history_t, tag_t, ratings_t]
+#         list_rank_files = [history_r, tag_r, ratings_r]
+#
+#         EnsembleTagBased(list_train_files, list_rank_files, file_write_tag, rank_number=10, space_type='\t')
+#         EnsembleAverageBased(list_train_files, list_rank_files, file_write_average, rank_number=10, space_type='\t')
+#         EnsembleLearningBPR(list_train_files, list_rank_files, file_write_bpr, rank_number=10, space_type='\t')
+#
+#     # Evaluation Results
+#     print("Evaluating results...\n ")
+#     results = ItemRecommendationEvaluation()
+#
+#     # History
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10, history_rank, "test.dat", "AllButOne")
+#     print("History Ranking \n")
+#     print_results(list_results)
+#
+#     # Tags
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10, tag_rank, "test.dat", "AllButOne")
+#     print("Tags Ranking \n")
+#     print_results(list_results)
+#
+#     # Ratings
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10, ratings_rank, "test.dat", "AllButOne")
+#     print("Ratings Ranking \n")
+#     print_results(list_results)
+#
+#     # Ensemble Tags-based
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10,
+#                                             "rank_ensemble_tags.dat.dat", "test.dat", "AllButOne")
+#     print("Ensemble Tags-based Ranking \n")
+#     print_results(list_results)
+#
+#     # Ensemble Average-based
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10, "rank_ensemble_average", "test.dat", "AllButOne")
+#     print("Ensemble Average-based Ranking \n")
+#     print_results(list_results)
+#
+#     # Ensemble Bpr-Learning
+#     list_results = results.folds_evaluation(dir_folds_movielens, 10, "rank_ensemble_bpr.dat", "test.dat", "AllButOne")
+#     print("Ensemble BPR-Learning Ranking \n")
+#     print_results(list_results)
+#
+#     elapsed_time = time.time() - starting_point
+#     print("\nRuntime: " + str(elapsed_time / 60) + " minute(s)")
+#     print("Finished MovieLens!\n")
+#
+# if __name__ == "__main__":
+#     main(sys.argv[1:])

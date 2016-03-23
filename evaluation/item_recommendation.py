@@ -7,8 +7,9 @@ __author__ = 'Arthur Fortes'
 
 
 class ItemRecommendationEvaluation(object):
-    def __init__(self, space_type='\t'):
+    def __init__(self, space_type='\t', only_map=False):
         self.space_type = space_type
+        self.only_map = only_map
 
     def simple_evaluation(self, file_result, file_test, n_ranks=list([1, 3, 5, 10])):
         # Verify that the files are valid
@@ -113,17 +114,18 @@ class ItemRecommendationEvaluation(object):
                 except KeyError:
                     pass
 
-            final_precision = sum(partial_precision) / float(num_user)
-            final_values.append(final_precision)
-            final_recall = sum(partial_recall) / float(num_user)
-            final_values.append(final_recall)
+            if not self.only_map:
+                final_precision = sum(partial_precision) / float(num_user)
+                final_values.append(final_precision)
+                final_recall = sum(partial_recall) / float(num_user)
+                final_values.append(final_recall)
             final_map = sum(avg_prec_total) / float(num_user)
             final_values.append(final_map)
 
         return final_values
 
     def folds_evaluation(self, folds_dir, n_folds, name_prediction, name_test, type_recommendation="SimpleEvaluation",
-                         n_ranks=list([1, 3, 5, 10])):
+                         n_ranks=list([1, 3, 5, 10]), no_desviation=False):
         result = list()
         list_results = list()
 
@@ -143,6 +145,9 @@ class ItemRecommendationEvaluation(object):
             list_partial = list()
             for j in xrange(n_folds):
                 list_partial.append(result[j][i])
-            list_results.append([np.mean(list_partial), np.std(list_partial)])
+            if no_desviation:
+                list_results.append(list_partial)
+            else:
+                list_results.append([np.mean(list_partial), np.std(list_partial)])
 
         return list_results
