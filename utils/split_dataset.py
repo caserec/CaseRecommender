@@ -15,14 +15,14 @@ user /t item /t feedback /n
 
 * To change the spacing in the file, change the space_type var [default = \t].
 
-By default algorithm divides the base into 80% for training and 20% for test.
+By default algorithm divides the base into 90% for training and 10% for test.
 To modify this parameter, change "test_ratio".
 
 '''
 
 
 class SplitDataset(object):
-    def __init__(self, dataset, space_type='\t', dir_folds='', n_folds=10, test_ratio=0.2):
+    def __init__(self, dataset, space_type='\t', dir_folds='', n_folds=10, test_ratio=0.1):
         self.dataset = dataset
         self.n_folds = n_folds
         self.space_type = space_type

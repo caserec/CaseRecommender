@@ -23,7 +23,7 @@ text = '__________________________________________________________________\n' \
        '\t\t\t\t -d or --dataset=     -> Dataset with directory [Accepts one file only] \n' \
        '\t\t\t * IF -t SimpleSplit:\n' \
        '\t\t\t\t -d or --dataset=     -> List of feedback types [Accepts one or more files in a list] \n' \
-       '\t\t\t\t -r or --test_ratio=  -> Percentage of interactions dedicated to test set [Default = 0.2 = 20%] \n' \
+       '\t\t\t\t -r or --test_ratio=  -> Percentage of interactions dedicated to test set [Default = 0.1 = 10%] \n' \
        '\nExamples: \n ' \
        '\t >> python split_dataset.py -t CrossFoldValidation -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
        ' -s comma\n' \
@@ -37,7 +37,7 @@ def main(argv):
     num_fold = 10
     space_type = '\t'
     split_type = ''
-    test_ratio = 0.2
+    test_ratio = 0.1
 
     try:
         opts, args = getopt.getopt(argv, "h:t:d:f:n:s:r:",
