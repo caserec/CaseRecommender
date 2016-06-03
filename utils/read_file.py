@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 from utils.error_functions import check_error_file
 
 __author__ = 'Arthur Fortes'
@@ -28,6 +29,16 @@ Methods:
     - [split_dataset]: return triples [user, item, feedback], number of interactions and
                        users interactions (dictionary with seen items and feedback for each user |
                                   number of interaction for each user) for each feedback type.
+
+    - [rating_prediction]: returns a set of specifics attributes from dataset:
+            * dictionary with all interactions
+            * list with all users
+            * list with all items
+            * dictionary of all users interaction
+            * dictionary of all items interaction
+            * mean of rates
+
+    - [read_matrix]: returns a data matrix
 
 '''
 
@@ -130,3 +141,41 @@ class ReadFile(object):
                     self.average_scores[user] = self.average_scores.get(user, 0) + feedback
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
         return self.user_interactions, list_feedback
+
+    def rating_prediction(self):
+        d_feedback = dict()
+        list_users = set()
+        list_items = set()
+        dict_items = dict()
+        dict_users = dict()
+        mean_rates = 0
+        num_interactions = 0
+
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split("\t")
+                    num_interactions += 1
+                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                    d_feedback.setdefault(user, {}).update({item: feedback})
+                    dict_users.setdefault(user, set()).add(item)
+                    dict_items.setdefault(item, set()).add(user)
+                    list_users.add(user)
+                    list_items.add(item)
+                    mean_rates += feedback
+
+        mean_rates /= float(num_interactions)
+        list_users = sorted(list(list_users))
+        list_items = sorted(list(list_items))
+
+        return d_feedback, list_users, list_items, dict_users, dict_items, mean_rates
+
+    def read_matrix(self):
+        matrix = list()
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split("\t")
+                    inline = np.array(inline)
+                    matrix.append(inline.astype(float))
+        return np.array(matrix)

@@ -19,7 +19,7 @@ Methods:
 
 
 class WriteFile(object):
-    def __init__(self, file_write, data, space_type='\t'):
+    def __init__(self, file_write, data, space_type="\t"):
         self.file_write = file_write
         self.data = data
         self.space_type = space_type
@@ -87,8 +87,7 @@ class WriteFile(object):
 
     # This function can be used to item recommendation and rating prediction
     def write_prediction_file(self):
-        with open(self.file_write, 'w') as infile_write:
-            for user in self.data:
-                for item in user[1]:
-                    infile_write.write(str(user[0]) + self.space_type + str(item[0]) + self.space_type +
-                                       str(item[1]) + '\n')
+        self.data = sorted(self.data, key=lambda x: x[0])
+        with open(self.file_write, "w") as infile:
+            for t in self.data:
+                infile.write(str(t[0]) + self.space_type + str(t[1]) + self.space_type + str(t[2]) + "\n")
