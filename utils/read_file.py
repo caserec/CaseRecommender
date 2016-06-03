@@ -100,7 +100,7 @@ class ReadFile(object):
                 if line.strip():
                     inline = line.split(self.space_type)
                     self.number_interactions += 1
-                    user, item, feedback = int(inline[0]), int(inline[1]), inline[2]
+                    user, item, feedback = int(inline[0]), int(inline[1]), inline[2].replace("\n", "")
                     self.triple_dataset.append([user, item, feedback])
 
     def split_dataset(self):

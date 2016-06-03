@@ -12,22 +12,22 @@ text = '__________________________________________________________________\n' \
        '\n  [Case Recommender Instructions] Split Dataset  \n' \
        '__________________________________________________________________\n\n'\
        '\nCommand: \n' \
-       '\t python split_dataset.py \n' \
-       '\t\t Arguments:\n' \
-       '\t\t\t -h -> HELP\n' \
-       '\t\t\t -t or --split_type=  -> Values: CrossFoldValidation | SimpleSplit \n' \
-       '\t\t\t -f or --dataset=     -> Directory where will be writing the folds \n' \
-       '\t\t\t -n or --num_fold=    -> Number of folds \n' \
-       '\t\t\t -s or --space_type=  -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
-       '\t\t\t * IF -t CrossFoldValidation:\n' \
-       '\t\t\t\t -d or --dataset=     -> Dataset with directory [Accepts one file only] \n' \
-       '\t\t\t * IF -t SimpleSplit:\n' \
-       '\t\t\t\t -d or --dataset=     -> List of feedback types [Accepts one or more files in a list] \n' \
-       '\t\t\t\t -r or --test_ratio=  -> Percentage of interactions dedicated to test set [Default = 0.1 = 10%] \n' \
-       '\nExamples: \n ' \
-       '\t >> python split_dataset.py -t CrossFoldValidation -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
+       '  >> python split_dataset.py \n' \
+       '\nArguments:\n' \
+       '-h -> HELP\n' \
+       '-t or --split_type=  -> Values: CrossFoldValidation | SimpleSplit \n' \
+       '-f or --dataset=     -> Directory where will be writing the folds \n' \
+       '-n or --num_fold=    -> Number of folds \n' \
+       '-s or --space_type=  -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
+       '\nIF -t CrossFoldValidation :\n' \
+       '-d or --dataset=     -> Dataset with directory [Accepts one file only] \n' \
+       '\n IF -t SimpleSplit :\n' \
+       '-d or --dataset=     -> List of feedback types [Accepts one or more files in a list] \n' \
+       '-r or --test_ratio=  -> Percentage of interactions dedicated to test set [Default = 0.1 = 10%] \n' \
+       '\nExamples: \n' \
+       '  >> python split_dataset.py -t CrossFoldValidation -d home\\documents\\file.dat -f home\\documents\\ -n 5' \
        ' -s comma\n' \
-       '\t >> python split_dataset.py -t SimpleSplit -d "[home\\documents\\rate.dat, home\\documents\\rate.dat]" ' \
+       '  >> python split_dataset.py -t SimpleSplit -d "[home\\documents\\rate.dat, home\\documents\\rate.dat]" ' \
        '-f home\\documents\\ -n 5 -s comma -r 0.1\n'
 
 

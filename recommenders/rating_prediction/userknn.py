@@ -29,19 +29,17 @@ class UserKNN(BaseRatingPrediction):
 
     def calculate_similarity(self):
         self.du_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
-
         for u, user in enumerate(self.train.list_users):
             for v, user_v in enumerate(self.train.list_users[u+1:]):
-                sim = 1 - self.du_matrix[u][v]
-                if sim != 0 or sim < 0:
+                sim = 1 - self.du_matrix[u][v+1]
+                if sim != 0:
                     # Intersection between users
                     list_u = set(self.train.user_interactions[user])
                     list_v = set(self.train.user_interactions[user_v])
                     nuv = len(list_u & list_v)
                     suv = (float(nuv)/float(nuv + 100)) * sim
-                    self.du_matrix[u][v] = suv
-                    self.du_matrix[v][u] = suv
-
+                    self.du_matrix[u][v+1] = suv
+                    self.du_matrix[v+1][u] = suv
         del self.matrix
 
     def predict_items(self, user, user_interactions):

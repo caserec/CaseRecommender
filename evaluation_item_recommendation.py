@@ -11,38 +11,38 @@ text = '____________________________________________________________________\n' 
        '\n  [Case Recommender Instructions] Evaluation Item Recommendation  \n' \
        '____________________________________________________________________\n\n' \
        'Evaluation Metrics:\n' \
-       '\t - Precision at (Prec@N)\n' \
-       '\t - Mean Average Precision at (MAP@N)\n' \
-       '\t - Mean Average Precision (MAP) \n\n' \
-       '\t * Protocol All-but-one \n' \
+       '  - Precision at (Prec@N)\n' \
+       '  - Mean Average Precision at (MAP@N)\n' \
+       '  - Mean Average Precision (MAP) \n\n' \
+       ' * Protocol All-but-one \n' \
        '\nCommand: \n' \
-       '\t python evaluation_item_recommendation.py \n' \
-       '\t\t Arguments:\n' \
-       '\t\t\t -h -> HELP\n' \
-       '\t\t\t -e or --evaluation_type=  -> Values: SimpleEvaluation | AllButOne | FoldsEvaluation\n' \
-       '\t\t\t -s or --space_type=       -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
-       '\t\t\t -r or --n_rank=           -> Number of evaluation rank positions - Default Values: 1,3,5,10 \n' \
-       '\t\t\t * IF -e SimpleEvaluation and AllButOne:\n' \
-       '\t\t\t\t -p or --predict_file=   -> prediction file with its directory \n' \
-       '\t\t\t\t -t or --test_file=      -> test file with its directory \n' \
-       '\t\t\t * IF -e FoldsEvaluation:\n' \
-       '\t\t\t\t -p or --predict_file=   -> only prediction file name without its directory \n' \
-       '\t\t\t\t -t or --test_file=      -> only test file name without its directory \n' \
-       '\t\t\t\t -d or --dir_fold=       -> folds directory \n' \
-       '\t\t\t\t -n or --num_fold=       -> number of folds - Default Value: 10\n' \
-       '\t\t\t\t -c or --type_fold_evaluation= -> Values: SimpleEvaluation | AllButOne' \
+       '  >> python evaluation_item_recommendation.py \n' \
+       '\nArguments:\n' \
+       '  -h -> HELP\n' \
+       '  -e or --evaluation_type=  -> Values: SimpleEvaluation | AllButOne | FoldsEvaluation\n' \
+       '  -s or --space_type=       -> Values: tabulation | comma | dot - Default Value: tabulation \n' \
+       '  -r or --n_rank=           -> Number of evaluation rank positions - Default Values: 1,3,5,10 \n' \
+       '\nIF -e SimpleEvaluation and AllButOne:\n' \
+       '  -p or --predict_file=   -> prediction file with its directory \n' \
+       '  -t or --test_file=      -> test file with its directory \n' \
+       '\nIF -e FoldsEvaluation:\n' \
+       '  -p or --predict_file=   -> only prediction file name without its directory \n' \
+       '  -t or --test_file=      -> only test file name without its directory \n' \
+       '  -d or --dir_fold=       -> folds directory \n' \
+       '  -n or --num_fold=       -> number of folds - Default Value: 10\n' \
+       '  -c or --type_fold_evaluation= -> Values: SimpleEvaluation | AllButOne' \
        ' - Default Value: SimpleEvaluation \n' \
-       '\nExamples: \n ' \
-       '\t >> python evaluation_item_recommendation.py -e SimpleEvaluation -p home\\documents\\file.dat' \
+       '\nExamples: \n' \
+       '  >> python evaluation_item_recommendation.py -e SimpleEvaluation -p home\\documents\\file.dat' \
        '-t home\\documents\\test.dat -r 5,10\n' \
-       '\t >> python evaluation_item_recommendation.py -e AllButOne -p home\\documents\\file.dat' \
+       '  >> python evaluation_item_recommendation.py -e AllButOne -p home\\documents\\file.dat' \
        '-t home\\documents\\test.dat -r 5,10 -s comma \n' \
-       '\t >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 5 -c AllButOne ' \
+       '  >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 5 -c AllButOne ' \
        '-p file.dat -t test.dat -r 5,10 -s comma \n' \
-       '\t >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 10 ' \
+       '  >> python evaluation_item_recommendation.py -e FoldsEvaluation -d home\\documents\\ -n 10 ' \
        '-p file.dat -t test.dat -r 3,5,10 -s dot \n' \
        '\nDetails: \n' \
-       '\t * In -r or --n_rank do not put space between commas. Wrong: -r 1, 3, 10 | Correct: 1,3,10\n'
+       '  * In -r or --n_rank do not put space between commas. Wrong: -r 1, 3, 10 | Correct: 1,3,10\n'
 
 
 def main(argv):
@@ -97,12 +97,11 @@ def main(argv):
                 new_list.append(int(n))
             n_rank = new_list
 
-    print("\n[Case Recommender - Evaluation Item Recommendation]")
-    print "Evaluation type: ", evaluation_type
-    print "Predict file: ", predict_file
-    print "Test file: ", test_file
-
     if evaluation_type == "SimpleEvaluation":
+        print("\n[Case Recommender - Evaluation Item Recommendation]")
+        print "Evaluation type: ", evaluation_type
+        print "Predict file: ", predict_file
+        print "Test file: ", test_file
         print("Top Rank: " + str(n_rank) + "\n")
         starting_point = time.time()
         result = ItemRecommendationEvaluation(space_type)
@@ -121,6 +120,10 @@ def main(argv):
         print("\n")
 
     elif evaluation_type == "AllButOne":
+        print("\n[Case Recommender - Evaluation Item Recommendation]")
+        print "Evaluation type: ", evaluation_type
+        print "Predict file: ", predict_file
+        print "Test file: ", test_file
         print("Top Rank: " + str(n_rank) + "\n")
         starting_point = time.time()
         result = ItemRecommendationEvaluation(space_type)
@@ -140,6 +143,10 @@ def main(argv):
         print("\n")
 
     elif evaluation_type == "FoldsEvaluation":
+        print("\n[Case Recommender - Evaluation Item Recommendation]")
+        print "Evaluation type: ", evaluation_type
+        print "Predict file: ", predict_file
+        print "Test file: ", test_file
         print("Folds Path: " + str(dir_fold))
         print("Number of Folds: " + str(num_fold))
         if tfe == '':
@@ -167,8 +174,11 @@ def main(argv):
             print("STD: " + str(res[1]))
         print("\n")
 
+    elif evaluation_type == "":
+        print(text)
+
     else:
-        print('Error: Invalid evaluation type!')
+        print('\nError: Invalid evaluation type!\n')
         print(text)
         sys.exit()
 

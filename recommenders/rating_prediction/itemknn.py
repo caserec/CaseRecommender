@@ -37,9 +37,8 @@ class ItemKNN(BaseRatingPrediction):
                 b = list(self.train.item_interactions.get(item_i, {}))
                 c = list(self.train.item_interactions.get(item_j, {}))
                 nij = len(filter(set(b).__contains__, c))
-
-                self.di_matrix[i][j] *= (float(nij)/float(nij + 100))
-                self.di_matrix[j][i] = self.di_matrix[i][j]
+                self.di_matrix[i][j+1] *= (float(nij)/float(nij + 100))
+                self.di_matrix[j+1][i] = self.di_matrix[i][j+1]
 
         del self.matrix
 

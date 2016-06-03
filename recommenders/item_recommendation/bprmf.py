@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 
 """
@@ -10,7 +9,7 @@ BPR MF Algorithm
 
 
 class BprMF(object):
-    def __init__(self, input_file, output_file, factors=10, learn_rate=0.05):
+    def __init__(self, input_file, output_file, factors=10, learn_rate=0.05, predict_items_number=10):
         # external vars
         self.input_file = input_file
         self.output_file = output_file
@@ -22,6 +21,7 @@ class BprMF(object):
         self.reg_i = 0.0025
         self.reg_j = 0.00025
         self.learn_rate = learn_rate
+        self.predict_items_number = predict_items_number
 
         # internal vars
         self.list_users = set()
@@ -31,12 +31,15 @@ class BprMF(object):
         self.users_factors = dict()
         self.items_factors = dict()
         self.bias = dict()
+        self.ranking_final = list()
+        self.ranking_triple = list()
 
         # called methods
-        self.read_file()
-        self.create_factors()
-        self.train()
-        self.predict()
+        # self.read_file()
+        # self.create_factors()
+        # self.train()
+        # self.predict()
+        # self.write_results()
 
     def read_file(self):
         with open(self.input_file) as infile:
@@ -103,7 +106,6 @@ class BprMF(object):
                 self.update_factors(user, item_i, item_j)
 
     def predict(self):
-        ranking_final = list()
         for user in self.list_users:
             list_ranking = list()
             for item in self.dict_user_non_seen_items[user]:
@@ -111,9 +113,10 @@ class BprMF(object):
                     np.array(self.users_factors[user]) * np.array(self.items_factors[item]))
                 list_ranking.append([item, score])
             list_ranking = sorted(list_ranking, key=lambda x: x[1], reverse=True)
-            ranking_final.append(list_ranking[:10])
+            self.ranking_final.append(list_ranking[:10])
 
+    def write_results(self):
         with open(self.output_file, "w") as infile_write:
             for u, user in enumerate(self.list_users):
-                for pair in ranking_final[u][:10]:
+                for pair in self.ranking_final[u][:self.predict_items_number]:
                     infile_write.write(str(user) + "\t" + str(pair[0]) + "\t" + str(pair[1]) + "\n")
