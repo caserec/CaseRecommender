@@ -1,29 +1,28 @@
 # coding=utf-8
-from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_KNN_recommenders import BaseKNNRecommenders
-import numpy as np
+from utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 
 '''
 
-User-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm matches similar
-users based on the similarity of their ratings on items.
+User-Attribute-kNN predicts a user’s rating according to how similar users rated the same item.
+The algorithm matches similar users based on the similarity of their attributes scores.
 
 More details: http://files.grouplens.org/papers/algs.pdf
 
 '''
 
 
-class UserKNN(BaseKNNRecommenders):
-    def __init__(self, train_set, test_set, similarity_metric="correlation", neighbors=30):
+class UserAttributeKNN(BaseKNNRecommenders):
+    def __init__(self, train_set, test_set, distance_matrix_file, similarity_metric="correlation", neighbors=30):
         BaseKNNRecommenders.__init__(self, train_set, test_set)
+        self.distance_matrix_file = distance_matrix_file
         self.k = neighbors
         self.similarity_metric = similarity_metric
         self.predictions = list()
 
-        self.du_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
-        self.du_matrix = 1 - self.du_matrix
+        self.du_matrix = ReadFile(self.distance_matrix_file).read_matrix()
         del self.matrix
 
         # methods

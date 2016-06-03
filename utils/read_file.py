@@ -30,7 +30,7 @@ Methods:
                        users interactions (dictionary with seen items and feedback for each user |
                                   number of interaction for each user) for each feedback type.
 
-    - [rating_prediction]: returns a set of specifics attributes from dataset:
+    - [rating_prediction]: returns a set of specifics attributes from dataset in a dictionary:
             * dictionary with all interactions
             * list with all users
             * list with all items
@@ -143,6 +143,7 @@ class ReadFile(object):
         return self.user_interactions, list_feedback
 
     def rating_prediction(self):
+        dict_file = dict()
         d_feedback = dict()
         list_users = set()
         list_items = set()
@@ -167,8 +168,10 @@ class ReadFile(object):
         mean_rates /= float(num_interactions)
         list_users = sorted(list(list_users))
         list_items = sorted(list(list_items))
+        dict_file.update({'feedback': d_feedback, 'users': list_users, 'items': list_items, 'du': dict_users,
+                          'di': dict_items, 'mean_rates': mean_rates})
 
-        return d_feedback, list_users, list_items, dict_users, dict_items, mean_rates
+        return dict_file
 
     def read_matrix(self):
         matrix = list()

@@ -1,7 +1,6 @@
 # coding=utf-8
-from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_KNN_recommenders import BaseKNNRecommenders
-import numpy as np
+from utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 
@@ -15,15 +14,15 @@ More details: http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOn
 '''
 
 
-class ItemKNN(BaseKNNRecommenders):
-    def __init__(self, train_set, test_set, similarity_metric="correlation", neighbors=30):
+class ItemAttributeKNN(BaseKNNRecommenders):
+    def __init__(self, train_set, test_set, distance_matrix_file, similarity_metric="correlation", neighbors=30):
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
+        self.distance_matrix_file = distance_matrix_file
         self.similarity_metric = similarity_metric
         self.predictions = list()
 
-        self.di_matrix = np.float32(squareform(pdist(self.matrix.T, self.similarity_metric)))
-        self.di_matrix = 1 - self.di_matrix
+        self.di_matrix = ReadFile(self.distance_matrix_file).read_matrix()
         del self.matrix
 
         # methods
