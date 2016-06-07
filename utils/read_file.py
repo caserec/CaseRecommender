@@ -147,6 +147,7 @@ class ReadFile(object):
         d_feedback = dict()
         list_users = set()
         list_items = set()
+        list_feedback = list()
         dict_items = dict()
         dict_users = dict()
         mean_rates = 0
@@ -159,17 +160,20 @@ class ReadFile(object):
                     num_interactions += 1
                     user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
                     d_feedback.setdefault(user, {}).update({item: feedback})
+                    list_feedback.append((user, item, feedback))
                     dict_users.setdefault(user, set()).add(item)
                     dict_items.setdefault(item, set()).add(user)
                     list_users.add(user)
                     list_items.add(item)
                     mean_rates += feedback
 
+        list_feedback = sorted(list_feedback)
         mean_rates /= float(num_interactions)
         list_users = sorted(list(list_users))
         list_items = sorted(list(list_items))
         dict_file.update({'feedback': d_feedback, 'users': list_users, 'items': list_items, 'du': dict_users,
-                          'di': dict_items, 'mean_rates': mean_rates})
+                          'di': dict_items, 'mean_rates': mean_rates, 'list_feedback': list_feedback,
+                          'ni': num_interactions})
 
         return dict_file
 

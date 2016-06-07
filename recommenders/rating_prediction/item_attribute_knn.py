@@ -1,4 +1,6 @@
 # coding=utf-8
+import time
+
 from recommenders.rating_prediction.base_KNN_recommenders import BaseKNNRecommenders
 from utils.read_file import ReadFile
 
@@ -15,19 +17,24 @@ More details: http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOn
 
 
 class ItemAttributeKNN(BaseKNNRecommenders):
-    def __init__(self, train_set, test_set, distance_matrix_file, similarity_metric="correlation", neighbors=30):
+    def __init__(self, train_set, test_set, distance_matrix_file, neighbors=30):
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
         self.distance_matrix_file = distance_matrix_file
-        self.similarity_metric = similarity_metric
         self.predictions = list()
 
         self.di_matrix = ReadFile(self.distance_matrix_file).read_matrix()
         del self.matrix
 
         # methods
+        starting_point = time.time()
         self.train_baselines()
+        elapsed_time = time.time() - starting_point
+        print("- Training time: " + str(elapsed_time) + " second(s)")
+        starting_point = time.time()
         self.predict()
+        elapsed_time = time.time() - starting_point
+        print("- Prediction time: " + str(elapsed_time) + " second(s)")
 
     def predict(self):
         if self.test is not None:

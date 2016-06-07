@@ -40,6 +40,26 @@ class RatingPredictionEvaluation(object):
 
         return rmse, mae
 
+    def evaluation(self, predictions, test_set):
+        rmse = 0
+        mae = 0
+        count_comp = 0
+
+        for p in predictions:
+            try:
+                user, item, rui_predict = p[0], p[1], p[2]
+                rui_test = float(test_set["feedback"][user][item])
+                rmse += math.pow((rui_predict - rui_test), 2)
+                mae += math.fabs(rui_predict - rui_test)
+                count_comp += 1
+            except KeyError:
+                pass
+        if count_comp != 0:
+            rmse = math.sqrt(float(rmse) / float(count_comp))
+            mae = math.sqrt(float(mae) / float(count_comp))
+
+        return rmse, mae
+
     def folds_evaluation(self, folds_dir, n_folds, name_prediction, name_test):
         list_rmse = list()
         list_mae = list()

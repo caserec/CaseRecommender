@@ -1,4 +1,5 @@
 # coding=utf-8
+import time
 from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_KNN_recommenders import BaseKNNRecommenders
 import numpy as np
@@ -27,8 +28,14 @@ class ItemKNN(BaseKNNRecommenders):
         del self.matrix
 
         # methods
+        starting_point = time.time()
         self.train_baselines()
+        elapsed_time = time.time() - starting_point
+        print("- Training time: " + str(elapsed_time) + " second(s)")
+        starting_point = time.time()
         self.predict()
+        elapsed_time = time.time() - starting_point
+        print("- Prediction time: " + str(elapsed_time) + " second(s)")
 
     def predict(self):
         if self.test is not None:
