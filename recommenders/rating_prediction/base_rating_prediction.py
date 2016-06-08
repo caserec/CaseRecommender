@@ -50,7 +50,7 @@ class RatingPrediction(object):
         elif self.recommender.lower() == "mvlrec":
             print("\n[MVLrec]")
             self.predictions = MVLrec(self.train_set, self.test_set, percent=0.8, recommender1="itemknn",
-                                      recommender2="userknn", times=10, k=1000)
+                                      recommender2="userknn", times=19, k=1000)
         else:
             print("Error: Invalid Recommender!")
 
