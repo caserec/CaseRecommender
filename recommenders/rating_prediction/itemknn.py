@@ -18,6 +18,8 @@ More details: http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOn
 
 class ItemKNN(BaseKNNRecommenders):
     def __init__(self, train_set, test_set, similarity_metric="correlation", neighbors=30):
+        print("\n[ItemKNN] Number of Neighbors: " + str(neighbors) + " | "
+                                                                     "Similarity Metric: " + str(similarity_metric))
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
         self.similarity_metric = similarity_metric

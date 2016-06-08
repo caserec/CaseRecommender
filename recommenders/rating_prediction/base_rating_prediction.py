@@ -13,7 +13,7 @@ from utils.write_file import WriteFile
 
 
 class RatingPrediction(object):
-    def __init__(self, train_file, recommender, test_file=None, prediction_file=None, similarity_metric="correlation",
+    def __init__(self, train_file, test_file, recommender, prediction_file=None, similarity_metric="correlation",
                  neighbors=30, distance_matrix=None, space_type="\t"):
         self.recommender = str(recommender)
         self.predictions = list()
@@ -30,24 +30,18 @@ class RatingPrediction(object):
             self.test_set = None
 
         if self.recommender.lower() == "userknn":
-            print("\n[UserKNN] Number of Neighbors: " + str(neighbors) + " | "
-                                                                       "Similarity Metric: " + str(similarity_metric))
             self.predictions = UserKNN(self.train_set, self.test_set, similarity_metric=similarity_metric,
                                        neighbors=neighbors)
         elif self.recommender.lower() == "itemknn":
-            print("\n[ItemKNN] Number of Neighbors: " + str(neighbors) + " | "
-                                                                       "Similarity Metric: " + str(similarity_metric))
             self.predictions = ItemKNN(self.train_set, self.test_set, similarity_metric=similarity_metric,
                                        neighbors=neighbors)
         elif self.recommender.lower() == "itemattributeknn":
-            print("\n[ItemAttributeKNN] Number of Neighbors: " + str(neighbors))
             if distance_matrix is not None:
                 self.predictions = ItemAttributeKNN(self.train_set, self.test_set,
                                                     neighbors=neighbors, distance_matrix_file=distance_matrix)
             else:
                 print("Error: Invalid Distance Matrix File!")
         elif self.recommender.lower() == "userattributeknn":
-            print("\n[UserAttributeKNN] Number of Neighbors: " + str(neighbors))
             if distance_matrix is not None:
                 self.predictions = UserAttributeKNN(self.train_set, self.test_set, neighbors=neighbors,
                                                     distance_matrix_file=distance_matrix)
@@ -55,22 +49,26 @@ class RatingPrediction(object):
                 print("Error: Invalid Distance Matrix File!")
         elif self.recommender.lower() == "mvlrec":
             print("\n[MVLrec]")
-            self.predictions = MVLrec(self.train_set, percent=0.2, recommender1="itemknn", recommender2="userknn",
-                                      times=20, k=1000)
+            self.predictions = MVLrec(self.train_set, self.test_set, percent=0.8, recommender1="itemknn",
+                                      recommender2="userknn", times=10, k=1000)
         else:
             print("Error: Invalid Recommender!")
 
-        if self.predictions:
-            if prediction_file is not None:
-                WriteFile(prediction_file, self.predictions.predictions, space_type)
-            rmse, mae = RatingPredictionEvaluation().evaluation(self.predictions.predictions, self.test_set)
-            print("RMSE: " + str(rmse) + " MAE: " + str(mae) + "\n")
+        if self.predictions.predictions:
+            if type(self.predictions.predictions) is list:
+                if prediction_file is not None:
+                    WriteFile(prediction_file, self.predictions.predictions, space_type)
+                rmse, mae = RatingPredictionEvaluation().evaluation(self.predictions.predictions, self.test_set)
+                print("RMSE: " + str(rmse) + " MAE: " + str(mae) + "\n")
+            elif type(self.predictions.predictions) is dict:
+                print("\n")
+                for d in self.predictions.predictions:
+                    print("[" + d + "]")
+                    for p in self.predictions.predictions[d]:
+                        rmse, mae = RatingPredictionEvaluation().evaluation(p[1], self.test_set)
+                        print("[" + p[0] + "] RMSE: " + str(rmse) + " MAE: " + str(mae))
         else:
             print("Error: No predictions!")
 
 RatingPrediction("C:/Users/Arthur/OneDrive/ml100k/folds/0/train.dat",
-                 test_file="C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat", recommender="userknn")
-
-#
-# RatingPrediction("C:/Users/Arthur/OneDrive/ml100k/folds/0/train.dat",
-#                  test_file="C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat", recommender="itemknn")
+                 "C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat", recommender="mvlrec")

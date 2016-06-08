@@ -18,7 +18,9 @@ More details: http://files.grouplens.org/papers/algs.pdf
 
 class UserKNN(BaseKNNRecommenders):
     def __init__(self, train_set, test_set, similarity_metric="correlation", neighbors=30):
-        starting_point = time.time()
+        print("\n[UserKNN] Number of Neighbors: " + str(neighbors) + " | "
+                                                                     "Similarity Metric: " + str(similarity_metric))
+
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
         self.similarity_metric = similarity_metric

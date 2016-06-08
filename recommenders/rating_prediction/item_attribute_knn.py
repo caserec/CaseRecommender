@@ -18,6 +18,7 @@ More details: http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOn
 
 class ItemAttributeKNN(BaseKNNRecommenders):
     def __init__(self, train_set, test_set, distance_matrix_file, neighbors=30):
+        print("\n[ItemAttributeKNN] Number of Neighbors: " + str(neighbors))
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
         self.distance_matrix_file = distance_matrix_file

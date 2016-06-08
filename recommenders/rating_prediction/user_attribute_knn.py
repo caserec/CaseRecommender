@@ -18,6 +18,7 @@ More details: http://files.grouplens.org/papers/algs.pdf
 
 class UserAttributeKNN(BaseKNNRecommenders):
     def __init__(self, train_set, test_set, distance_matrix_file, neighbors=30):
+        print("\n[UserAttributeKNN] Number of Neighbors: " + str(neighbors))
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.distance_matrix_file = distance_matrix_file
         self.k = neighbors
