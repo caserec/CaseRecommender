@@ -74,7 +74,7 @@ class MatrixFactorization(object):
                     self.p[u] += self.gamma * delta_u
                     self.q[self.map_items[item]] += self.gamma * delta_i
 
-            rmse = np.sqrt(error_final / self.train["ni"])
+            # rmse = np.sqrt(error_final / self.train["ni"])
             # print rmse
 
         self.final_matrix = np.dot(self.p, self.q.T)
