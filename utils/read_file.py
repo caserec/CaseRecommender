@@ -50,13 +50,14 @@ class ReadFile(object):
         self.list_users = set()
         self.list_items = set()
         self.number_interactions = 0
-        self.user_interactions = dict()
-        self.item_interactions = dict()
+        self.dict_users = dict()
+        self.dict_items = dict()
         self.num_user_interactions = dict()
         self.num_items_interactions = dict()
         self.triple_dataset = list()
         self.individual_interaction = list()
         self.average_scores = dict()
+        self.mean_feedback = 0
 
     def main_information(self):
         check_error_file(self.file_read)
@@ -73,8 +74,8 @@ class ReadFile(object):
 
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
                     self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
-                    self.user_interactions.setdefault(user, {}).update({item: feedback})
-                    self.item_interactions.setdefault(item, {}).update({user: feedback})
+                    self.dict_users.setdefault(user, {}).update({item: feedback})
+                    self.dict_items.setdefault(item, {}).update({user: feedback})
                     self.list_users.add(user)
                     self.list_items.add(item)
                     self.number_interactions += 1
@@ -99,7 +100,7 @@ class ReadFile(object):
                     self.num_items_interactions[item] = self.num_items_interactions.get(item, 0) + 1
                     self.list_users.add(user)
                     self.list_items.add(item)
-                    self.user_interactions.setdefault(user, []).append(item)
+                    self.dict_users.setdefault(user, []).append(item)
 
         self.list_users = sorted(self.list_users)
         self.list_items = sorted(self.list_items)
@@ -116,7 +117,7 @@ class ReadFile(object):
 
     def split_dataset(self):
         for i, feedback in enumerate(self.file_read):
-            self.user_interactions = dict()
+            self.dict_users = dict()
             check_error_file(feedback)
             with open(feedback) as infile:
                 for line in infile:
@@ -125,8 +126,8 @@ class ReadFile(object):
                         self.number_interactions += 1
                         user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
                         self.triple_dataset.append((user, item))
-                        self.user_interactions.setdefault(user, {}).update({item: feedback})
-            self.individual_interaction.append(self.user_interactions)
+                        self.dict_users.setdefault(user, {}).update({item: feedback})
+            self.individual_interaction.append(self.dict_users)
 
     def read_rankings(self):
         list_feedback = list()
@@ -136,44 +137,40 @@ class ReadFile(object):
                 if line.strip():
                     inline = line.split(self.space_type)
                     user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
-                    self.user_interactions.setdefault(user, {}).update({item: feedback})
+                    self.dict_users.setdefault(user, {}).update({item: feedback})
                     list_feedback.append(feedback)
                     self.average_scores[user] = self.average_scores.get(user, 0) + feedback
                     self.num_user_interactions[user] = self.num_user_interactions.get(user, 0) + 1
-        return self.user_interactions, list_feedback
+        return self.dict_users, list_feedback
 
     def rating_prediction(self):
         dict_file = dict()
         d_feedback = dict()
-        list_users = set()
-        list_items = set()
         list_feedback = list()
-        dict_items = dict()
-        dict_users = dict()
-        mean_rates = 0
-        num_interactions = 0
 
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
                     inline = line.split("\t")
-                    num_interactions += 1
+                    self.number_interactions += 1
                     user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
                     d_feedback.setdefault(user, {}).update({item: feedback})
-                    list_feedback.append((user, item, feedback))
-                    dict_users.setdefault(user, set()).add(item)
-                    dict_items.setdefault(item, set()).add(user)
-                    list_users.add(user)
-                    list_items.add(item)
-                    mean_rates += feedback
+                    self.triple_dataset.append((user, item, feedback))
+                    self.dict_users.setdefault(user, set()).add(item)
+                    self.dict_items.setdefault(item, set()).add(user)
+                    self.list_users.add(user)
+                    self.list_items.add(item)
+                    self.mean_feedback += feedback
+                    list_feedback.append(feedback)
 
-        list_feedback = sorted(list_feedback)
-        mean_rates /= float(num_interactions)
-        list_users = sorted(list(list_users))
-        list_items = sorted(list(list_items))
-        dict_file.update({'feedback': d_feedback, 'users': list_users, 'items': list_items, 'du': dict_users,
-                          'di': dict_items, 'mean_rates': mean_rates, 'list_feedback': list_feedback,
-                          'ni': num_interactions})
+        self.triple_dataset = sorted(self.triple_dataset)
+        self.mean_feedback /= float(self.number_interactions)
+        self.list_users = sorted(list(self.list_users))
+        self.list_items = sorted(list(self.list_items))
+        dict_file.update({'feedback': d_feedback, 'users': self.list_users, 'items': self.list_items,
+                          'du': self.dict_users, 'di': self.dict_items, 'mean_rates': self.mean_feedback,
+                          'list_feedback': self.triple_dataset, 'ni': self.number_interactions,
+                          'max': max(list_feedback), 'min': min(list_feedback)})
 
         return dict_file
 
@@ -182,7 +179,31 @@ class ReadFile(object):
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
-                    inline = line.split("\t")
+                    inline = line.split(self.space_type)
                     inline = np.array(inline)
                     matrix.append(inline.astype(float))
         return np.array(matrix)
+
+    def ensemble(self):
+        dict_info = dict()
+
+        for r, rank_file in enumerate(self.file_read):
+            self.list_users = set()
+            self.dict_users = dict()
+            with open(rank_file) as infile:
+                for line in infile:
+                    if line.strip():
+                        inline = line.split(self.space_type)
+                        user, item, score = int(inline[0]), int(inline[1]), float(inline[2])
+                        self.list_users.add(user)
+                        self.dict_users.setdefault(user, list()).append([user, item, score])
+
+            self.list_users = sorted(self.list_users)
+            for user in self.list_users:
+                n_rank = len(self.dict_users[user])
+                for i, triple in enumerate(self.dict_users[user]):
+                    self.dict_users[user][i][2] = n_rank - i
+
+            dict_info.setdefault(r, dict()).update({"rank": self.dict_users, "users": self.list_users})
+
+        return dict_info

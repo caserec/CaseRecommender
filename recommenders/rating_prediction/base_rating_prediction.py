@@ -5,6 +5,7 @@
 from evaluation.rating_prediction import RatingPredictionEvaluation
 from recommenders.rating_prediction.item_attribute_knn import ItemAttributeKNN
 from recommenders.rating_prediction.itemknn import ItemKNN
+from recommenders.rating_prediction.matrixfactorization import MatrixFactorization
 from recommenders.rating_prediction.mvlrec import MVLrec
 from recommenders.rating_prediction.user_attribute_knn import UserAttributeKNN
 from recommenders.rating_prediction.userknn import UserKNN
@@ -51,13 +52,15 @@ class RatingPrediction(object):
             print("\n[MVLrec]")
             self.predictions = MVLrec(self.train_set, self.test_set, percent=0.8, recommender1="itemknn",
                                       recommender2="userknn", times=19, k=1000)
+        elif self.recommender.lower() == "matrixfactorization":
+            self.predictions = MatrixFactorization(self.train_set, self.test_set)
         else:
             print("Error: Invalid Recommender!")
 
         if self.predictions.predictions:
             if type(self.predictions.predictions) is list:
                 if prediction_file is not None:
-                    WriteFile(prediction_file, self.predictions.predictions, space_type)
+                    WriteFile(prediction_file, self.predictions.predictions, space_type).write_prediction_file()
                 rmse, mae = RatingPredictionEvaluation().evaluation(self.predictions.predictions, self.test_set)
                 print("RMSE: " + str(rmse) + " MAE: " + str(mae) + "\n")
             elif type(self.predictions.predictions) is dict:
@@ -71,4 +74,5 @@ class RatingPrediction(object):
             print("Error: No predictions!")
 
 RatingPrediction("C:/Users/Arthur/OneDrive/ml100k/folds/0/train.dat",
-                 "C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat", recommender="mvlrec")
+                 "C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat", recommender="matrixfactorization",
+                 prediction_file="C:/Users/Arthur/OneDrive/ml100k/folds/0/p.dat")

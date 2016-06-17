@@ -35,24 +35,23 @@ class ItemRecommendationEvaluation(object):
             avg_prec_total = list()
 
             for user in test.list_users:
-                num_user_interactions = len(test.user_interactions[user])
                 hit_cont = 0
                 avg_prec_sum = 0
 
                 try:
                     # Generate user intersection list between the recommended items and test.
-                    intersection = list(set(predict.user_interactions[user][:n]).intersection(
-                        set(test.user_interactions[user])))
+                    intersection = list(set(predict.dict_users[user][:n]).intersection(
+                        set(test.dict_users[user])))
 
                     if len(intersection) > 0:
                         partial_precision.append((float(len(intersection)) / float(n)))
-                        partial_recall.append((float(len(intersection)) / float(num_user_interactions)))
+                        partial_recall.append((float(len(intersection)) / float(test.num_user_interactions[user])))
 
                         for item in intersection:
                             hit_cont += 1
-                            avg_prec_sum += (float(hit_cont) / float(test.user_interactions[user].index(item) + 1))
+                            avg_prec_sum += (float(hit_cont) / float(test.dict_users[user].index(item) + 1))
 
-                        avg_prec_total.append(float(avg_prec_sum) / float(num_user_interactions))
+                        avg_prec_total.append(float(avg_prec_sum) / float(test.num_user_interactions[user]))
 
                 except KeyError:
                     pass
@@ -80,7 +79,7 @@ class ItemRecommendationEvaluation(object):
         final_values = list()
 
         for user in test.list_users:
-            test.user_interactions[user] = [test.user_interactions[user][0]]
+            test.dict_users[user] = [test.dict_users[user][0]]
 
         for i, n in enumerate(n_ranks):
             if n < 1:
@@ -92,14 +91,14 @@ class ItemRecommendationEvaluation(object):
             avg_prec_total = list()
 
             for user in test.list_users:
-                num_user_interactions = len(test.user_interactions[user])
+                num_user_interactions = len(test.dict_users[user])
                 hit_cont = 0
                 avg_prec_sum = 0
 
                 try:
                     # Generate user intersection list between the recommended items and test.
-                    intersection = list(set(predict.user_interactions[user][:n]).intersection(
-                        set(test.user_interactions[user])))
+                    intersection = list(set(predict.dict_users[user][:n]).intersection(
+                        set(test.dict_users[user])))
 
                     if len(intersection) > 0:
                         partial_precision.append((float(len(intersection)) / float(n)))
@@ -107,7 +106,7 @@ class ItemRecommendationEvaluation(object):
 
                         for item in intersection:
                             hit_cont += 1
-                            avg_prec_sum += (float(hit_cont) / float(test.user_interactions[user].index(item) + 1))
+                            avg_prec_sum += (float(hit_cont) / float(test.dict_users[user].index(item) + 1))
 
                         avg_prec_total.append(float(avg_prec_sum) / float(num_user_interactions))
 
@@ -125,7 +124,7 @@ class ItemRecommendationEvaluation(object):
         return final_values
 
     def folds_evaluation(self, folds_dir, n_folds, name_prediction, name_test, type_recommendation="SimpleEvaluation",
-                         n_ranks=list([1, 3, 5, 10]), no_desviation=False):
+                         n_ranks=list([1, 3, 5, 10]), no_deviation=False):
         result = list()
         list_results = list()
 
@@ -145,7 +144,7 @@ class ItemRecommendationEvaluation(object):
             list_partial = list()
             for j in xrange(n_folds):
                 list_partial.append(result[j][i])
-            if no_desviation:
+            if no_deviation:
                 list_results.append(list_partial)
             else:
                 list_results.append([np.mean(list_partial), np.std(list_partial)])

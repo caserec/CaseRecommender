@@ -24,10 +24,10 @@ class RatingPredictionEvaluation(object):
         mae = 0
         count_comp = 0
         for user in test.list_users:
-            for item in test.user_interactions[user]:
+            for item in test.dict_users[user]:
                 try:
-                    rui_predict = float(predict.user_interactions[user][item])
-                    rui_test = float(test.user_interactions[user][item])
+                    rui_predict = float(predict.dict_users[user][item])
+                    rui_test = float(test.dict_users[user][item])
                     rmse += math.pow((rui_predict - rui_test), 2)
                     mae += math.fabs(rui_predict - rui_test)
                     count_comp += 1

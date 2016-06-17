@@ -3,7 +3,10 @@
     test
 
 """
-from random import shuffle
+from random import shuffle, sample
+
+import math
+
 from recommenders.rating_prediction.itemknn import ItemKNN
 from recommenders.rating_prediction.userknn import UserKNN
 
@@ -56,14 +59,21 @@ class MVLrec(object):
 
             if self.rec_1["unlabeled"] == [] and self.rec_2["unlabeled"] == []:
                 break
+            else:
+                print len(self.rec_1["unlabeled"]), len(self.rec_2["unlabeled"])
 
     def update_labeled_set(self, labeled, unlabeled, di):
         confidence_list = list()
         new_labeled = list()
 
-        for p in unlabeled:
+        new_unlabeled = unlabeled
+        sample(new_unlabeled, int(len(new_labeled)*0.7))
+        lab = return_list_info(labeled)
+
+        for p in new_unlabeled:
             user, item, feedback = p[0], p[1], p[2]
-            confidence = (di["users"][user] * di["items"][item]) / float(di["count"])
+            error = (math.fabs(lab["mu"][user] - feedback) + math.fabs(lab["mi"][item] - feedback)) / 10.0
+            confidence = (di["users"][user] * di["items"][item]) / float(di["count"]) - error
             confidence_list.append((user, item, feedback, confidence))
         confidence_list = sorted(confidence_list, key=lambda x: -x[3])
 
@@ -154,18 +164,28 @@ def recommender(type_recommender, train_set, test_set):
 
 def return_list_info(list_info):
     dict_info = {"users": dict(), "items": dict(), "count": 0, "feedback": dict(), "du": dict(), "di": dict(),
-                 "mean_rates": 0, "list_feedback": list()}
+                 "mean_rates": 0, "list_feedback": list(), "mu": dict(), "mi": dict()}
+    lu = set()
+    li = set()
 
     for triple in list_info:
         user, item, feedback = triple[0], triple[1], triple[2]
+        li.add(item)
+        lu.add(user)
         dict_info["list_feedback"].append([user, item])
         dict_info["count"] += 1
         dict_info["users"][user] = dict_info['users'].get(user, 0) + 1
         dict_info["items"][item] = dict_info['items'].get(item, 0) + 1
+        dict_info["mu"][user] = dict_info['mu'].get(user, 0) + feedback
+        dict_info["mi"][item] = dict_info['mi'].get(item, 0) + feedback
         dict_info["mean_rates"] += feedback
         dict_info["feedback"].setdefault(user, {}).update({item: feedback})
         dict_info["du"].setdefault(user, set()).add(item)
         dict_info["di"].setdefault(item, set()).add(user)
 
     dict_info["mean_rates"] /= dict_info["count"]
+    for u in lu:
+        dict_info["mu"][u] /= dict_info["users"][u]
+    for i in li:
+        dict_info["mi"][i] /= dict_info["items"][i]
     return dict_info

@@ -91,3 +91,9 @@ class WriteFile(object):
         with open(self.file_write, "w") as infile:
             for t in self.data:
                 infile.write(str(t[0]) + self.space_type + str(t[1]) + self.space_type + str(t[2]) + "\n")
+
+    def write_ensemble(self, list_users):
+        with open(self.file_write, "w") as infile:
+            for user in list_users:
+                for t in self.data[user]:
+                    infile.write(str(user) + self.space_type + str(t[0]) + self.space_type + str(t[1]) + "\n")
