@@ -13,11 +13,11 @@ from recommenders.rating_prediction.userknn import UserKNN
 
 class MVLrec(object):
     def __init__(self, train_set, test_set, percent=0.2, recommender1="itemknn", recommender2="userknn",
-                 times=20, k=1000):
+                 steps=20, k=1000):
         self.train = train_set
         self.test = test_set
         self.percent = percent
-        self.times = times
+        self.steps = steps
         self.k_confident = k
         self.recommender1 = recommender1
         self.recommender2 = recommender2
@@ -43,7 +43,7 @@ class MVLrec(object):
         self.labeled_set = sorted(tuples[int(len(tuples) * self.percent):], key=lambda x: x[0])
 
     def train_recommender(self):
-        for x in xrange(self.times):
+        for x in xrange(self.steps):
             di1 = return_list_info(self.rec_1["labeled"])
             di2 = return_list_info(self.rec_2["labeled"])
             di_test1 = return_list_info(self.rec_1["unlabeled"])

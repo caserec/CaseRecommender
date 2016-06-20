@@ -168,15 +168,6 @@ class NewEnsemble(object):
             final_results = sorted(self.rankings[user].items(), key=operator.itemgetter(1), reverse=True)[:10]
             print final_results
 
-            with open(ranking_write, 'a') as inf_write:
-                for item in final_results:
-                    inf_write.write(str(user) + self.space_type + str(item[0]) + self.space_type + str(item[1]) + "\n")
-
-
-dir_test = "C:/Users/Arthur/OneDrive/het_rec_2k/folds_test/0/"
-train = dir_test + "train0.dat"
-train1 = dir_test + "train1.dat"
-ranking1 = dir_test + "final_rank_bpr0.dat"
-ranking2 = dir_test + "final_rank_bpr.dat"
-ranking_write = dir_test + "rne.dat"
-NewEnsemble([train, train1], [ranking1, ranking2])
+            # with open(self.ranking_write, 'a') as inf_write:
+            #     for item in final_results:
+            #     inf_write.write(str(user) + self.space_type + str(item[0]) + self.space_type + str(item[1]) + "\n")

@@ -40,7 +40,8 @@ class RatingPredictionEvaluation(object):
 
         return rmse, mae
 
-    def evaluation(self, predictions, test_set):
+    @staticmethod
+    def evaluation(predictions, test_set):
         rmse = 0
         mae = 0
         count_comp = 0

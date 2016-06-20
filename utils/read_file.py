@@ -181,6 +181,7 @@ class ReadFile(object):
                 if line.strip():
                     inline = line.split(self.space_type)
                     inline = np.array(inline)
+                    inline = np.delete(inline, len(inline)-1)
                     matrix.append(inline.astype(float))
         return np.array(matrix)
 

@@ -1,66 +1,40 @@
 # coding=utf-8
-import time
-
-from recommenders.rating_prediction.base_KNN_recommenders import BaseKNNRecommenders
+from recommenders.rating_prediction.userknn import UserKNN
 from utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 
-'''
+"""
+
+User Based Collaborative Filtering Recommender with Attributes
 
 User-Attribute-kNN predicts a user’s rating according to how similar users rated the same item.
 The algorithm matches similar users based on the similarity of their attributes scores.
 
 More details: http://files.grouplens.org/papers/algs.pdf
 
-'''
+This algorithm accepts a precomputed distance matrix instead compute it inside of its code
+
+Parameters
+-----------
+    distance_matrix_file: file
+        Pairwise metric to compute the similarity between the users based on a set of attributes.
+        Format file:
+        Distances separated by \t, where the users should be ordering. E g.:
+        distance1\tdistance2\tdistance3\n
+        distance1\tdistance2\tdistance3\n
+        distance1\tdistance2\tdistance3\n
+
+    neighbors: int
+        The number of user candidates strategy that you can choose for selecting the possible items to recommend.
+
+"""
 
 
-class UserAttributeKNN(BaseKNNRecommenders):
+class UserAttributeKNN(UserKNN):
     def __init__(self, train_set, test_set, distance_matrix_file, neighbors=30):
-        print("\n[UserAttributeKNN] Number of Neighbors: " + str(neighbors))
-        BaseKNNRecommenders.__init__(self, train_set, test_set)
+        UserKNN.__init__(self, train_set, test_set, neighbors=neighbors)
         self.distance_matrix_file = distance_matrix_file
-        self.k = neighbors
-        self.predictions = list()
 
-        self.du_matrix = ReadFile(self.distance_matrix_file).read_matrix()
-        del self.matrix
-
-        # methods
-        starting_point = time.time()
-        self.train_baselines()
-        elapsed_time = time.time() - starting_point
-        print("- Training time: " + str(elapsed_time) + " second(s)")
-        starting_point = time.time()
-        self.predict()
-        elapsed_time = time.time() - starting_point
-        print("- Prediction time: " + str(elapsed_time) + " second(s)")
-
-    def predict(self):
-        if self.test is not None:
-            for user in self.test['users']:
-                for item in self.test['feedback'][user]:
-                    list_n = list()
-                    try:
-                        ruj = 0
-                        sum_sim = 0
-
-                        for user_j in self.train['di'][item]:
-                            sim = self.du_matrix[self.map_users[user]][self.map_users[user_j]]
-                            list_n.append((user_j, sim))
-                        list_n = sorted(list_n, key=lambda x: -x[1])
-
-                        for pair in list_n[:self.k]:
-                            ruj += (self.train['feedback'][pair[0]][item] - self.bui[pair[0]][item]) * pair[1]
-                            sum_sim += pair[1]
-
-                        ruj = self.bui[user][item] + (ruj / sum_sim)
-                        if ruj > 5:
-                            ruj = 5.0
-                        if ruj < 0.5:
-                            ruj = 0.5
-                        self.predictions.append((user, item, ruj))
-
-                    except KeyError:
-                        pass
+    def read_matrix(self):
+        self.su_matrix = ReadFile(self.distance_matrix_file).read_matrix()
