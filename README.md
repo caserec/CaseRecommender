@@ -84,7 +84,7 @@ University of São Paulo - ICMC (USP)
 
 fortes.arthur@gmail.com
 
-# LICENCE (GPL)
+# License (GPL)
 
 
     This program is free software: you can redistribute it and/or modify
