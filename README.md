@@ -1,4 +1,4 @@
-# CaseRecommender - A Recommender Framework for Python
+# Case Recommender - A Recommender Framework for Python
 Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and explicit feedback.  The framework aims to provide a rich set of components from which you can construct a customized recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating prediction approaches, and different metrics validation and evaluation.
 
 # Algorithms
