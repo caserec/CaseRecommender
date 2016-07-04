@@ -69,6 +69,8 @@ To help the project with contribuitions follow the steps:
 
 - You just contributed to the CaseRecommender project!
 
+For bugs or feedback use this link: https://github.com/ArthurFortes/CaseRecommender/issues
+
 # Requirements 
 
 - scipy
