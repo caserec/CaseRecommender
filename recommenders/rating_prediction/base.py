@@ -4,10 +4,8 @@ from evaluation.rating_prediction import RatingPredictionEvaluation
 from recommenders.rating_prediction.item_attribute_knn import ItemAttributeKNN
 from recommenders.rating_prediction.itemknn import ItemKNN
 from recommenders.rating_prediction.matrixfactorization import MatrixFactorization
-from recommenders.rating_prediction.mvlrec import MVLrec
 from recommenders.rating_prediction.user_attribute_knn import UserAttributeKNN
 from recommenders.rating_prediction.userknn import UserKNN
-from utils.data_mining import TreatData
 from utils.read_file import ReadFile
 from utils.write_file import WriteFile
 
@@ -20,15 +18,13 @@ __author__ = 'Arthur Fortes'
     - UserKNN
     - UserAttributeKNN
     - MatrixFactorization
-    - MVLrec
 """
 
 
 class RatingPrediction(object):
     def __init__(self, train_file, test_file, recommender, prediction_file=None, similarity_metric="correlation",
                  neighbors=30, distance_matrix=None, space_type="\t", steps=30, gamma=0.01, delta=0.015, factors=10,
-                 init_mean=0.1, init_stdev=0.1, baseline=False, percent=0.2, recommender1="itemknn",
-                 recommender2="userknn", k=1000):
+                 init_mean=0.1, init_stdev=0.1, baseline=False):
 
         self.recommender = str(recommender)
 
@@ -94,10 +90,6 @@ class RatingPrediction(object):
                 print("- Prediction time: " + str(elapsed_time) + " second(s)")
             else:
                 print("Error: Invalid Distance Matrix File!")
-
-        elif self.recommender.lower() == "mvlrec":
-            print("\n[MVLrec]")
-            self.predictions = MVLrec(self.train_set, self.test_set, percent, recommender1, recommender2, steps, k)
 
         elif self.recommender.lower() == "matrixfactorization":
             rec = MatrixFactorization(self.train_set, self.test_set, steps, gamma, delta, factors, init_mean,

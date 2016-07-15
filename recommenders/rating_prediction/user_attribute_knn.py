@@ -32,7 +32,9 @@ Parameters
 
 
 class UserAttributeKNN(UserKNN):
-    def __init__(self, train_set, test_set, distance_matrix_file, neighbors=30):
+    def __init__(self, train_file, test_file, distance_matrix_file, neighbors=30):
+        train_set = ReadFile(train_file).rating_prediction()
+        test_set = ReadFile(test_file).rating_prediction()
         UserKNN.__init__(self, train_set, test_set, neighbors=neighbors)
         self.distance_matrix_file = distance_matrix_file
 

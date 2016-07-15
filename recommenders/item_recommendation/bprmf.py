@@ -1,122 +1,189 @@
-import random
 import numpy as np
+from evaluation.item_recommendation import ItemRecommendationEvaluation
+from utils.read_file import ReadFile
+from utils.write_file import WriteFile
+
+__author__ = "Arthur Fortes"
 
 """
+Matrix factorization model for item prediction (ranking) optimized using BPR.
 
-BPR MF Algorithm
+ * BPR reduces ranking to pairwise classification.
+    Literature:
+        Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, Lars Schmidt-Thieme:
+        BPR: Bayesian Personalized Ranking from Implicit Feedback.
+        UAI 2009.
+    http://www.ismll.uni-hildesheim.de/pub/pdfs/Rendle_et_al2009-Bayesian_Personalized_Ranking.pdf
+
+Parameters
+-----------
+    - train_file: string
+    - test_file: string
+    - ranking_file: string
+        file to read final ranking
+    - factors: int
+        Number of latent factors per user/item
+    - learn_rate: float
+        Learning rate (alpha)
+    - num_interactions: int
+        Number of iterations over the training data
+    - num_events: int
+        Number of events in each interaction
+        Default: None -> number of interactions of train file
+    - predict_items_number: int
+        Number of items per user in ranking
+    - init_mean: float
+        Mean of the normal distribution used to initialize the latent factors
+    - init_stdev: float
+        Standard deviation of the normal distribution used to initialize the latent factors
+    - reg_u: float
+        Regularization parameter for user factors
+    - reg_i: float
+        Regularization parameter for positive item factors
+    - reg_j: float
+        Regularization parameter for negative item factors
+    - reg_bias: float
+        Regularization parameter for the bias term
+    - use_loss: bool
+        Use objective function to increase learning rate
 
 """
 
 
 class BprMF(object):
-    def __init__(self, input_file, output_file, factors=10, learn_rate=0.05, predict_items_number=10):
+    def __init__(self, train_file, test_file=None, ranking_file=None, factors=10, learn_rate=0.05, num_interactions=30,
+                 num_events=None, predict_items_number=10, init_mean=0.1, init_stdev=0.1, reg_u=0.0025, reg_i=0.0025,
+                 reg_j=0.00025, reg_bias=0, use_loss=True):
         # external vars
-        self.input_file = input_file
-        self.output_file = output_file
+        train_set = ReadFile(train_file).return_matrix()
+        self.train = train_set["matrix"]
+        self.map_user = train_set["map_user"]
+        self.map_item = train_set["map_item"]
+        self.ranking_file = ranking_file
         self.factors = factors
-        self.num_interactions = 30
-        self.num_events = 0
-        self.reg_bias = 0
-        self.reg_u = 0.0025
-        self.reg_i = 0.0025
-        self.reg_j = 0.00025
         self.learn_rate = learn_rate
         self.predict_items_number = predict_items_number
+        self.init_mean = init_mean
+        self.init_stdev = init_stdev
+        self.num_interactions = num_interactions
+        self.reg_bias = reg_bias
+        self.reg_u = reg_u
+        self.reg_i = reg_i
+        self.reg_j = reg_j
+        self.use_loss = use_loss
+        if num_events is None:
+            self.num_events = train_set["number_interactions"]
+        else:
+            self.num_events = num_events
 
         # internal vars
-        self.list_users = set()
-        self.list_items = set()
-        self.dict_user = dict()
-        self.dict_user_non_seen_items = dict()
-        self.users_factors = dict()
-        self.items_factors = dict()
-        self.bias = dict()
-        self.ranking_final = list()
-        self.ranking_triple = list()
+        self.number_users = len(self.train)
+        self.number_items = len(self.train[0])
+        self.loss = None
+        self.loss_sample = list()
+        self.ranking = list()
 
-        # called methods
-        # self.read_file()
-        # self.create_factors()
-        # self.train()
-        # self.predict()
-        # self.write_results()
+        # methods
+        self._create_factors()
+        self._sample_triple()
+        self.fit()
+        self.predict()
+        if test_file is not None:
+            self.test = test_file
+            self.evaluate()
 
-    def read_file(self):
-        with open(self.input_file) as infile:
-            for line in infile:
-                if line.strip():
-                    self.num_events += 1
-                    inline = line.split("\t")
-                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
-                    self.list_users.add(user)
-                    self.list_items.add(item)
-                    self.dict_user.setdefault(user, {}).update({item: feedback})
+    def _create_factors(self):
+        self.p = self.init_mean * np.random.randn(self.number_users, self.factors) + self.init_stdev ** 2
+        self.q = self.init_mean * np.random.randn(self.number_items, self.factors) + self.init_stdev ** 2
+        self.bias = self.init_mean * np.random.randn(self.number_items, 1) + self.init_stdev ** 2
 
-        self.list_users = sorted(self.list_users)
-        self.list_items = sorted(self.list_items)
-
-        for user in self.list_users:
-            self.dict_user_non_seen_items.setdefault(user,
-                                                     list(set(self.list_items) - set(self.dict_user[user].keys())))
-
-    def create_factors(self):
-        for user in self.list_users:
-            self.users_factors.setdefault(user, [random.uniform(0, 1) for _ in xrange(self.factors)])
-        for item in self.list_items:
-            self.items_factors.setdefault(item, [random.uniform(0, 1) for _ in xrange(self.factors)])
-            self.bias.setdefault(item, random.uniform(0, 1))
-
-    def sample_triple(self):
-        u = random.choice(self.list_users)
-        i = random.choice(self.dict_user[u].keys())
-        j = random.choice(self.dict_user_non_seen_items[u])
-
+    def _sample_triple(self):
+        u = np.random.randint(0, len(self.train)-1)
+        i = np.random.choice(np.nonzero(self.train[u])[0])
+        j = np.random.choice(np.flatnonzero(self.train[u] == 0))
         return u, i, j
 
-    def update_factors(self, user, item_i, item_j):
-        # x_uij = (bias_i + pu*qi) -  (bias_j + pu*qj)
-        rui = sum(np.array(self.users_factors[user]) * np.array(self.items_factors[item_i]))
-        ruj = sum(np.array(self.users_factors[user]) * np.array(self.items_factors[item_j]))
-        x_uij = self.bias[item_i] - self.bias[item_j] + (rui - ruj)
+    #
+    def _update_factors(self, user, item_i, item_j):
+        # Compute Difference
+        rui = self.bias[item_i] + np.dot(self.p[user], self.q[item_i])
+        ruj = self.bias[item_j] + np.dot(self.p[user], self.q[item_j])
 
-        eps = 1.0 / (1.0 + np.exp(x_uij))
+        x_uij = rui - ruj
+        eps = 1 / (1 + np.exp(x_uij))
 
         self.bias[item_i] += self.learn_rate * (eps - self.reg_bias * self.bias[item_i])
         self.bias[item_j] += self.learn_rate * (eps - self.reg_bias * self.bias[item_j])
 
-        for i in xrange(self.factors):
-            w_uf = self.users_factors[user][i]
-            h_if = self.items_factors[item_i][i]
-            h_jf = self.items_factors[item_j][i]
+        # Adjust the factors
+        u_f = self.p[user]
+        i_f = self.q[item_i]
+        j_f = self.q[item_j]
 
-            update = (h_if - h_jf) * eps - self.reg_u * w_uf
-            self.users_factors[user][i] = w_uf + self.learn_rate * update
+        # Compute factor updates
+        delta_u = (i_f - j_f) * eps - self.reg_u * u_f
+        delta_i = u_f * eps - self.reg_i * i_f
+        delta_j = -u_f * eps - self.reg_j * j_f
 
-            update = w_uf * eps - self.reg_i * h_if
-            self.items_factors[item_i][i] = h_if + self.learn_rate * update
+        # Apply updates
+        self.p[user] += self.learn_rate * delta_u
+        self.q[item_i] += self.learn_rate * delta_i
+        self.q[item_j] += self.learn_rate * delta_j
 
-            update = -w_uf * eps - self.reg_j * h_jf
-            self.items_factors[item_j][i] = h_jf + self.learn_rate * update
+    def predict_score(self, user, item):
+        return round(self.bias[item] + np.dot(self.p[user], self.q[item]), 6)
 
-    def train(self):
+    def _compute_loss(self):
+        ranking_loss = 0
+        for sample in self.loss_sample:
+            x_uij = self.predict_score(sample[0], sample[1]) - self.predict_score(sample[0], sample[2])
+            ranking_loss += 1 / (1 + np.exp(x_uij))
+
+        complexity = 0
+        for sample in self.loss_sample:
+            complexity += self.reg_u * np.power(np.linalg.norm(self.p[sample[0]]), 2)
+            complexity += self.reg_i * np.power(np.linalg.norm(self.q[sample[1]]), 2)
+            complexity += self.reg_j * np.power(np.linalg.norm(self.q[sample[2]]), 2)
+            complexity += self.reg_bias * np.power(self.bias[sample[1]], 2)
+            complexity += self.reg_bias * np.power(self.bias[sample[2]], 2)
+
+        return ranking_loss + 0.5 * complexity
+
+    # Perform one iteration of stochastic gradient ascent over the training data
+    # One iteration is samples number of positive entries in the training matrix times
+    def fit(self):
+        if self.use_loss:
+            num_sample_triples = int(np.sqrt(len(self.map_user)) * 100)
+            for _ in xrange(num_sample_triples):
+                self.loss_sample.append(self._sample_triple())
+            self.loss = self._compute_loss()
+
         for i in xrange(self.num_interactions):
             print i
             for j in xrange(self.num_events):
-                user, item_i, item_j = self.sample_triple()
-                self.update_factors(user, item_i, item_j)
+                user, item_i, item_j = self._sample_triple()
+                self._update_factors(user, item_i, item_j)
+
+            if self.use_loss:
+                actual_loss = self._compute_loss()
+                if actual_loss > self.loss:
+                    self.learn_rate *= 0.5
+                elif actual_loss < self.loss:
+                    self.learn_rate *= 1.1
+                self.loss = actual_loss
 
     def predict(self):
-        for user in self.list_users:
-            list_ranking = list()
-            for item in self.dict_user_non_seen_items[user]:
-                score = self.bias[item] + sum(
-                    np.array(self.users_factors[user]) * np.array(self.items_factors[item]))
-                list_ranking.append([item, score])
-            list_ranking = sorted(list_ranking, key=lambda x: x[1], reverse=True)
-            self.ranking_final.append(list_ranking[:10])
+        for user in xrange(len(self.train)):
+            partial_ranking = list()
+            u_list = list(np.flatnonzero(self.train[user] == 0))
+            for item in u_list:
+                partial_ranking.append((self.map_user[user], self.map_item[item], self.predict_score(user, item)))
+            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:10]
+            self.ranking += partial_ranking
 
-    def write_results(self):
-        with open(self.output_file, "w") as infile_write:
-            for u, user in enumerate(self.list_users):
-                for pair in self.ranking_final[u][:self.predict_items_number]:
-                    infile_write.write(str(user) + "\t" + str(pair[0]) + "\t" + str(pair[1]) + "\n")
+        if self.ranking_file is not None:
+            WriteFile(self.ranking_file, self.ranking).write_ranking_file()
+
+    def evaluate(self):
+        result = ItemRecommendationEvaluation()
+        print result.test_env(self.ranking, self.test)

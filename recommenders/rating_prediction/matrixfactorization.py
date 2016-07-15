@@ -1,4 +1,5 @@
 import numpy as np
+from utils.read_file import ReadFile
 
 __author__ = "Arthur Fortes"
 
@@ -9,8 +10,10 @@ Matrix Factorization Based Collaborative Filtering Recommender
 
 
 class MatrixFactorization(object):
-    def __init__(self, train_set, test_set, steps=30, gamma=0.01, delta=0.015, factors=10, init_mean=0.1,
+    def __init__(self, train_file, test_file, steps=30, gamma=0.01, delta=0.015, factors=10, init_mean=0.1,
                  init_stdev=0.1, baseline=False):
+        train_set = ReadFile(train_file).rating_prediction()
+        test_set = ReadFile(test_file).rating_prediction()
         self.train = train_set
         self.test = test_set
         self.steps = steps

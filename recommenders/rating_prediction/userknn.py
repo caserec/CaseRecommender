@@ -3,6 +3,8 @@ from scipy.spatial.distance import squareform, pdist
 from recommenders.rating_prediction.base_knn import BaseKNNRecommenders
 import numpy as np
 
+from utils.read_file import ReadFile
+
 __author__ = 'Arthur Fortes'
 
 """
@@ -16,18 +18,20 @@ More details: http://files.grouplens.org/papers/algs.pdf
 
 Parameters
 -----------
-    similarity_metric: string
+    - similarity_metric: string
         Pairwise metric to compute the similarity between the users.
         Reference about distances:
             - http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
-    neighbors: int
+    - neighbors: int
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
 
 """
 
 
 class UserKNN(BaseKNNRecommenders):
-    def __init__(self, train_set, test_set, similarity_metric="correlation", neighbors=30):
+    def __init__(self, train_file, test_file, similarity_metric="correlation", neighbors=30):
+        train_set = ReadFile(train_file).rating_prediction()
+        test_set = ReadFile(test_file).rating_prediction()
         BaseKNNRecommenders.__init__(self, train_set, test_set)
         self.k = neighbors
         self.similarity_metric = similarity_metric

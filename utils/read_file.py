@@ -208,3 +208,34 @@ class ReadFile(object):
             dict_info.setdefault(r, dict()).update({"rank": self.dict_users, "users": self.list_users})
 
         return dict_info
+
+    def return_matrix(self):
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.space_type)
+                    self.number_interactions += 1
+                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                    self.list_users.add(user)
+                    self.list_items.add(item)
+                    self.dict_users.setdefault(user, {}).update({item: feedback})
+
+        map_user = dict()
+        map_index_user = dict()
+        self.list_users = sorted(list(self.list_users))
+        for u, user in enumerate(self.list_users):
+            map_user[user] = u
+            map_index_user[u] = user
+        map_item = dict()
+        map_index_item = dict()
+        self.list_items = sorted(list(self.list_items))
+        for i, item in enumerate(self.list_items):
+            map_item[item] = i
+            map_index_item[i] = item
+
+        matrix = np.zeros((len(self.list_users), len(self.list_items)))
+        for user in self.list_users:
+            for item in self.dict_users[user]:
+                matrix[map_user[user]][map_item[item]] = self.dict_users[user][item]
+        return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
+                "number_interactions": self.number_interactions}

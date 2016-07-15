@@ -85,9 +85,13 @@ class WriteFile(object):
                     infile.write(str(triple[0]) + self.space_type + str(triple[1]) +
                                  self.space_type + str(triple[2]) + '\n')
 
-    # This function can be used to item recommendation and rating prediction
     def write_prediction_file(self):
         self.data = sorted(self.data, key=lambda x: x[0])
+        with open(self.file_write, "w") as infile:
+            for t in self.data:
+                infile.write(str(t[0]) + self.space_type + str(t[1]) + self.space_type + str(t[2]) + "\n")
+
+    def write_ranking_file(self):
         with open(self.file_write, "w") as infile:
             for t in self.data:
                 infile.write(str(t[0]) + self.space_type + str(t[1]) + self.space_type + str(t[2]) + "\n")
