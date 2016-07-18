@@ -1,5 +1,27 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+This file has some functions to build some structures by attributes or training data. Methods:
+    - read_dataset -> Simple Dictionary:: user:{item: feedback}
+    - read_attribute -> Dictionary whit list:: category:[list of items]
+    - compute_write_similarity_matrix -> compute similarity_matrix and write the result after
+
+Parameters
+-----------
+    - input_file: string
+    - space_type: string
+        Divide data space type. E.g:
+            '\t'  = tabular [default]
+            ','   = comma
+            '.'   = dot
+
+"""
+
 import numpy as np
 from scipy.spatial.distance import squareform, pdist
+
+__author__ = 'Arthur Fortes'
 
 
 class TreatData(object):
@@ -17,7 +39,10 @@ class TreatData(object):
                     inline = line.split(self.type_space)
                     user, item, feedback = inline[0], inline[1], inline[2]
                     self.dataset_dict.setdefault(user, {}).update({item: feedback})
-
+    '''
+    - category_file: string
+        file that has categories and them respective items
+    '''
     def read_attribute(self, category_file):
         with open(category_file) as infile:
             for line in infile:
@@ -26,9 +51,14 @@ class TreatData(object):
                     inline[1] = inline[1].replace('\n', '')
                     self.category_list.add(inline[1])
                     self.item_category_dict.setdefault(inline[0], []).append(inline[1])
-        print(self.item_category_dict['34'])
-        print(self.category_list)
-
+    '''
+     - distance: string
+        Pairwise metric to compute the similarity between the users/ items.
+     - write_file: string
+        file to write similarity matrix
+     - user_matrix: bool
+        if True build a matrix user x user; else build a matrix item x item
+    '''
     def compute_write_distance_matrix(self, distance, write_file, user_matrix=True):
         lu = set()
         li = set()

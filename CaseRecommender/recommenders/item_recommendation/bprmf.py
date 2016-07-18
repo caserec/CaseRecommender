@@ -1,12 +1,7 @@
-import numpy as np
-
-from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
-
-__author__ = "Arthur Fortes"
-
+# coding=utf-8
 """
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
 Matrix factorization model for item prediction (ranking) optimized using BPR.
 
  * BPR reduces ranking to pairwise classification.
@@ -14,14 +9,14 @@ Matrix factorization model for item prediction (ranking) optimized using BPR.
         Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, Lars Schmidt-Thieme:
         BPR: Bayesian Personalized Ranking from Implicit Feedback.
         UAI 2009.
-    http://www.ismll.uni-hildesheim.de/pub/pdfs/Rendle_et_al2009-Bayesian_Personalized_Ranking.pdf
+        http://www.ismll.uni-hildesheim.de/pub/pdfs/Rendle_et_al2009-Bayesian_Personalized_Ranking.pdf
 
 Parameters
 -----------
     - train_file: string
     - test_file: string
     - ranking_file: string
-        file to read final ranking
+        file to write final ranking
     - factors: int
         Number of latent factors per user/item
     - learn_rate: float
@@ -30,7 +25,7 @@ Parameters
         Number of iterations over the training data
     - num_events: int
         Number of events in each interaction
-        Default: None -> number of interactions of train file
+        -> default: None -> number of interactions of train file
     - predict_items_number: int
         Number of items per user in ranking
     - init_mean: float
@@ -49,6 +44,14 @@ Parameters
         Use objective function to increase learning rate
 
 """
+
+import numpy as np
+from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
+from CaseRecommender.utils.extra_functions import timed
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
+
+__author__ = "Arthur Fortes"
 
 
 class BprMF(object):
@@ -85,10 +88,18 @@ class BprMF(object):
         self.ranking = list()
 
         # methods
+        print("[Case Recommender: Item Recommendation > BPR MF Algorithm]\n")
+        print("training data:: " + str(self.number_users) + " users and " + str(self.number_items) + " items and " +
+              str(train_set["number_interactions"]) + " interactions")
+        if test_file is not None:
+            test_set = ReadFile(test_file).return_matrix()
+            print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
+                  " items and " + str(test_set["number_interactions"]) + " interactions")
+            del test_set
         self._create_factors()
         self._sample_triple()
-        self.fit()
-        self.predict()
+        print("training time:: " + str(timed(self.train_model))) + " sec"
+        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         if test_file is not None:
             self.test = test_file
             self.evaluate()
@@ -152,7 +163,7 @@ class BprMF(object):
 
     # Perform one iteration of stochastic gradient ascent over the training data
     # One iteration is samples number of positive entries in the training matrix times
-    def fit(self):
+    def train_model(self):
         if self.use_loss:
             num_sample_triples = int(np.sqrt(len(self.map_user)) * 100)
             for _ in xrange(num_sample_triples):
@@ -160,7 +171,6 @@ class BprMF(object):
             self.loss = self._compute_loss()
 
         for i in xrange(self.num_interactions):
-            print i
             for j in xrange(self.num_events):
                 user, item_i, item_j = self._sample_triple()
                 self._update_factors(user, item_i, item_j)
@@ -187,4 +197,6 @@ class BprMF(object):
 
     def evaluate(self):
         result = ItemRecommendationEvaluation()
-        print result.test_env(self.ranking, self.test)
+        res = result.test_env(self.ranking, self.test)
+        print("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
+              str(res[6]) + " Map::" + str(res[8]))

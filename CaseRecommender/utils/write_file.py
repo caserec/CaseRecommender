@@ -1,21 +1,25 @@
-import os
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
 
-__author__ = 'Arthur Fortes'
-
-'''
 This file is responsible for write external files using data from tool.
 
 The output file format is:
-
-user\titem\tinformation\n
+    user\titem\tinformation\n
 
 * To change the spacing in the file, change the space_type var [default = \t].
 
 Methods:
-    - [split_dataset]: write train and test files for n folds and individuals feedback
-    - [cross_fold_validation]: write train and test files for n folds.
-    - [write_prediction_file]: write prediction files for rating prediction and item recommendation algorithms
-'''
+    - split_dataset: write train and test files for n folds and individuals feedback
+    - cross_fold_validation: write train and test files for n folds.
+    - write_prediction_file: write prediction file for rating prediction algorithms
+    - write_ranking_file: write ranking file for item recommendation algorithms
+    - write_ensemble: write ranking file for ensemble algorithms
+"""
+
+import os
+
+__author__ = 'Arthur Fortes'
 
 
 class WriteFile(object):

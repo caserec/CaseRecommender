@@ -1,6 +1,15 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+This file contains rating prediction measures:
+    MAE
+    RMSE
+"""
+
 import math
 import numpy as np
-from CaseRecommender.utils.error_functions import check_error_file
+from CaseRecommender.utils.extra_functions import check_error_file
 from CaseRecommender.utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'

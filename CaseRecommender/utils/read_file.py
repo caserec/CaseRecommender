@@ -1,21 +1,17 @@
-import sys
-import numpy as np
-from CaseRecommender.utils.error_functions import check_error_file
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
 
-__author__ = 'Arthur Fortes'
-
-'''
 This file is responsible for read external files.
 
 The accepted data format is:
-
-user\titem\tinformation\n
+    user\titem\tinformation\n
 
 * user and item must be integer!
 * To change the spacing in the file, change the space_type var (default = \t).
 
 Methods:
-    - [main_information] and [main_information_item_recommendation]: returns a set of information about the dataset:
+    - main_information and main_information_item_recommendation: returns a set of information about the dataset:
             * list with all users
             * list with all items
             * number of interactions
@@ -24,23 +20,30 @@ Methods:
             * items interactions (dictionary with users and feedback for each item |
                                   number of interaction for each item)
 
-    - [cross_fold_validation]: return triples [user, item, feedback] and number of interactions
+    - cross_fold_validation: return triples [user, item, feedback] and number of interactions
 
-    - [split_dataset]: return triples [user, item, feedback], number of interactions and
+    - split_dataset: return triples [user, item, feedback], number of interactions and
                        users interactions (dictionary with seen items and feedback for each user |
                                   number of interaction for each user) for each feedback type.
 
-    - [rating_prediction]: returns a set of specifics attributes from dataset in a dictionary:
+    - rating_prediction: returns a set of specifics attributes from dataset in a dictionary:
             * dictionary with all interactions
             * list with all users
             * list with all items
             * dictionary of all users interaction
             * dictionary of all items interaction
             * mean of rates
+    - read_rankings: return a dictionary and a list about one ranking
+    - read_matrix: returns a data matrix
+    - return_matrix: returns a dictionary with a matrix and other information
 
-    - [read_matrix]: returns a data matrix
+"""
 
-'''
+import sys
+import numpy as np
+from CaseRecommender.utils.extra_functions import check_error_file
+
+__author__ = 'Arthur Fortes'
 
 
 class ReadFile(object):
@@ -147,6 +150,7 @@ class ReadFile(object):
         dict_file = dict()
         d_feedback = dict()
         list_feedback = list()
+        check_error_file(self.file_read)
 
         with open(self.file_read) as infile:
             for line in infile:
@@ -176,6 +180,7 @@ class ReadFile(object):
 
     def read_matrix(self):
         matrix = list()
+        check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
@@ -210,6 +215,7 @@ class ReadFile(object):
         return dict_info
 
     def return_matrix(self):
+        check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():

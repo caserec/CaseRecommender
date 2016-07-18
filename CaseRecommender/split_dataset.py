@@ -1,3 +1,11 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+Script file for divide dataset in training and test sets
+
+"""
+
 import getopt
 import sys
 import time

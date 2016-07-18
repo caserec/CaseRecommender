@@ -1,4 +1,20 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+This file is base for neighborhood-base algorithms
+
+Parameters
+-----------
+    - train_set: dict
+        train data dictionary generated for ReadFile(file).rating_prediction()
+    - train_set: dict
+        test data dictionary generated for ReadFile(file).rating_prediction()
+"""
+
 import numpy as np
+from CaseRecommender.evaluation.rating_prediction import RatingPredictionEvaluation
+from CaseRecommender.utils.write_file import WriteFile
 
 __author__ = 'Arthur Fortes'
 
@@ -64,3 +80,12 @@ class BaseKNNRecommenders(object):
                 self.bui.setdefault(user, {}).update({item: self.train['mean_rates'] + self.bu[user] + self.bi[item]})
         del self.bu
         del self.bi
+
+    @staticmethod
+    def write_prediction(predictions, prediction_file):
+        WriteFile(prediction_file, predictions).write_prediction_file()
+
+    def evaluate(self, predictions):
+        result = RatingPredictionEvaluation()
+        res = result.evaluation(predictions, self.test)
+        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))

@@ -1,3 +1,12 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+Script file for evaluate item recommendation algorithms
+
+"""
+
+
 import getopt
 import sys
 import time

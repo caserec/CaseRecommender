@@ -1,5 +1,15 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+This file contains Statical functions for recommender systems.
+    - T-test
+"""
+
 from scipy.stats import ttest_ind
 import numpy as np
+
+__author__ = 'Arthur Fortes'
 
 
 def statistical_analysis(sample1, sample2):

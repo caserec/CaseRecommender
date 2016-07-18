@@ -1,23 +1,55 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+Matrix Factorization Based Collaborative Filtering Recommender
+
+    Literature:
+        Matrix Factorization Techniques for Recommender Systems
+        http://dl.acm.org/citation.cfm?id=1608614
+
+Parameters
+-----------
+    - train_file: string
+    - test_file: string
+    - prediction_file: string
+        file to write final prediction
+    - steps: int
+         Number of steps over the training data
+    - learn_rate: float
+        Learning rate (alpha)
+    - delta: float
+        regularization value
+    - factors: int
+        Number of latent factors per user/item
+    - init_mean: float
+        Mean of the normal distribution used to initialize the latent factors
+    - init_stdev: float
+        Standard deviation of the normal distribution used to initialize the latent factors
+    - baseline: bool
+        if True: Use the training data to build baselines (SVD Algorithm); else: Use only the mean
+
+"""
+
 import numpy as np
+from CaseRecommender.evaluation.rating_prediction import RatingPredictionEvaluation
+from CaseRecommender.utils.extra_functions import timed
 from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
 
 __author__ = "Arthur Fortes"
 
-"""
-Matrix Factorization Based Collaborative Filtering Recommender
-
-"""
-
 
 class MatrixFactorization(object):
-    def __init__(self, train_file, test_file, steps=30, gamma=0.01, delta=0.015, factors=10, init_mean=0.1,
-                 init_stdev=0.1, baseline=False):
-        train_set = ReadFile(train_file).rating_prediction()
-        test_set = ReadFile(test_file).rating_prediction()
-        self.train = train_set
-        self.test = test_set
+    def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
+                 init_mean=0.1, init_stdev=0.1, baseline=False):
+        self.train_set = ReadFile(train_file).rating_prediction()
+        self.test_set = ReadFile(test_file).rating_prediction()
+        self.prediction_file = prediction_file
+        self.train = self.train_set
+        self.test = self.test_set
         self.steps = steps
-        self.gamma = gamma
+        self.learn_rate = learn_rate
         self.delta = delta
         self.factors = factors
         self.init_mean = init_mean
@@ -47,8 +79,6 @@ class MatrixFactorization(object):
         self.final_matrix = None
 
         # methods
-        if self.baseline:
-            self._train_baselines()
         self._create_factors()
 
     def _create_factors(self):
@@ -124,8 +154,8 @@ class MatrixFactorization(object):
                     delta_i = eui * u_f - self.delta * i_f
 
                     # apply updates
-                    self.p[u] += self.gamma * delta_u
-                    self.q[self.map_items[item]] += self.gamma * delta_i
+                    self.p[u] += self.learn_rate * delta_u
+                    self.q[self.map_items[item]] += self.learn_rate * delta_i
 
             # rmse = np.sqrt(error_final / self.train["ni"])
             # print rmse
@@ -141,4 +171,27 @@ class MatrixFactorization(object):
                                                                            self.map_items[item]), True))
                     except KeyError:
                         self.predictions.append((user, item, self.train["mean_rates"]))
+
+            if self.prediction_file is not None:
+                WriteFile(self.prediction_file, self.predictions).write_prediction_file()
             return self.predictions
+
+    def evaluate(self, predictions):
+        result = RatingPredictionEvaluation()
+        res = result.evaluation(predictions, self.test)
+        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))
+
+    def execute(self):
+        # methods
+        print("[Case Recommender: Rating Prediction > Matrix Factorization]\n")
+        print("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
+            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions")
+        print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
+              " items and " + str(self.test_set['ni']) + " interactions")
+        # training baselines bui
+        if self.baseline:
+            print("training time:: " + str(timed(self._train_baselines) + timed(self.train_mf))) + " sec"
+        else:
+            print("training time:: " + str(timed(self.train_mf))) + " sec"
+        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        self.evaluate(self.predictions)

@@ -1,10 +1,6 @@
-import random
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
-
-__author__ = 'Arthur Fortes'
-
-'''
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
 
 Given a dataset, this function is responsible for creating a set of training and test.
 
@@ -17,7 +13,13 @@ user /t item /t feedback /n
 By default algorithm divides the base into 90% for training and 10% for test.
 To modify this parameter, change "test_ratio".
 
-'''
+"""
+
+import random
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
+
+__author__ = 'Arthur Fortes'
 
 
 class SplitDataset(object):

@@ -1,6 +1,16 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+This file contains item recommendation measures:
+    MAP
+    Precision
+    Recall
+"""
+
 import sys
 import numpy as np
-from CaseRecommender.utils.error_functions import check_error_file
+from CaseRecommender.utils.extra_functions import check_error_file
 from CaseRecommender.utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'

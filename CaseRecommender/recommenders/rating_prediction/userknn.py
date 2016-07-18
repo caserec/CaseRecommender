@@ -1,22 +1,21 @@
 # coding=utf-8
-import numpy as np
-from scipy.spatial.distance import squareform, pdist
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.recommenders.rating_prediction.base_knn import BaseKNNRecommenders
-
-__author__ = 'Arthur Fortes'
-
 """
+© 2016. Case Recommender All Rights Reserved (License GPL3)
 
 User Based Collaborative Filtering Recommender
 
-User-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm matches similar
-users based on the similarity of their ratings on items.
+    User-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm matches similar
+    users based on the similarity of their ratings on items.
 
-More details: http://files.grouplens.org/papers/algs.pdf
+    Literature:
+        http://files.grouplens.org/papers/algs.pdf
 
 Parameters
 -----------
+    - train_file: string
+    - test_file: string
+    - prediction_file: string
+        file to write final prediction
     - similarity_metric: string
         Pairwise metric to compute the similarity between the users.
         Reference about distances:
@@ -26,19 +25,25 @@ Parameters
 
 """
 
+import numpy as np
+from scipy.spatial.distance import squareform, pdist
+from CaseRecommender.utils.extra_functions import timed
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.recommenders.rating_prediction.base_knn import BaseKNNRecommenders
+
+__author__ = 'Arthur Fortes'
+
 
 class UserKNN(BaseKNNRecommenders):
-    def __init__(self, train_file, test_file, similarity_metric="correlation", neighbors=30):
-        train_set = ReadFile(train_file).rating_prediction()
-        test_set = ReadFile(test_file).rating_prediction()
-        BaseKNNRecommenders.__init__(self, train_set, test_set)
+    def __init__(self, train_file, test_file, prediction_file=None, similarity_metric="correlation", neighbors=30):
+        self.train_set = ReadFile(train_file).rating_prediction()
+        self.test_set = ReadFile(test_file).rating_prediction()
+        BaseKNNRecommenders.__init__(self, self.train_set, self.test_set)
         self.k = neighbors
         self.similarity_metric = similarity_metric
+        self.prediction_file = prediction_file
         self.predictions = list()
         self.su_matrix = None
-
-        # methods
-        self.train_baselines()
 
     def compute_similarity(self):
         # Calculate distance matrix between users
@@ -83,4 +88,19 @@ class UserKNN(BaseKNNRecommenders):
 
                     except KeyError:
                         pass
+            if self.prediction_file is not None:
+                self.write_prediction(self.predictions, self.prediction_file)
             return self.predictions
+
+    def execute(self):
+        # methods
+        print("[Case Recommender: Rating Prediction > User Algorithm]\n")
+        print("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
+            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions")
+        print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
+              " items and " + str(self.test_set['ni']) + " interactions")
+        # training baselines bui
+        print("training time:: " + str(timed(self.train_baselines))) + " sec"
+        self.compute_similarity()
+        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        self.evaluate(self.predictions)

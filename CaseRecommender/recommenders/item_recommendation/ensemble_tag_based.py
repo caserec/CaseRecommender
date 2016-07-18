@@ -1,6 +1,6 @@
 from CaseRecommender.utils.read_file import ReadFile
 from CaseRecommender.utils.write_file import WriteFile
-from CaseRecommender.utils.error_functions import check_len_lists
+from CaseRecommender.utils.extra_functions import check_len_lists
 
 __author__ = 'Arthur Fortes'
 
