@@ -1,5 +1,5 @@
-from framework.utils import ReadFile
-from framework.utils import WriteFile
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
 
 
 class BaseEnsemble(object):
@@ -30,11 +30,3 @@ class BaseEnsemble(object):
 
     def write_results(self):
         WriteFile(self.write_file, self.final_ranking).write_ensemble(self.list_users)
-
-
-r1 = "C:/Users/Arthur/OneDrive/Experimentos_2015.12/movielens/folds/0/rank_history.dat"
-r2 = "C:/Users/Arthur/OneDrive/Experimentos_2015.12/movielens/folds/0/rank_tags.dat"
-test = "C:/Users/Arthur/OneDrive/Experimentos_2015.12/movielens/folds/0/test.dat"
-wf = "C:/Users/Arthur/OneDrive/Experimentos_2015.12/movielens/folds/0/ensemble.dat"
-
-BaseEnsemble([r1, r2], test, write_file=wf)

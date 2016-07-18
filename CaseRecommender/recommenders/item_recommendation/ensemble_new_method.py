@@ -10,7 +10,6 @@
 
 """
 import random
-
 import operator
 
 

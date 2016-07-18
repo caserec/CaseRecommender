@@ -1,7 +1,6 @@
 # coding=utf-8
-from utils.read_file import ReadFile
-
-from framework.recommenders import ItemKNN
+from CaseRecommender.recommenders.rating_prediction.itemknn import ItemKNN
+from CaseRecommender.utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 

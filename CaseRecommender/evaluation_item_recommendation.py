@@ -1,8 +1,7 @@
 import getopt
 import sys
 import time
-
-from framework.evaluation.item_recommendation import ItemRecommendationEvaluation
+from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
 
 __author__ = 'Arthur Fortes'
 
@@ -103,8 +102,8 @@ def main(argv):
         print "Test file: ", test_file
         print("Top Rank: " + str(n_rank) + "\n")
         starting_point = time.time()
-        result = ItemRecommendationEvaluation(space_type)
-        list_results = result.simple_evaluation(predict_file, test_file, n_rank)
+        result = ItemRecommendationEvaluation(space_type, n_ranks=n_rank)
+        list_results = result.simple_evaluation(predict_file, test_file)
         elapsed_time = time.time() - starting_point
         print("Runtime: " + str(elapsed_time / 60) + " minute(s)\n")
         list_labels = list()

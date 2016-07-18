@@ -1,8 +1,7 @@
 # coding=utf-8
 import random
-
-from framework.utils import ReadFile
-from framework.utils import WriteFile
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
 
 __author__ = 'Arthur Fortes'
 

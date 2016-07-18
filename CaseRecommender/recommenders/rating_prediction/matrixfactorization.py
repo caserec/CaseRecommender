@@ -1,6 +1,5 @@
 import numpy as np
-
-from framework.utils import ReadFile
+from CaseRecommender.utils.read_file import ReadFile
 
 __author__ = "Arthur Fortes"
 

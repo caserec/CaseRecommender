@@ -1,9 +1,7 @@
 import sys
-
 import numpy as np
-
-from framework.utils import ReadFile
-from framework.utils import check_error_file
+from CaseRecommender.utils.error_functions import check_error_file
+from CaseRecommender.utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 

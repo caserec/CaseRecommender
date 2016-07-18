@@ -1,9 +1,8 @@
 # coding=utf-8
 import numpy as np
 from scipy.spatial.distance import squareform, pdist
-from utils.read_file import ReadFile
-
-from framework.recommenders import BaseKNNRecommenders
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.recommenders.rating_prediction.base_knn import BaseKNNRecommenders
 
 __author__ = 'Arthur Fortes'
 

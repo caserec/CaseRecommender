@@ -1,10 +1,8 @@
 import getopt
 import sys
 import time
-
 from utils.split_dataset import SplitDataset
-
-from framework.utils.cross_fold_validation import CrossFoldValidation
+from CaseRecommender.utils.cross_fold_validation import CrossFoldValidation
 
 __author__ = 'Arthur Fortes'
 

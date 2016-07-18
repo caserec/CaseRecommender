@@ -1,8 +1,8 @@
 import numpy as np
-from evaluation.item_recommendation import ItemRecommendationEvaluation
 
-from framework.utils import ReadFile
-from framework.utils import WriteFile
+from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
+from CaseRecommender.utils.read_file import ReadFile
+from CaseRecommender.utils.write_file import WriteFile
 
 __author__ = "Arthur Fortes"
 

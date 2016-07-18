@@ -1,12 +1,3 @@
-"""
-
-Requirements:
-
-- Scipy
-- Numpy
-
-"""
-
 from scipy.stats import ttest_ind
 import numpy as np
 
@@ -24,7 +15,7 @@ def statistical_analysis(sample1, sample2):
 
     Calculates the T-test for the means of TWO INDEPENDENT samples of scores.
 
-    This is a two-sided test for the null hypothesis that 2 independent samples have identical average (expected) values.
+    This is a two-sided test for the null hypothesis that 2 independent samples have identical average (expected) values
 
     This test assumes that the populations have identical variances.
     """
@@ -46,4 +37,3 @@ def statistical_analysis(sample1, sample2):
     print "SAD:", np.sum(np.abs(sample1 - sample2))
     print "SSD:", np.sum(np.square(sample1 - sample2))
     print "Correlation:", np.corrcoef(np.array((sample1, sample2)))[0, 1]
-
