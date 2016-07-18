@@ -4,13 +4,13 @@ __author__ = "Arthur Fortes"
 
 setup(
     name='CaseRecommender',
-    packages=['CaseRecommender'],  # this must be the same as the name above
-    version='0.0.1',
-    description='A random test lib',
-    author='Arthru Fortes da Costa',
+    packages=['CaseRecommender'],
+    version='0.0.3',
+    description='A recommender systems framework for python',
+    author='Arthur Fortes da Costa',
     author_email='fortes.arthur@gmail.com',
-    url='https://github.com/ArthurFortes/CaseRecommender',  # use the URL to the github repo
-    download_url='https://github.com/peterldowns/mypackage/tarball/0.1',
+    url='https://github.com/ArthurFortes/CaseRecommender',
+    download_url='https://github.com/ArthurFortes/CaseRecommender/tarball/0.0.3',
     keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering'],
     classifiers=[],
 )
