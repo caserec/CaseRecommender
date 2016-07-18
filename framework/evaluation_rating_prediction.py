@@ -1,7 +1,8 @@
 import getopt
 import sys
 import time
-from evaluation.rating_prediction import RatingPredictionEvaluation
+
+from framework.evaluation import RatingPredictionEvaluation
 
 __author__ = 'Arthur Fortes'
 

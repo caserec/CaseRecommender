@@ -1,9 +1,8 @@
 import getopt
 import sys
-
 import time
 
-from evaluation.item_recommendation import ItemRecommendationEvaluation
+from framework.evaluation.item_recommendation import ItemRecommendationEvaluation
 
 __author__ = 'Arthur Fortes'
 
