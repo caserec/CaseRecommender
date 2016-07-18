@@ -4,7 +4,9 @@ __author__ = "Arthur Fortes"
 
 setup(
     name='CaseRecommender',
-    packages={'framework': ['*']},
+    packages={'framework': ['evaluation/*.*',
+                            'recommenders/*.*',
+                            'utils/*.*']},
     version='0.0.3',
     description='A recommender systems framework for python',
     author='Arthur Fortes da Costa',
