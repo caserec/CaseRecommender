@@ -229,19 +229,25 @@ class ReadFile(object):
         map_user = dict()
         map_index_user = dict()
         self.list_users = sorted(list(self.list_users))
+
         for u, user in enumerate(self.list_users):
             map_user[user] = u
             map_index_user[u] = user
+
         map_item = dict()
         map_index_item = dict()
         self.list_items = sorted(list(self.list_items))
+
         for i, item in enumerate(self.list_items):
             map_item[item] = i
             map_index_item[i] = item
 
         matrix = np.zeros((len(self.list_users), len(self.list_items)))
+
         for user in self.list_users:
             for item in self.dict_users[user]:
                 matrix[map_user[user]][map_item[item]] = self.dict_users[user][item]
+                self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
+
         return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
-                "number_interactions": self.number_interactions}
+                "number_interactions": self.number_interactions, "di": self.dict_items, "mu": map_user}

@@ -1,3 +1,18 @@
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+Ensemble Average Based
+    Literature:
+        Improving Personalized Ranking in Recommender Systems with Multimodal Interactions.
+        WIC 2014.
+        http://dx.doi.org/10.1109/wi-iat.2014.34
+
+Parameters
+-----------
+
+"""
+
 from CaseRecommender.utils.read_file import ReadFile
 from CaseRecommender.utils.write_file import WriteFile
 from CaseRecommender.utils.extra_functions import check_len_lists

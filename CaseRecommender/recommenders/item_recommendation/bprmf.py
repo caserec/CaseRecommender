@@ -59,10 +59,11 @@ class BprMF(object):
                  num_events=None, predict_items_number=10, init_mean=0.1, init_stdev=0.1, reg_u=0.0025, reg_i=0.0025,
                  reg_j=0.00025, reg_bias=0, use_loss=True):
         # external vars
-        train_set = ReadFile(train_file).return_matrix()
-        self.train = train_set["matrix"]
-        self.map_user = train_set["map_user"]
-        self.map_item = train_set["map_item"]
+        self.train_set = ReadFile(train_file).return_matrix()
+        self.train = self.train_set["matrix"]
+        self.map_user = self.train_set["map_user"]
+        self.map_item = self.train_set["map_item"]
+        self.test_file = test_file
         self.ranking_file = ranking_file
         self.factors = factors
         self.learn_rate = learn_rate
@@ -76,7 +77,7 @@ class BprMF(object):
         self.reg_j = reg_j
         self.use_loss = use_loss
         if num_events is None:
-            self.num_events = train_set["number_interactions"]
+            self.num_events = self.train_set["number_interactions"]
         else:
             self.num_events = num_events
 
@@ -86,23 +87,6 @@ class BprMF(object):
         self.loss = None
         self.loss_sample = list()
         self.ranking = list()
-
-        # methods
-        print("[Case Recommender: Item Recommendation > BPR MF Algorithm]\n")
-        print("training data:: " + str(self.number_users) + " users and " + str(self.number_items) + " items and " +
-              str(train_set["number_interactions"]) + " interactions")
-        if test_file is not None:
-            test_set = ReadFile(test_file).return_matrix()
-            print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
-                  " items and " + str(test_set["number_interactions"]) + " interactions")
-            del test_set
-        self._create_factors()
-        self._sample_triple()
-        print("training time:: " + str(timed(self.train_model))) + " sec"
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
-        if test_file is not None:
-            self.test = test_file
-            self.evaluate()
 
     def _create_factors(self):
         self.p = self.init_mean * np.random.randn(self.number_users, self.factors) + self.init_stdev ** 2
@@ -197,6 +181,23 @@ class BprMF(object):
 
     def evaluate(self):
         result = ItemRecommendationEvaluation()
-        res = result.test_env(self.ranking, self.test)
+        res = result.test_env(self.ranking, self.test_file)
         print("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
               str(res[6]) + " Map::" + str(res[8]))
+
+    def execute(self):
+        # methods
+        print("[Case Recommender: Item Recommendation > BPR MF Algorithm]\n")
+        print("training data:: " + str(self.number_users) + " users and " + str(self.number_items) + " items and " +
+              str(self.train_set["number_interactions"]) + " interactions")
+        if self.test_file is not None:
+            test_set = ReadFile(self.test_file).return_matrix()
+            print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
+                  " items and " + str(test_set["number_interactions"]) + " interactions")
+            del test_set
+        self._create_factors()
+        self._sample_triple()
+        print("training time:: " + str(timed(self.train_model))) + " sec"
+        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        if self.test_file is not None:
+            self.evaluate()
