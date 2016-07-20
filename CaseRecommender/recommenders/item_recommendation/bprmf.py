@@ -57,7 +57,7 @@ __author__ = "Arthur Fortes"
 class BprMF(object):
     def __init__(self, train_file, test_file=None, ranking_file=None, factors=10, learn_rate=0.05, num_interactions=30,
                  num_events=None, predict_items_number=10, init_mean=0.1, init_stdev=0.1, reg_u=0.0025, reg_i=0.0025,
-                 reg_j=0.00025, reg_bias=0, use_loss=True):
+                 reg_j=0.00025, reg_bias=0, use_loss=True, rank_number=10):
         # external vars
         self.train_set = ReadFile(train_file).return_matrix()
         self.train = self.train_set["matrix"]
@@ -76,6 +76,7 @@ class BprMF(object):
         self.reg_i = reg_i
         self.reg_j = reg_j
         self.use_loss = use_loss
+        self.rank_number = rank_number
         if num_events is None:
             self.num_events = self.train_set["number_interactions"]
         else:
@@ -173,7 +174,7 @@ class BprMF(object):
             u_list = list(np.flatnonzero(self.train[user] == 0))
             for item in u_list:
                 partial_ranking.append((self.map_user[user], self.map_item[item], self.predict_score(user, item)))
-            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:10]
+            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:self.rank_number]
             self.ranking += partial_ranking
 
         if self.ranking_file is not None:

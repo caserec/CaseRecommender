@@ -36,8 +36,10 @@ __author__ = "Arthur Fortes"
 
 
 class UserAttributeKNN(UserKNN):
-    def __init__(self, train_file, similarity_matrix_file, test_file=None, ranking_file=None, neighbors=30):
-        UserKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors)
+    def __init__(self, train_file, similarity_matrix_file, test_file=None, ranking_file=None, neighbors=30,
+                 rank_number=10):
+        UserKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
+                         rank_number=rank_number)
         self.similarity_matrix_file = similarity_matrix_file
 
     def read_matrix(self):

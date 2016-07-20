@@ -34,7 +34,8 @@ __author__ = "Arthur Fortes"
 
 
 class UserKNN(object):
-    def __init__(self, train_file, test_file=None, ranking_file=None, similarity_metric="correlation", neighbors=30):
+    def __init__(self, train_file, test_file=None, ranking_file=None, similarity_metric="correlation", neighbors=30,
+                 rank_number=10):
         self.train_set = ReadFile(train_file).return_matrix()
         self.train = self.train_set["matrix"]
         self.test_file = test_file
@@ -43,6 +44,7 @@ class UserKNN(object):
         self.k = neighbors
         self.similarity_metric = similarity_metric
         self.ranking_file = ranking_file
+        self.rank_number = rank_number
         self.ranking = list()
         self.su_matrix = None
 
@@ -72,7 +74,7 @@ class UserKNN(object):
                     partial_ranking.append((self.train_set["map_user"][user], self.train_set["map_item"][item],
                                             sim_suv))
 
-            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:10]
+            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:self.rank_number]
             self.ranking += partial_ranking
 
         if self.ranking_file is not None:

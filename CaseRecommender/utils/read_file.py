@@ -214,6 +214,33 @@ class ReadFile(object):
 
         return dict_info
 
+    def ensemble_test(self):
+        user_info = dict()
+        rank_info = dict()
+        for r, rank_file in enumerate(self.file_read):
+            r_dict = dict()
+            with open(rank_file) as infile:
+                for line in infile:
+                    if line.strip():
+                        inline = line.split(self.space_type)
+                        user, item, score = int(inline[0]), int(inline[1]), float(inline[2])
+                        self.number_interactions += 1
+                        self.list_users.add(user)
+                        self.list_items.add(item)
+                        self.dict_users.setdefault(user, {}).update({item: score})
+                        r_dict.setdefault(user, {}).update({item: score})
+            rank_info[r] = r_dict
+
+        self.list_users = sorted(self.list_users)
+        self.list_items = sorted(self.list_items)
+        dict_non_seen = dict()
+
+        for user in self.dict_users:
+            dict_non_seen[user] = list(set(self.list_items) - set(self.dict_users[user]))
+            user_info[user] = {"j": dict_non_seen[user], "i": self.dict_users[user].keys()}
+
+        return user_info, self.list_users, self.list_items, self.number_interactions, rank_info
+
     def return_matrix(self):
         check_error_file(self.file_read)
         with open(self.file_read) as infile:

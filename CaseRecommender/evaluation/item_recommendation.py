@@ -10,6 +10,7 @@ This file contains item recommendation measures:
 
 import sys
 import numpy as np
+
 from CaseRecommender.utils.extra_functions import check_error_file
 from CaseRecommender.utils.read_file import ReadFile
 
@@ -64,7 +65,6 @@ class ItemRecommendationEvaluation(object):
 
         final_map_total = sum(avg_prec_total) / float(num_user)
         final_values.append(final_map_total)
-
         return final_values
 
     def simple_evaluation(self, file_result, file_test):
@@ -77,7 +77,7 @@ class ItemRecommendationEvaluation(object):
         test = ReadFile(file_test, space_type=self.space_type)
         test.main_information_item_recommendation()
 
-        self.default_evaluation(predict.dict_users, test)
+        return self.default_evaluation(predict.dict_users, test)
 
     def all_but_one_evaluation(self, file_result, file_test, n_ranks=list([1, 3, 5, 10])):
         check_error_file(file_result)

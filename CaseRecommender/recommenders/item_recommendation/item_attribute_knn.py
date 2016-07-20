@@ -27,6 +27,7 @@ Parameters
     - neighbors: int
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
 """
+
 from CaseRecommender.recommenders.item_recommendation.itemknn import ItemKNN
 from CaseRecommender.utils.extra_functions import timed
 from CaseRecommender.utils.read_file import ReadFile
@@ -35,8 +36,10 @@ __author__ = "Arthur Fortes"
 
 
 class ItemAttributeKNN(ItemKNN):
-    def __init__(self, train_file, similarity_matrix_file, test_file=None, ranking_file=None, neighbors=30):
-        ItemKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors)
+    def __init__(self, train_file, similarity_matrix_file, test_file=None, ranking_file=None, neighbors=30,
+                 rank_number=10):
+        ItemKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
+                         rank_number=rank_number)
         self.similarity_matrix_file = similarity_matrix_file
 
     def read_matrix(self):

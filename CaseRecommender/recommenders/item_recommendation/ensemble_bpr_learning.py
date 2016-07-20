@@ -1,211 +1,220 @@
-import math
-import random
+# coding=utf-8
+"""
+© 2016. Case Recommender All Rights Reserved (License GPL3)
+
+Ensemble BPR Learning - Optimizing ensemble rankings
+
+    Literature:
+        Arthur Fortes da Costa and Marcelo G. Manzato
+        Exploiting multimodal interactions in recommender systems with ensemble algorithms
+        Journal Information Systems 2016.
+        http://www.sciencedirect.com/science/article/pii/S0306437915300818
+
+Parameters
+-----------
+
+"""
+
 import numpy as np
+
+from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
 from CaseRecommender.utils.read_file import ReadFile
 from CaseRecommender.utils.write_file import WriteFile
-from CaseRecommender.utils.extra_functions import check_len_lists
 
 __author__ = 'Arthur Fortes'
 
-num_interactions = 30
-num_interactions_baselines = 15000
-num_factor = 30
-num_interactions_train_weights = 10000
-learn_rate = 0.05
-reg_bias = 0
-reg_bias_beta = 0.0025
-reg_u = 0.0025
-reg_i = 0.0025
-reg_j = 0.0025
-
-
-# utils
-def sample_triple(dict_item, dict_not_item, list_users):
-    user = random.choice(list_users)
-    item = random.choice(dict_item[user].keys())
-    other_item = random.choice(dict_not_item[user])
-    return user, item, other_item
-
-
-def create_factors(num_users, num_items, factors):
-    users_factors = np.random.uniform(0, 1, [num_users, factors])
-    items_factors = np.random.uniform(0, 1, [num_items, factors])
-    bias = np.random.uniform(0, 1, num_items)
-    return users_factors, items_factors, bias
-
-
-def return_list_info(train_set):
-    lu = set()
-    li = set()
-    dict_users_interactions = dict()
-    dict_non_seen_items = dict()
-    dict_index = dict()
-
-    for interaction in train_set:
-        user, item, score = interaction[0], interaction[1], interaction[2]
-        lu.add(user)
-        li.add(item)
-        dict_users_interactions.setdefault(user, {}).update({item: score})
-
-    for u, user in enumerate(lu):
-        dict_index.setdefault('users', {}).update({user: u})
-        dict_non_seen_items[user] = list(li - set(dict_users_interactions[user].keys()))
-
-    for i, item in enumerate(li):
-        dict_index.setdefault('items', {}).update({item: i})
-
-    return dict_users_interactions, dict_non_seen_items, lu, li, dict_index
-
 
 class EnsembleLearningBPR(object):
-    def __init__(self, list_train_files, list_rank_files, file_write, rank_number=10, space_type='\t'):
+    def __init__(self, list_train_files, list_rankings_files, ranking_file=None, test_file=None, rank_number=10,
+                 space_type='\t', init_mean=0.1, init_stdev=0.1, factors=10, num_interactions=30, learn_rate=0.05,
+                 reg_u=0.0025, reg_i=0.0025, reg_j=0.00025, reg_bias=0, use_loss=True):
         self.list_train_files = list_train_files
-        self.list_rank_files = list_rank_files
-        self.file_write = file_write
+        self.list_rankings_files = list_rankings_files
+        self.ranking_file = ranking_file
+        self.test_file = test_file
         self.rank_number = rank_number
         self.space_type = space_type
-        check_len_lists(self.list_train_files, self.list_rank_files)
-        self.num_interactions = len(self.list_train_files)
-        self.factors = list()
-        self.individual_datasets = list()
-        self.final_dataset = list()
-        self.betas = list()
+        self.init_mean = init_mean
+        self.init_stdev = init_stdev
+        self.factors = factors
+        self.num_interactions = num_interactions
+        self.learn_rate = learn_rate
+        self.reg_bias = reg_bias
+        self.reg_u = reg_u
+        self.reg_i = reg_i
+        self.reg_j = reg_j
+        self.use_loss = use_loss
 
-        # vars
-        self.dict_item = dict()
-        self.dict_not_item = dict()
-        self.list_users = set()
-        self.list_items = set()
-        self.dict_index = dict()
-        self.rankings = list()
-        self.final_ranking = list()
-        self.normalization = list()
+        # external vars
+        self.train_info = None
+        self.rankings_info = None
+        self.list_users = None
+        self.list_items = None
+        self.number_users = None
+        self.number_items = None
+        self.num_events = None
+        self.ir = None
+        self.rf = dict()
+        self.map_user = dict()
+        self.map_item = dict()
+        self.loss = None
+        self.loss_sample = list()
+        self.ranking = list()
 
-        # call internal methods
-        self.read_ranking_files()
-        print('Read Ranking Files...')
-        self.treat_interactions()
-        print('Trained baselines...')
-        self.train_weights()
-        print('Trained betas...')
-        self.ensemble_ranks()
-        print('Finished Ensemble interactions...')
-        self.write_ranking()
+    def _create_factors(self):
+        p = self.init_mean * np.random.randn(self.number_users, self.factors) + self.init_stdev ** 2
+        q = self.init_mean * np.random.randn(self.number_items, self.factors) + self.init_stdev ** 2
+        bias = self.init_mean * np.random.randn(self.number_items, 1) + self.init_stdev ** 2
+        beta = self.init_mean * np.random.randn(self.number_users, 1) + self.init_stdev ** 2
+        return p, q, bias, beta
 
-    def read_ranking_files(self):
-        for ranking_file in self.list_rank_files:
-            ranking = ReadFile(ranking_file, space_type=self.space_type)
-            rank_interaction, list_interaction = ranking.read_rankings()
-            self.rankings.append(rank_interaction)
-            self.normalization.append([min(list_interaction), max(list_interaction)])
+    def read_training_data(self):
+        self.train_info, self.list_users, self.list_items, self.num_events, _ = ReadFile(
+            self.list_train_files).ensemble_test()
+        self.number_users = len(self.list_users)
+        self.number_items = len(self.list_items)
+        # remove
 
-    def treat_interactions(self):
-        for interaction_file in self.list_train_files:
-            interaction = ReadFile(interaction_file, space_type=self.space_type)
-            interaction.triple_information()
-            self.individual_datasets.append(interaction.triple_dataset)
-            self.final_dataset += interaction.triple_dataset
+        self.num_events = 5000
 
-        self.dict_item, self.dict_not_item, self.list_users, self.list_items, \
-            self.dict_index = return_list_info(self.final_dataset)
-
-        self.list_users = list(self.list_users)
-        self.list_items = list(self.list_items)
-
-        for train_set in self.individual_datasets:
-            self.factors.append(self.simple_bpr(train_set))
-
-    def simple_bpr(self, train_set):
-        du, dni, lu, _, _ = return_list_info(train_set)
-        lu = list(lu)
-        p, q, bias = create_factors(len(self.list_users), len(self.list_items), num_factor)
-
-        for _ in range(num_interactions):
-            for z in range(num_interactions_baselines):
-                u, i, j = sample_triple(du, dni, lu)
-                u, i, j = self.dict_index['users'][u], self.dict_index['items'][i], self.dict_index['items'][j]
-                rui = bias[i] + sum(np.array(p[u]) * np.array(q[i]))
-                ruj = bias[j] + sum(np.array(p[u]) * np.array(q[j]))
-
-                x_uij = rui - ruj
-
-                try:
-                    fun_exp = float(math.exp(-x_uij)) / float((1 + math.exp(-x_uij)))
-                except OverflowError:
-                    fun_exp = 0.5
-
-                update_bias_i = fun_exp - reg_bias * bias[i]
-                bias[i] += learn_rate * update_bias_i
-
-                update_bias_j = fun_exp - reg_bias * bias[j]
-                bias[j] += learn_rate * update_bias_j
-
-                for num in range(num_factor):
-                    w_uf = p[u][num]
-                    h_if = q[i][num]
-                    h_jf = q[j][num]
-
-                    update_user = (h_if - h_jf) * fun_exp - reg_u * w_uf
-                    p[u][num] = w_uf + learn_rate * update_user
-
-                    update_item_i = w_uf * fun_exp - reg_i * h_if
-                    q[i] = h_if + learn_rate * update_item_i
-
-                    update_item_j = -w_uf * fun_exp - reg_j * h_jf
-                    q[j] = h_jf + learn_rate * update_item_j
-
-        return [p, q, bias]
-
-    def train_weights(self):
-        for _ in xrange(self.num_interactions):
-            self.betas.append(np.random.uniform(0, 1, len(self.list_users)))
-
-        for _ in xrange(num_interactions):
-            for z in xrange(num_interactions_train_weights):
-                u, i, j = sample_triple(self.dict_item, self.dict_not_item, self.list_users)
-                u, i, j = self.dict_index['users'][u], self.dict_index['items'][i], self.dict_index['items'][j]
-
-                suij = 0
-                rui_list = list()
-                ruj_list = list()
-
-                for n, factor in enumerate(self.factors):
-                    rui = factor[2][i] + sum(np.array(factor[0][u]) * np.array(factor[1][i]))
-                    ruj = factor[2][j] + sum(np.array(factor[0][u]) * np.array(factor[1][j]))
-                    rui_list.append(rui)
-                    ruj_list.append(ruj)
-
-                    suij += self.betas[n][u] * (rui-ruj)
-
-                try:
-                    fun_exp = float(math.exp(-suij)) / float((1 + math.exp(-suij)))
-                except OverflowError:
-                    fun_exp = 0.5
-
-                for m, beta in enumerate(self.betas):
-                    update_beta = (rui_list[m] - ruj_list[m]) * fun_exp - reg_bias_beta * self.betas[m][u]
-                    self.betas[m][u] += learn_rate * update_beta
-
-    def ensemble_ranks(self):
         for u, user in enumerate(self.list_users):
-            list_items = list()
-            for item in self.dict_not_item[user]:
-                rui = 0
-                for m in xrange(self.num_interactions):
-                    try:
-                        score = self.rankings[m][user].get(item, 0)
-                        if score > 0:
-                            score = (score - self.normalization[m][0]) / (
-                                self.normalization[m][1] - self.normalization[m][0])
-                            rui += self.betas[m][u] * score
-                    except KeyError:
-                        pass
+            self.map_user[user] = u
+        for i, item in enumerate(self.list_items):
+            self.map_item[item] = i
 
-                list_items.append([item, rui])
+        for r in xrange(len(self.list_train_files)):
+            p, q, bias, beta = self._create_factors()
+            self.rf[r] = {"p": p, "q": q, "bias": bias, "beta": beta}
 
-            list_items = sorted(list_items, key=lambda x: -x[1])
-            self.final_ranking.append([user, list_items[:self.rank_number]])
+    def _compute_loss(self):
+        ranking_loss = 0
+        for sample in self.loss_sample:
+            x_uij = self._predict_score(sample[0], sample[1]) - self._predict_score(sample[0], sample[2])
+            ranking_loss += 1 / (1 + np.exp(x_uij))
 
-    def write_ranking(self):
-        write_ensemble = WriteFile(self.file_write, self.final_ranking, self.space_type)
-        write_ensemble.write_prediction_file()
+        complexity = 0
+        for r in xrange(len(self.list_train_files)):
+            for sample in self.loss_sample:
+                u, i, j = sample[0], sample[1], sample[2]
+                u, i, j = self.map_user[u], self.map_item[i], self.map_item[j]
+                complexity += self.reg_u * np.power(np.linalg.norm(self.rf[r]["p"][u]), 2)
+                complexity += self.reg_i * np.power(np.linalg.norm(self.rf[r]["q"][i]), 2)
+                complexity += self.reg_j * np.power(np.linalg.norm(self.rf[r]["q"][j]), 2)
+                complexity += self.reg_bias * np.power(self.rf[r]["bias"][i], 2)
+                complexity += self.reg_bias * np.power(self.rf[r]["bias"][j], 2)
+
+        return (ranking_loss/2.0) + 0.5 * (complexity/2.0)
+
+    def read_rankings(self):
+        self.rankings_info, _, _, _, self.ir = ReadFile(
+            self.list_rankings_files).ensemble_test()
+
+    def _sample_triple(self):
+        u = np.random.choice(self.list_users)
+        i = np.random.choice(self.train_info[u]["i"])
+        j = np.random.choice(self.rankings_info[u]["i"])
+        return u, i, j
+
+    def _predict_score(self, user, item):
+        u, i = self.map_user[user], self.map_item[item]
+        rating = 0
+        for r in xrange(len(self.list_train_files)):
+            rating += self.rf[r]["bias"][i] + np.dot(self.rf[r]["p"][u], self.rf[r]["q"][i])
+        return rating
+
+    def _update_factors(self, user, item_i, item_j):
+        u, i, j = self.map_user[user], self.map_item[item_i], self.map_item[item_j]
+        rui = 0
+        ruj = 0
+        x_uij = 0
+
+        for r in xrange(len(self.list_rankings_files)):
+            try:
+                self.ir[r][user][item_i] = 0
+                rui += self.rf[r]["bias"][i] + np.dot(self.rf[r]["p"][u], self.rf[r]["q"][i])
+                ruj += self.rf[r]["bias"][j] + np.dot(self.rf[r]["p"][u], self.rf[r]["q"][j])
+            except KeyError:
+                pass
+
+            # x_uij += self.rf[r]["beta"][u] * (rui - ruj)
+            x_uij += (rui - ruj)
+
+        eps = 1 / (1 + np.exp(x_uij))
+
+        for r in xrange(len(self.list_rankings_files)):
+            try:
+                self.ir[r][user][item_i] = 0
+                self.rf[r]["bias"][i] += self.learn_rate * (eps - self.reg_bias * self.rf[r]["bias"][i])
+                self.rf[r]["bias"][j] += self.learn_rate * (eps - self.reg_bias * self.rf[r]["bias"][j])
+
+                # Adjust the factors
+                u_f = self.rf[r]["p"][u]
+                i_f = self.rf[r]["q"][i]
+                j_f = self.rf[r]["q"][j]
+
+                # Compute factor updates
+                delta_u = (i_f - j_f) * eps - self.reg_u * u_f
+                delta_i = u_f * eps - self.reg_i * i_f
+                delta_j = -u_f * eps - self.reg_j * j_f
+
+                self.rf[r]["p"][u] += self.learn_rate * delta_u
+                self.rf[r]["q"][i] += self.learn_rate * delta_i
+                self.rf[r]["q"][j] += self.learn_rate * delta_j
+
+            except KeyError:
+                pass
+
+    def train_model(self):
+        if self.use_loss:
+            num_sample_triples = int(np.sqrt(len(self.map_user)) * 100)
+            for _ in xrange(num_sample_triples):
+                self.loss_sample.append(self._sample_triple())
+            self.loss = self._compute_loss()
+
+        for i in xrange(self.num_interactions):
+            print i
+            for j in xrange(self.num_events):
+                user, item_i, item_j = self._sample_triple()
+                self._update_factors(user, item_i, item_j)
+
+            if self.use_loss:
+                actual_loss = self._compute_loss()
+                if actual_loss > self.loss:
+                    self.learn_rate *= 0.5
+                elif actual_loss < self.loss:
+                    self.learn_rate *= 1.1
+                self.loss = actual_loss
+
+    def predict(self):
+        for user in self.rankings_info:
+            partial_ranking = list()
+            for item in self.rankings_info[user]["i"]:
+                partial_ranking.append((self.map_user[user], self.map_item[item], self._predict_score(user, item)))
+            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:self.rank_number]
+            self.ranking += partial_ranking
+
+        if self.ranking_file is not None:
+            WriteFile(self.ranking_file, self.ranking).write_ranking_file()
+
+    def evaluate(self):
+        result = ItemRecommendationEvaluation()
+        res = result.test_env(self.ranking, self.test_file)
+        print("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
+              str(res[6]) + " Map::" + str(res[8]))
+
+    def execute(self):
+        # methods
+        print("[Case Recommender: Item Recommendation > Ensemble BPR Learning Algorithm]\n")
+        self.read_training_data()
+        self.read_rankings()
+        self.train_model()
+        self.predict()
+        if self.test_file is not None:
+            self.evaluate()
+
+EnsembleLearningBPR(["C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/train1.dat",
+                     "C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/train0.dat"],
+                    ["C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/ranking_bpr_ratings.dat",
+                     "C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/ranking_bpr_tags.dat"],
+                    ranking_file="C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/rank_ensemble.dat",
+                    test_file="C:/Users/Arthur/OneDrive/Last_fm_experiment/folds/0/test_all.dat").execute()
