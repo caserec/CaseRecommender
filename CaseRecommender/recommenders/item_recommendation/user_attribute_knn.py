@@ -28,6 +28,7 @@ Parameters
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
 """
 
+import sys
 from CaseRecommender.recommenders.item_recommendation.userknn import UserKNN
 from CaseRecommender.utils.extra_functions import timed
 from CaseRecommender.utils.read_file import ReadFile
@@ -36,10 +37,19 @@ __author__ = "Arthur Fortes"
 
 
 class UserAttributeKNN(UserKNN):
-    def __init__(self, train_file, similarity_matrix_file, test_file=None, ranking_file=None, neighbors=30,
-                 rank_number=10):
+    def __init__(self, train_file, metadata_file=None, similarity_matrix_file=None, test_file=None, ranking_file=None,
+                 neighbors=30, rank_number=10):
         UserKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
                          rank_number=rank_number)
+        self.similarity_matrix_file = similarity_matrix_file
+
+        if metadata_file is None and similarity_matrix_file is None:
+            print("This algorithm needs a similarity matrix or a matadata file!")
+            sys.exit(0)
+
+        if metadata_file is not None:
+            self.metadata = ReadFile(metadata_file).read_metadata(self.users)
+            self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 
     def read_matrix(self):
@@ -54,7 +64,10 @@ class UserAttributeKNN(UserKNN):
             print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
                   " items and " + str(test_set["number_interactions"]) + " interactions")
             del test_set
-        print("training time:: " + str(timed(self.read_matrix))) + " sec"
+        if self.similarity_matrix_file is not None:
+            print("training time:: " + str(timed(self.read_matrix))) + " sec"
+        else:
+            print("training time:: " + str(timed(self.compute_similarity))) + " sec"
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         if self.test_file is not None:
             self.evaluate()

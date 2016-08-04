@@ -50,7 +50,7 @@ import math
 __author__ = "Arthur Fortes"
 
 
-class ItemNSVD1(BaseNSVD1):
+class UserNSVD1(BaseNSVD1):
     def __init__(self, train_file, test_file, metadata_file, prediction_file=None, steps=30, learn_rate=0.01,
                  delta=0.015, factors=10, init_mean=0.1, init_stdev=0.1, alpha=0.001, batch=False, n2=10,
                  learn_rate2=0.01, delta2=0.015):
@@ -162,8 +162,3 @@ class ItemNSVD1(BaseNSVD1):
 
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         self.evaluate(self.predictions)
-
-
-ItemNSVD1("C:/Users/Arthur/Documents/exp/train.dat",
-          "C:/Users/Arthur/Documents/exp/test.dat",
-          "C:/Users/Arthur/Documents/exp/item_genre.dat", batch=False).execute()

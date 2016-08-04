@@ -277,7 +277,8 @@ class ReadFile(object):
                 self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
 
         return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
-                "number_interactions": self.number_interactions, "di": self.dict_items, "mu": map_user}
+                "number_interactions": self.number_interactions, "di": self.dict_items, "mu": map_user,
+                "users": self.list_users, "items": self.list_items}
 
     def read_metadata(self, l_items):
         dict_file = dict()

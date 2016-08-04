@@ -39,8 +39,12 @@ class ItemKNN(object):
         self.train_set = ReadFile(train_file).return_matrix()
         self.train = self.train_set["matrix"]
         self.test_file = test_file
+        self.users = self.train_set["users"]
+        self.items = self.train_set["items"]
         if self.test_file is not None:
             self.test_set = ReadFile(test_file).rating_prediction()
+            self.users = sorted(set(self.train_set["users"] + self.test_set["users"]))
+            self.items = sorted(set(self.train_set["items"] + self.test_set["items"]))
         self.k = neighbors
         self.similarity_metric = similarity_metric
         self.ranking_file = ranking_file
