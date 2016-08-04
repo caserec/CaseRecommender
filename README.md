@@ -28,7 +28,7 @@ Rating Prediction:
 
 - User KNN
 
-- NSVD1
+- Item NSVD1 (with and without Batch)
 
 
 # Evaluation and Validation Metrics
