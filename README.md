@@ -20,13 +20,14 @@ Rating Prediction:
 
 - Matrix Factorization 
 
-- BPR MF
 
 - Item KNN
 
 - Item Attribute KNN
 
 - User KNN
+
+- User Attribute KNN
 
 - Item NSVD1 (with and without Batch)
 

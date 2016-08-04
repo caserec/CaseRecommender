@@ -205,7 +205,6 @@ class NSVD1(object):
               " items and " + str(self.test['ni']) + " interactions")
         print("metadata:: " + str(len(self.metadata['items'])) + " items and " + str(len(self.metadata['metadata'])) +
               " metadata and " + str(self.metadata['ni']) + " interactions")
-
         self._create_factors()
 
         if self.batch:
@@ -214,5 +213,4 @@ class NSVD1(object):
             print("training time:: " + str(timed(self.train_model))) + " sec"
 
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
-
         self.evaluate(self.predictions)
