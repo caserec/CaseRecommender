@@ -71,6 +71,8 @@ class ItemKNN(BaseKNNRecommenders):
                         for item_i in self.train['feedback'][user]:
                             try:
                                 sim = self.si_matrix[self.map_items[item_i]][self.map_items[item_j]]
+                                if np.math.isnan(sim):
+                                    sim = 0.0
                             except KeyError:
                                 sim = 0
                             list_n.append((item_i, sim))
@@ -79,7 +81,10 @@ class ItemKNN(BaseKNNRecommenders):
                         for pair in list_n[:self.k]:
                             ruj += (self.train['feedback'][user][pair[0]] - self.bui[user][pair[0]]) * pair[1]
                             sum_sim += pair[1]
-                        ruj = self.bui[user][item_j] + (ruj / sum_sim)
+                        try:
+                            ruj = self.bui[user][item_j] + (ruj / sum_sim)
+                        except ZeroDivisionError:
+                            pass
 
                         # normalize the ratings based on the highest and lowest value.
                         if ruj > 5:
@@ -104,6 +109,7 @@ class ItemKNN(BaseKNNRecommenders):
         print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
               " items and " + str(self.test_set['ni']) + " interactions")
         # training baselines bui
+        self.fill_matrix()
         print("training time:: " + str(timed(self.train_baselines))) + " sec"
         self.compute_similarity()
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"

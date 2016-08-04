@@ -11,10 +11,10 @@ NSVD1
 Parameters
 -----------
     - train_file: string
+    - test_file: string
     - metadata_file: string
         Metadata file ; Format file:
         item \t metadata \t value\n
-    - test_file: string
      - prediction_file: string
      - steps: int
         Number of steps over the training data
@@ -51,7 +51,7 @@ __author__ = "Arthur Fortes"
 
 
 class NSVD1(object):
-    def __init__(self, train_file, metadata_file, test_file, prediction_file=None, steps=30, learn_rate=0.01,
+    def __init__(self, train_file, test_file, metadata_file, prediction_file=None, steps=30, learn_rate=0.01,
                  delta=0.015, factors=10, init_mean=0.1, init_stdev=0.1, alpha=0.001, batch=False, n2=10,
                  learn_rate2=0.01, delta2=0.015):
         self.train = ReadFile(train_file).rating_prediction()

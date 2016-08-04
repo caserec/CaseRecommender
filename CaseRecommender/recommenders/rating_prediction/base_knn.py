@@ -28,16 +28,22 @@ class BaseKNNRecommenders(object):
         self.bu = dict()
         self.bi = dict()
         self.bui = dict()
-        self.matrix = np.zeros((len(self.train['users']), len(self.train['items'])))
+        self.users = sorted(set(self.train["users"] + self.test["users"]))
+        self.items = sorted(set(self.train["items"] + self.test["items"]))
+        self.number_users = len(self.users)
+        self.number_items = len(self.items)
         self.map_items = dict()
         self.map_users = dict()
+        self.matrix = None
 
-        for item_id, item in enumerate(self.train['items']):
+        for item_id, item in enumerate(self.items):
             self.map_items[item] = item_id
 
-        for user_id, user in enumerate(self.train['users']):
+        for user_id, user in enumerate(self.users):
             self.map_users[user] = user_id
 
+    def fill_matrix(self):
+        self.matrix = np.zeros((self.number_users, self.number_items))
         for u, user in enumerate(self.train['users']):
             for item in self.train['feedback'][user]:
                 self.matrix[u][self.map_items[item]] = self.train['feedback'][user][item]

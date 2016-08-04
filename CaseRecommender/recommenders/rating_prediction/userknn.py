@@ -70,6 +70,8 @@ class UserKNN(BaseKNNRecommenders):
 
                         for user_j in self.train['di'][item]:
                             sim = self.su_matrix[self.map_users[user]][self.map_users[user_j]]
+                            if np.math.isnan(sim):
+                                sim = 0.0
                             list_n.append((user_j, sim))
                         list_n = sorted(list_n, key=lambda x: -x[1])
 
@@ -77,7 +79,10 @@ class UserKNN(BaseKNNRecommenders):
                             ruj += (self.train['feedback'][pair[0]][item] - self.bui[pair[0]][item]) * pair[1]
                             sum_sim += pair[1]
 
-                        ruj = self.bui[user][item] + (ruj / sum_sim)
+                        try:
+                            ruj = self.bui[user][item] + (ruj / sum_sim)
+                        except ZeroDivisionError:
+                            pass
 
                         # normalize the ratings based on the highest and lowest value.
                         if ruj > 5:
@@ -100,6 +105,7 @@ class UserKNN(BaseKNNRecommenders):
         print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
               " items and " + str(self.test_set['ni']) + " interactions")
         # training baselines bui
+        self.fill_matrix()
         print("training time:: " + str(timed(self.train_baselines))) + " sec"
         self.compute_similarity()
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"

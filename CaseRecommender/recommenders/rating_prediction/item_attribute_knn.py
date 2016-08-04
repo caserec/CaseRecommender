@@ -17,6 +17,9 @@ Parameters
     - test_file: string
     - prediction_file: string
         file to write final prediction
+    - metadata_file: string
+        Metadata file ; Format file:
+        item \t metadata \t value\n
     - similarity_matrix_file: string
         Pairwise metric to compute the similarity between the users based on a set of attributes.
         Format file:
@@ -29,6 +32,7 @@ Parameters
 
 """
 
+import sys
 from CaseRecommender.recommenders.rating_prediction.itemknn import ItemKNN
 from CaseRecommender.utils.extra_functions import timed
 from CaseRecommender.utils.read_file import ReadFile
@@ -37,8 +41,17 @@ __author__ = 'Arthur Fortes'
 
 
 class ItemAttributeKNN(ItemKNN):
-    def __init__(self, train_file, test_file, similarity_matrix_file, prediction_file=None, neighbors=30):
+    def __init__(self, train_file, test_file, metadata_file=None, similarity_matrix_file=None, prediction_file=None,
+                 neighbors=30):
         ItemKNN.__init__(self, train_file, test_file, prediction_file=prediction_file, neighbors=neighbors)
+
+        if metadata_file is None and similarity_matrix_file is None:
+            print("This algorithm needs a similarity matrix or a matadata file!")
+            sys.exit(0)
+
+        if metadata_file is not None:
+            self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.items)
+            self.matrix = self.metadata['matrix'].T
         self.similarity_matrix_file = similarity_matrix_file
 
     def read_matrix(self):
@@ -53,6 +66,9 @@ class ItemAttributeKNN(ItemKNN):
               " items and " + str(self.test_set['ni']) + " interactions")
         # training baselines bui
         print("training time:: " + str(timed(self.train_baselines))) + " sec"
-        self.read_matrix()
+        if self.similarity_matrix_file is not None:
+            self.read_matrix()
+        else:
+            self.compute_similarity()
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         self.evaluate(self.predictions)
