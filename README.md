@@ -2,7 +2,7 @@
 Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and explicit feedback.  The framework aims to provide a rich set of components from which you can construct a customized recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating prediction approaches, and different metrics validation and evaluation.
 
 # Algorithms
-Item Recommedation:
+Item Recommendation:
 
 - BPR MF
 
@@ -14,11 +14,11 @@ Item Recommedation:
 
 - User Attribute KNN
 
-- Enseble BPR Learning
+- Ensemble BPR Learning
 
 Rating Prediction:
 
-- Matriz Factorization 
+- Matrix Factorization 
 
 - BPR MF
 
@@ -33,7 +33,7 @@ Rating Prediction:
 
 # Evaluation and Validation Metrics
 
-- All-but-one Protocoll
+- All-but-one Protocol
 
 - Cross-fold- Validation
 
@@ -58,7 +58,7 @@ The input-files of traditional have to be placed in the corresponding subdirecto
 Example: user_1\titem_1\tfeedback
 
 # Help CaseRecommender
-To help the project with contribuitions follow the steps:
+To help the project with contributions follow the steps:
 
 - Fork CaseRecommender
 
