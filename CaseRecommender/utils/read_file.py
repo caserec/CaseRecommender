@@ -155,7 +155,7 @@ class ReadFile(object):
         with open(self.file_read) as infile:
             for line in infile:
                 if line.strip():
-                    inline = line.split("\t")
+                    inline = line.split(self.space_type)
                     self.number_interactions += 1
                     user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
                     d_feedback.setdefault(user, {}).update({item: feedback})
@@ -278,3 +278,56 @@ class ReadFile(object):
 
         return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
                 "number_interactions": self.number_interactions, "di": self.dict_items, "mu": map_user}
+
+    def read_metadata(self, l_items):
+        dict_file = dict()
+        d_feedback = dict()
+        list_feedback = list()
+        map_user = dict()
+        map_index_user = dict()
+        map_item = dict()
+        map_index_item = dict()
+        check_error_file(self.file_read)
+
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.space_type)
+                    self.number_interactions += 1
+                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                    d_feedback.setdefault(user, {}).update({item: feedback})
+                    self.triple_dataset.append((user, item, feedback))
+                    self.dict_users.setdefault(user, set()).add(item)
+                    self.dict_items.setdefault(item, set()).add(user)
+                    self.list_items.add(item)
+                    self.mean_feedback += feedback
+                    list_feedback.append(feedback)
+
+        self.triple_dataset = sorted(self.triple_dataset)
+        self.mean_feedback /= float(self.number_interactions)
+        self.list_users = sorted(list(l_items))
+        self.list_items = sorted(list(self.list_items))
+
+        for u, user in enumerate(self.list_users):
+            map_user[user] = u
+            map_index_user[u] = user
+
+        for i, item in enumerate(self.list_items):
+            map_item[item] = i
+            map_index_item[i] = item
+
+        matrix = np.zeros((len(self.list_users), len(self.list_items)))
+
+        for user in self.list_users:
+            try:
+                for item in d_feedback[user]:
+                    matrix[map_user[user]][map_item[item]] = d_feedback[user][item]
+            except KeyError:
+                pass
+
+        dict_file.update({'feedback': d_feedback, 'items': self.list_users, 'metadata': self.list_items,
+                          'di': self.dict_users, 'dm': self.dict_items, 'mean_rates': self.mean_feedback,
+                          'list_feedback': self.triple_dataset, 'ni': self.number_interactions,
+                          'max': max(list_feedback), 'min': min(list_feedback), 'matrix': matrix})
+
+        return dict_file

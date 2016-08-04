@@ -19,7 +19,7 @@ Parameters
     - learn_rate: float
         Learning rate (alpha)
     - delta: float
-        regularization value
+        Regularization value
     - factors: int
         Number of latent factors per user/item
     - init_mean: float
