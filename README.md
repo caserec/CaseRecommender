@@ -28,6 +28,9 @@ Rating Prediction:
 
 - User KNN
 
+- NSVD1
+
+
 # Evaluation and Validation Metrics
 
 - All-but-one Protocoll
