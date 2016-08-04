@@ -58,7 +58,3 @@ class UserAttributeKNN(UserKNN):
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         if self.test_file is not None:
             self.evaluate()
-
-UserAttributeKNN("C:/Users/Arthur/OneDrive/ml100k/folds/0/train.dat",
-                 "C:/Users/Arthur/OneDrive/ml100k/folds/0/distance.dat",
-                 "C:/Users/Arthur/OneDrive/ml100k/folds/0/test.dat").execute()
