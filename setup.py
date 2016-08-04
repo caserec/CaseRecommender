@@ -6,7 +6,7 @@ __author__ = "Arthur Fortes"
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='0.0.5',
+    version='0.0.6',
     license='GPL3 License',
     description='A recommender systems CaseRecommender for python',
     author='Arthur Fortes da Costa',
