@@ -20,6 +20,10 @@ Parameters
             - http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
     - neighbors: int
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
+    - rank_number int
+        The number of items per user that appear in final rank
+    - implicit bool
+        If True define fill matrix with 0s and 1s
 
 """
 
@@ -35,8 +39,8 @@ __author__ = "Arthur Fortes"
 
 class ItemKNN(object):
     def __init__(self, train_file, test_file=None, ranking_file=None, similarity_metric="correlation", neighbors=30,
-                 rank_number=10):
-        self.train_set = ReadFile(train_file).return_matrix()
+                 rank_number=10, implicit=False):
+        self.train_set = ReadFile(train_file).return_matrix(implicit)
         self.train = self.train_set["matrix"]
         self.test_file = test_file
         self.users = self.train_set["users"]

@@ -241,7 +241,7 @@ class ReadFile(object):
 
         return user_info, self.list_users, self.list_items, self.number_interactions, rank_info
 
-    def return_matrix(self):
+    def return_matrix(self, implicit=False):
         check_error_file(self.file_read)
         with open(self.file_read) as infile:
             for line in infile:
@@ -273,7 +273,10 @@ class ReadFile(object):
 
         for user in self.list_users:
             for item in self.dict_users[user]:
-                matrix[map_user[user]][map_item[item]] = self.dict_users[user][item]
+                if implicit:
+                    matrix[map_user[user]][map_item[item]] = 1
+                else:
+                    matrix[map_user[user]][map_item[item]] = self.dict_users[user][item]
                 self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
 
         return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
