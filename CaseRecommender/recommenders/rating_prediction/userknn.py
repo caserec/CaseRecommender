@@ -76,13 +76,19 @@ class UserKNN(BaseKNNRecommenders):
                         list_n = sorted(list_n, key=lambda x: -x[1])
 
                         for pair in list_n[:self.k]:
-                            ruj += (self.train['feedback'][pair[0]][item] - self.bui[pair[0]][item]) * pair[1]
-                            sum_sim += pair[1]
+                            try:
+                                ruj += (self.train['feedback'][pair[0]].get(0, item) -
+                                        self.bui[pair[0]][item]) * pair[1]
+                                sum_sim += pair[1]
+                            except KeyError:
+                                ruj += (self.bui['feedback'][pair[0]].get(0, item) -
+                                        self.bui[pair[0]][item]) * pair[1]
+                                sum_sim += pair[1]
 
                         try:
                             ruj = self.bui[user][item] + (ruj / sum_sim)
                         except ZeroDivisionError:
-                            pass
+                            ruj = self.bui[user][item]
 
                         # normalize the ratings based on the highest and lowest value.
                         if ruj > 5:
@@ -93,6 +99,7 @@ class UserKNN(BaseKNNRecommenders):
 
                     except KeyError:
                         pass
+
             if self.prediction_file is not None:
                 self.write_prediction(self.predictions, self.prediction_file)
             return self.predictions

@@ -7,8 +7,6 @@ NSVD1
     Improving regularized singular value decomposition for collaborative filtering
     https://www.cs.uic.edu/~liub/KDD-cup-2007/proceedings/Regular-Paterek.pdf
 
-
-
 Parameters
 -----------
     - train_file: string

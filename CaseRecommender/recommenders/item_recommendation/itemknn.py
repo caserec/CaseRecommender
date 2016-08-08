@@ -69,7 +69,9 @@ class ItemKNN(object):
             for item in u_list:
                 n_list = list()
                 for item_j in (np.nonzero(self.train[user]))[0]:
-                    n_list.append(self.si_matrix[item][item_j])
+                    sim = 0 if np.math.isnan(self.si_matrix[item][item_j]
+                                             ) else self.si_matrix[item][item_j]
+                    n_list.append(sim)
                 n_list = sorted(n_list, key=lambda x: -x)
                 partial_ranking.append((self.train_set["map_user"][user], self.train_set["map_item"][item],
                                         sum(n_list[:self.k])))

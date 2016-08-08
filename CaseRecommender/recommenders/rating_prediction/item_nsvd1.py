@@ -160,3 +160,8 @@ class ItemNSVD1(BaseNSVD1):
 
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         self.evaluate(self.predictions)
+
+
+ItemNSVD1("C:/Users/Arthur/Documents/exp/train.dat",
+          "C:/Users/Arthur/Documents/exp/test.dat",
+          "C:/Users/Arthur/Documents/exp/item_genre.dat", batch=True).execute()

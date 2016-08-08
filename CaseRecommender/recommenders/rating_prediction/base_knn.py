@@ -43,10 +43,13 @@ class BaseKNNRecommenders(object):
             self.map_users[user] = user_id
 
     def fill_matrix(self):
-        self.matrix = np.zeros((self.number_users, self.number_items))
-        for u, user in enumerate(self.train['users']):
-            for item in self.train['feedback'][user]:
-                self.matrix[u][self.map_items[item]] = self.train['feedback'][user][item]
+        self.matrix = np.zeros((self.users, self.items))
+        for u, user in enumerate(self.users):
+            try:
+                for item in self.train['feedback'][user]:
+                    self.matrix[u][self.map_items[item]] = self.train['feedback'][user][item]
+            except KeyError:
+                pass
 
     def train_baselines(self):
         for i in xrange(10):
@@ -81,9 +84,13 @@ class BaseKNNRecommenders(object):
 
     def compute_bui(self):
         # bui = mi + bu + bi
-        for user in self.train['users']:
-            for item in self.train['items']:
-                self.bui.setdefault(user, {}).update({item: self.train['mean_rates'] + self.bu[user] + self.bi[item]})
+        for user in self.users:
+            for item in self.items:
+                try:
+                    self.bui.setdefault(user, {}).update(
+                        {item: self.train['mean_rates'] + self.bu[user] + self.bi[item]})
+                except KeyError:
+                    self.bui.setdefault(user, {}).update({item: self.train['mean_rates']})
         del self.bu
         del self.bi
 

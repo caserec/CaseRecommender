@@ -51,12 +51,14 @@ class UserKNN(object):
         self.rank_number = rank_number
         self.ranking = list()
         self.su_matrix = None
+        self.matrix = self.train_set["matrix"]
 
     def compute_similarity(self):
         # Calculate distance matrix between users
-        self.su_matrix = np.float32(squareform(pdist(self.train, self.similarity_metric)))
+        self.su_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
         # transform distances in similarities
         self.su_matrix = 1 - self.su_matrix
+        del self.matrix
 
     def _predict_score(self, user_i, user_j):
         pass
@@ -73,7 +75,9 @@ class UserKNN(object):
 
                 if len(common_user_neighbor) > 0:
                     for user_neighbor in common_user_neighbor:
-                        sim_suv += self.su_matrix[user][user_neighbor]
+                        sim = 0 if np.math.isnan(self.su_matrix[user][user_neighbor]
+                                                 ) else self.su_matrix[user][user_neighbor]
+                        sim_suv += sim
 
                     partial_ranking.append((self.train_set["map_user"][user], self.train_set["map_item"][item],
                                             sim_suv))

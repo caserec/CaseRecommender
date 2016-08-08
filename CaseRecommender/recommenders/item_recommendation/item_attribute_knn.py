@@ -15,8 +15,9 @@ Parameters
 -----------
     - train_file: string
     - test_file: string
-    - ranking_file: string
-        file to write final ranking
+    - metadata_file: string
+        Metadata file ; Format file:
+        item \t metadata \t value\n
     - similarity_matrix_file: file
         Pairwise metric to compute the similarity between the users based on a set of attributes.
         Format file:
@@ -24,6 +25,8 @@ Parameters
         distance1\tdistance2\tdistance3\n
         distance1\tdistance2\tdistance3\n
         distance1\tdistance2\tdistance3\n
+    - ranking_file: string
+        file to write final ranking
     - neighbors: int
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
 """
@@ -37,7 +40,7 @@ __author__ = "Arthur Fortes"
 
 
 class ItemAttributeKNN(ItemKNN):
-    def __init__(self, train_file, metadata_file=None, similarity_matrix_file=None, test_file=None, ranking_file=None,
+    def __init__(self, train_file, test_file=None, metadata_file=None, similarity_matrix_file=None, ranking_file=None,
                  neighbors=30, rank_number=10):
         ItemKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
                          rank_number=rank_number)
@@ -46,7 +49,7 @@ class ItemAttributeKNN(ItemKNN):
             sys.exit(0)
 
         if metadata_file is not None:
-            self.metadata = ReadFile(metadata_file).read_metadata(self.users)
+            self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.users)
             self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 

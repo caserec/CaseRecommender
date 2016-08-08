@@ -50,7 +50,7 @@ class UserAttributeKNN(UserKNN):
             sys.exit(0)
 
         if metadata_file is not None:
-            self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.users)
+            self.metadata = ReadFile(metadata_file).read_metadata(self.users)
             self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 
@@ -67,8 +67,8 @@ class UserAttributeKNN(UserKNN):
         # training baselines bui
         print("training time:: " + str(timed(self.train_baselines))) + " sec"
         if self.similarity_matrix_file is not None:
-            self.read_matrix()
+            print("compute similarity:: " + str(timed(self.read_matrix))) + " sec"
         else:
-            self.compute_similarity()
+            print("compute similarity time:: " + str(timed(self.compute_similarity))) + " sec"
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         self.evaluate(self.predictions)
