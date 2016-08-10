@@ -31,6 +31,8 @@ Rating Prediction:
 
 - Item NSVD1 (with and without Batch)
 
+- Item NSVD1 (with and without Batch)
+
 
 # Evaluation and Validation Metrics
 

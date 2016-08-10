@@ -281,7 +281,7 @@ class ReadFile(object):
 
         return {"matrix": matrix, "map_user": map_index_user, "map_item": map_index_item,
                 "number_interactions": self.number_interactions, "di": self.dict_items, "mu": map_user,
-                "users": self.list_users, "items": self.list_items}
+                "users": self.list_users, "items": self.list_items, "feedback": self.dict_users}
 
     def read_metadata(self, l_items):
         dict_file = dict()
@@ -335,3 +335,25 @@ class ReadFile(object):
                           'max': max(list_feedback), 'min': min(list_feedback), 'matrix': matrix})
 
         return dict_file
+
+    def return_bprmf(self):
+        check_error_file(self.file_read)
+        not_seen = dict()
+        with open(self.file_read) as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.space_type)
+                    self.number_interactions += 1
+                    user, item, feedback = int(inline[0]), int(inline[1]), float(inline[2])
+                    self.list_users.add(user)
+                    self.list_items.add(item)
+                    self.dict_users.setdefault(user, list()).append(item)
+
+        self.list_users = sorted(list(self.list_users))
+        self.list_items = sorted(list(self.list_items))
+
+        for user in self.list_users:
+            not_seen[user] = list(set(self.list_items) - set(self.dict_users[user]))
+
+        return {"users": self.list_users, "items": self.list_items, "feedback": self.dict_users, "not_seen": not_seen,
+                "number_interactions": self.number_interactions}

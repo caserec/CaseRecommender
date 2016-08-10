@@ -59,10 +59,7 @@ class BprMF(object):
                  num_events=None, predict_items_number=10, init_mean=0.1, init_stdev=0.1, reg_u=0.0025, reg_i=0.0025,
                  reg_j=0.00025, reg_bias=0, use_loss=True, rank_number=10):
         # external vars
-        self.train_set = ReadFile(train_file).return_matrix()
-        self.train = self.train_set["matrix"]
-        self.map_user = self.train_set["map_user"]
-        self.map_item = self.train_set["map_item"]
+        self.train_set = ReadFile(train_file).return_bprmf()
         self.test_file = test_file
         self.ranking_file = ranking_file
         self.factors = factors
@@ -77,17 +74,34 @@ class BprMF(object):
         self.reg_j = reg_j
         self.use_loss = use_loss
         self.rank_number = rank_number
+        self.users = self.train_set["users"]
+        self.items = self.train_set["items"]
+        if self.test_file is not None:
+            self.test_set = ReadFile(test_file).rating_prediction()
+            self.users = sorted(set(self.train_set["users"] + self.test_set["users"]))
+            self.items = sorted(set(self.train_set["items"] + self.test_set["items"]))
         if num_events is None:
             self.num_events = self.train_set["number_interactions"]
         else:
             self.num_events = num_events
 
         # internal vars
-        self.number_users = len(self.train)
-        self.number_items = len(self.train[0])
+        self.number_users = len(self.users)
+        self.number_items = len(self.items)
         self.loss = None
         self.loss_sample = list()
         self.ranking = list()
+        self.map_items = dict()
+        self.map_items_index = dict()
+        self.map_users = dict()
+        self.map_users_index = dict()
+
+        for i, item in enumerate(self.items):
+            self.map_items.update({item: i})
+            self.map_items_index.update({i: item})
+        for u, user in enumerate(self.users):
+            self.map_users.update({user: u})
+            self.map_users_index.update({u: user})
 
     def _create_factors(self):
         self.p = self.init_mean * np.random.randn(self.number_users, self.factors) + self.init_stdev ** 2
@@ -95,19 +109,17 @@ class BprMF(object):
         self.bias = self.init_mean * np.random.randn(self.number_items, 1) + self.init_stdev ** 2
 
     def _sample_triple(self):
-        u = np.random.randint(0, len(self.train)-1)
-        i = np.random.choice(np.nonzero(self.train[u])[0])
-        j = np.random.choice(np.flatnonzero(self.train[u] == 0))
-        return u, i, j
+        user = self.train_set["users"][np.random.randint(0, len(self.train_set["users"]))]
+        item_i = self.train_set["feedback"][user][np.random.randint(0, len(self.train_set["feedback"][user]))]
+        item_j = self.train_set["not_seen"][user][np.random.randint(0, len(self.train_set["not_seen"][user]))]
+        return self.map_users[user], self.map_items[item_i], self.map_items[item_j]
 
-    #
+    def _predict(self, user, item):
+        return self.bias[item] + np.dot(self.p[user], self.q[item])
+
     def _update_factors(self, user, item_i, item_j):
         # Compute Difference
-        rui = self.bias[item_i] + np.dot(self.p[user], self.q[item_i])
-        ruj = self.bias[item_j] + np.dot(self.p[user], self.q[item_j])
-
-        x_uij = rui - ruj
-        eps = 1 / (1 + np.exp(x_uij))
+        eps = 1 / (1 + np.exp(self._predict(user, item_i) - self._predict(user, item_j)))
 
         self.bias[item_i] += self.learn_rate * (eps - self.reg_bias * self.bias[item_i])
         self.bias[item_j] += self.learn_rate * (eps - self.reg_bias * self.bias[item_j])
@@ -117,32 +129,24 @@ class BprMF(object):
         i_f = self.q[item_i]
         j_f = self.q[item_j]
 
-        # Compute factor updates
-        delta_u = (i_f - j_f) * eps - self.reg_u * u_f
-        delta_i = u_f * eps - self.reg_i * i_f
-        delta_j = -u_f * eps - self.reg_j * j_f
-
-        # Apply updates
-        self.p[user] += self.learn_rate * delta_u
-        self.q[item_i] += self.learn_rate * delta_i
-        self.q[item_j] += self.learn_rate * delta_j
-
-    def predict_score(self, user, item):
-        return round(self.bias[item] + np.dot(self.p[user], self.q[item]), 6)
+        # Compute and apply factor updates
+        self.p[user] += self.learn_rate * ((i_f - j_f) * eps - self.reg_u * u_f)
+        self.q[item_i] += self.learn_rate * (u_f * eps - self.reg_i * i_f)
+        self.q[item_j] += self.learn_rate * (-u_f * eps - self.reg_j * j_f)
 
     def _compute_loss(self):
         ranking_loss = 0
         for sample in self.loss_sample:
-            x_uij = self.predict_score(sample[0], sample[1]) - self.predict_score(sample[0], sample[2])
+            x_uij = self._predict(sample[0], sample[1]) - self._predict(sample[0], sample[2])
             ranking_loss += 1 / (1 + np.exp(x_uij))
 
         complexity = 0
         for sample in self.loss_sample:
-            complexity += self.reg_u * np.power(np.linalg.norm(self.p[sample[0]]), 2)
-            complexity += self.reg_i * np.power(np.linalg.norm(self.q[sample[1]]), 2)
-            complexity += self.reg_j * np.power(np.linalg.norm(self.q[sample[2]]), 2)
-            complexity += self.reg_bias * np.power(self.bias[sample[1]], 2)
-            complexity += self.reg_bias * np.power(self.bias[sample[2]], 2)
+            complexity += self.reg_u * np.linalg.norm(self.p[sample[0]]) ** 2
+            complexity += self.reg_i * np.linalg.norm(self.q[sample[1]]) ** 2
+            complexity += self.reg_j * np.linalg.norm(self.q[sample[2]]) ** 2
+            complexity += self.reg_bias * self.bias[sample[1]] ** 2
+            complexity += self.reg_bias * self.bias[sample[2]] ** 2
 
         return ranking_loss + 0.5 * complexity
 
@@ -150,15 +154,15 @@ class BprMF(object):
     # One iteration is samples number of positive entries in the training matrix times
     def train_model(self):
         if self.use_loss:
-            num_sample_triples = int(np.sqrt(len(self.map_user)) * 100)
+            num_sample_triples = int(np.sqrt(len(self.users)) * 100)
             for _ in xrange(num_sample_triples):
                 self.loss_sample.append(self._sample_triple())
             self.loss = self._compute_loss()
 
-        for i in xrange(self.num_interactions):
-            for j in xrange(self.num_events):
-                user, item_i, item_j = self._sample_triple()
-                self._update_factors(user, item_i, item_j)
+        for n in xrange(self.num_interactions):
+            for _ in xrange(self.num_events):
+                u, i, j = self._sample_triple()
+                self._update_factors(u, i, j)
 
             if self.use_loss:
                 actual_loss = self._compute_loss()
@@ -168,14 +172,21 @@ class BprMF(object):
                     self.learn_rate *= 1.1
                 self.loss = actual_loss
 
+            print n, self.loss
+
     def predict(self):
-        for user in xrange(len(self.train)):
+        w = self.bias.T + np.dot(self.p, self.q.T)
+        for u, user in enumerate(self.users):
             partial_ranking = list()
-            u_list = list(np.flatnonzero(self.train[user] == 0))
-            for item in u_list:
-                partial_ranking.append((self.map_user[user], self.map_item[item], self.predict_score(user, item)))
-            partial_ranking = sorted(partial_ranking, key=lambda x: -x[2])[:self.rank_number]
-            self.ranking += partial_ranking
+            user_list = sorted(range(len(w[u])), key=lambda k: w[u][k], reverse=True)
+            for i in user_list[:100]:
+                item = self.map_items_index[i]
+                try:
+                    if item not in self.train_set["feedback"][user]:
+                        partial_ranking.append((user, item, w[u][i]))
+                except KeyError:
+                    partial_ranking.append((user, item, w[u][i]))
+            self.ranking += partial_ranking[:self.rank_number]
 
         if self.ranking_file is not None:
             WriteFile(self.ranking_file, self.ranking).write_ranking_file()
@@ -197,7 +208,6 @@ class BprMF(object):
                   " items and " + str(test_set["number_interactions"]) + " interactions")
             del test_set
         self._create_factors()
-        self._sample_triple()
         print("training time:: " + str(timed(self.train_model))) + " sec"
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         if self.test_file is not None:

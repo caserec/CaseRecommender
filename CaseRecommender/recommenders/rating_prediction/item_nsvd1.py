@@ -132,7 +132,7 @@ class ItemNSVD1(BaseNSVD1):
                     for l in list(np.nonzero(self.x[i])[0]):
                         self.w[l] += self.learn_rate2 * (d * np.dot(self.x[i][l], e.T) - np.dot(self.w[l], self.delta2))
 
-            self.q = np.dot(self.metadata['matrix'], self.w)
+            self.q = np.dot(self.x, self.w)
 
             rmse = math.sqrt(rmse / float(count_error))
 
@@ -160,8 +160,3 @@ class ItemNSVD1(BaseNSVD1):
 
         print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
         self.evaluate(self.predictions)
-
-
-ItemNSVD1("C:/Users/Arthur/Documents/exp/train.dat",
-          "C:/Users/Arthur/Documents/exp/test.dat",
-          "C:/Users/Arthur/Documents/exp/item_genre.dat", batch=True).execute()
