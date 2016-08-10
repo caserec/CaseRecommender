@@ -32,10 +32,10 @@ Parameters
 """
 
 import numpy as np
-from CaseRecommender.evaluation.rating_prediction import RatingPredictionEvaluation
-from CaseRecommender.utils.extra_functions import timed
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
+from framework.evaluation.rating_prediction import RatingPredictionEvaluation
+from framework.utils.extra_functions import timed
+from framework.utils.read_file import ReadFile
+from framework.utils.write_file import WriteFile
 
 __author__ = "Arthur Fortes"
 

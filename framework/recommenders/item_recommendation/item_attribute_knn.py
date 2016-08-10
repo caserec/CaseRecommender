@@ -2,14 +2,14 @@
 """
 © 2016. Case Recommender All Rights Reserved (License GPL3)
 
-User Based Collaborative Filtering Recommender with Attributes
+Item Based Collaborative Filtering Recommender with Attributes
 
-    User-Attribute-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm
-    matches similar users based on the similarity of their attributes scores. However, instead of traditional UserKNN,
-    this approach uses a pre-computed similarity matrix.
+    Its philosophy is as follows: in order to determine the rating of User u on Movie m, we can find other movies that
+    are similar to Movie m, and based on User u’s ratings on those similar movies we infer his rating on Movie m.
+    However, instead of traditional ItemKNN, this approach uses a pre-computed similarity matrix.
 
     Literature:
-        More details: http://files.grouplens.org/papers/algs.pdf
+        http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOnCollaborativeFiltering.pdf
 
 Parameters
 -----------
@@ -32,34 +32,32 @@ Parameters
 """
 
 import sys
-from CaseRecommender.recommenders.item_recommendation.userknn import UserKNN
-from CaseRecommender.utils.extra_functions import timed
-from CaseRecommender.utils.read_file import ReadFile
+from framework.recommenders.item_recommendation.itemknn import ItemKNN
+from framework.utils.extra_functions import timed
+from framework.utils.read_file import ReadFile
 
 __author__ = "Arthur Fortes"
 
 
-class UserAttributeKNN(UserKNN):
+class ItemAttributeKNN(ItemKNN):
     def __init__(self, train_file, test_file=None, metadata_file=None, similarity_matrix_file=None, ranking_file=None,
                  neighbors=30, rank_number=10):
-        UserKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
+        ItemKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
                          rank_number=rank_number)
-        self.similarity_matrix_file = similarity_matrix_file
-
         if metadata_file is None and similarity_matrix_file is None:
             print("This algorithm needs a similarity matrix or a matadata file!")
             sys.exit(0)
 
         if metadata_file is not None:
-            self.metadata = ReadFile(metadata_file).read_metadata(self.users)
+            self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.users)
             self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 
     def read_matrix(self):
-        self.su_matrix = ReadFile(self.similarity_matrix_file).read_matrix()
+        self.si_matrix = ReadFile(self.similarity_matrix_file).read_matrix()
 
     def execute(self):
-        print("[Case Recommender: Item Recommendation > User Attribute KNN Algorithm]\n")
+        print("[Case Recommender: Item Recommendation > Item Attribute KNN Algorithm]\n")
         print("training data:: " + str(len(self.train_set["map_user"])) + " users and " + str(len(
             self.train_set["map_item"])) + " items and " + str(self.train_set["number_interactions"]) + " interactions")
         if self.test_file is not None:

@@ -13,8 +13,8 @@ Parameters
 """
 
 import numpy as np
-from CaseRecommender.evaluation.rating_prediction import RatingPredictionEvaluation
-from CaseRecommender.utils.write_file import WriteFile
+from framework.evaluation.rating_prediction import RatingPredictionEvaluation
+from framework.utils.write_file import WriteFile
 
 __author__ = 'Arthur Fortes'
 

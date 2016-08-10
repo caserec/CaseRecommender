@@ -41,7 +41,7 @@ Methods:
 
 import sys
 import numpy as np
-from CaseRecommender.utils.extra_functions import check_error_file
+from framework.utils.extra_functions import check_error_file
 
 __author__ = 'Arthur Fortes'
 

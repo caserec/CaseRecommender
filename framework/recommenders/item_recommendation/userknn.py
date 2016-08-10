@@ -29,10 +29,10 @@ Parameters
 
 import numpy as np
 from scipy.spatial.distance import squareform, pdist
-from CaseRecommender.evaluation.item_recommendation import ItemRecommendationEvaluation
-from CaseRecommender.utils.extra_functions import timed
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
+from framework.evaluation.item_recommendation import ItemRecommendationEvaluation
+from framework.utils.extra_functions import timed
+from framework.utils.read_file import ReadFile
+from framework.utils.write_file import WriteFile
 
 __author__ = "Arthur Fortes"
 

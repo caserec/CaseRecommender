@@ -1,5 +1,5 @@
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
+from framework.utils.read_file import ReadFile
+from framework.utils.write_file import WriteFile
 
 
 class BaseEnsemble(object):

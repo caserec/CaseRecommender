@@ -1,6 +1,6 @@
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
-from CaseRecommender.utils.extra_functions import check_len_lists
+from framework.utils.read_file import ReadFile
+from framework.utils.write_file import WriteFile
+from framework.utils.extra_functions import check_len_lists
 
 __author__ = 'Arthur Fortes'
 

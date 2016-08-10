@@ -11,8 +11,8 @@ This file contains item recommendation measures:
 import sys
 import numpy as np
 
-from CaseRecommender.utils.extra_functions import check_error_file
-from CaseRecommender.utils.read_file import ReadFile
+from framework.utils.extra_functions import check_error_file
+from framework.utils.read_file import ReadFile
 
 __author__ = 'Arthur Fortes'
 

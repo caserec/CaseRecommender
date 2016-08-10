@@ -33,9 +33,9 @@ Parameters
 
 """
 
-from CaseRecommender.evaluation.rating_prediction import RatingPredictionEvaluation
-from CaseRecommender.utils.read_file import ReadFile
-from CaseRecommender.utils.write_file import WriteFile
+from framework.evaluation.rating_prediction import RatingPredictionEvaluation
+from framework.utils.read_file import ReadFile
+from framework.utils.write_file import WriteFile
 import numpy as np
 
 __author__ = "Arthur Fortes"
