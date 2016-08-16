@@ -6,13 +6,13 @@ __author__ = "Arthur Fortes"
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='0.0.10',
+    version='0.0.10a',
     license='GPL3 License',
     description='A recommender systems framework for Python',
     author='Arthur Fortes',
     author_email='fortes.arthur@gmail.com',
     url='https://github.com/ArthurFortes/CaseRecommender',
-    download_url='https://github.com/ArthurFortes/CaseRecommender/tarball/0.0.10',
+    download_url='https://github.com/ArthurFortes/CaseRecommender/tarball/0.0.10a',
     keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering'],
     classifiers=[],
 )

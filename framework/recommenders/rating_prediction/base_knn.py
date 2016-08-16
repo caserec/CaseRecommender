@@ -43,7 +43,7 @@ class BaseKNNRecommenders(object):
             self.map_users[user] = user_id
 
     def fill_matrix(self):
-        self.matrix = np.zeros((self.users, self.items))
+        self.matrix = np.zeros((self.number_users, self.number_items))
         for u, user in enumerate(self.users):
             try:
                 for item in self.train['feedback'][user]:
