@@ -28,10 +28,10 @@ class WriteFile(object):
         self.data = data
         self.space_type = space_type
 
-    def split_dataset(self, feedback='', dataset=''):
+    def split_dataset(self, feedback=None, dataset=None):
         names = list()
 
-        if dataset != '':
+        if dataset is not None:
             for t in dataset:
                 if t.rfind('\\') == -1:
                     names.append(t[t.rfind('/')+1:])
@@ -58,7 +58,7 @@ class WriteFile(object):
                     infile.write(str(triple[0]) + self.space_type + str(triple[1]) +
                                  self.space_type + str(triple[2]) + '\n')
 
-            if feedback != '':
+            if feedback is not None:
                 for i, feed in enumerate(feedback[f]):
                     train_name = 'train_' + str(names[i])
                     with open(fold_name + train_name, 'w') as infile:
@@ -68,14 +68,14 @@ class WriteFile(object):
                                              str(feed[user][item]) + '\n')
 
     def cross_fold_validation(self):
-        self.file_write += '\\folds\\'
+        self.file_write += '/folds/'
 
         if not os.path.exists(self.file_write):
             os.mkdir(self.file_write)
 
         # f is an integer number (0 - n fold)
         for f in self.data:
-            fold_name = self.file_write + str(f) + '\\'
+            fold_name = self.file_write + str(f) + '/'
             if not os.path.exists(fold_name):
                 os.mkdir(fold_name)
 
