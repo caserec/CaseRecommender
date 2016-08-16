@@ -77,13 +77,11 @@ class UserKNN(BaseKNNRecommenders):
 
                         for pair in list_n[:self.k]:
                             try:
-                                ruj += (self.train['feedback'][pair[0]].get(0, item) -
+                                ruj += (self.train_set['feedback'][pair[0]][item] -
                                         self.bui[pair[0]][item]) * pair[1]
                                 sum_sim += pair[1]
                             except KeyError:
-                                ruj += (self.bui['feedback'][pair[0]].get(0, item) -
-                                        self.bui[pair[0]][item]) * pair[1]
-                                sum_sim += pair[1]
+                                pass
 
                         try:
                             ruj = self.bui[user][item] + (ruj / sum_sim)

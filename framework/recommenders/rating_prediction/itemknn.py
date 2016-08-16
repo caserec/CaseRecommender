@@ -80,12 +80,11 @@ class ItemKNN(BaseKNNRecommenders):
 
                         for pair in list_n[:self.k]:
                             try:
-                                ruj += (self.train['feedback'][user].get(0, pair[0]) -
+                                ruj += (self.train['feedback'][user][pair[0]] -
                                         self.bui[user][pair[0]]) * pair[1]
                                 sum_sim += pair[1]
                             except KeyError:
-                                ruj += (self.bui['feedback'][user].get(0, pair[0]) -
-                                        self.bui[user][pair[0]]) * pair[1]
+                                pass
 
                         try:
                             ruj = self.bui[user][item_j] + (ruj / sum_sim)

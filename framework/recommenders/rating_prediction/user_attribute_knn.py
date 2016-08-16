@@ -42,7 +42,7 @@ __author__ = 'Arthur Fortes'
 
 class UserAttributeKNN(UserKNN):
     def __init__(self, train_file, test_file, metadata_file=None, similarity_matrix_file=None, prediction_file=None,
-                 neighbors=30):
+                 neighbors=30, space_type="\t"):
         UserKNN.__init__(self, train_file, test_file, prediction_file=prediction_file, neighbors=neighbors)
 
         if metadata_file is None and similarity_matrix_file is None:
@@ -50,7 +50,7 @@ class UserAttributeKNN(UserKNN):
             sys.exit(0)
 
         if metadata_file is not None:
-            self.metadata = ReadFile(metadata_file).read_metadata(self.users)
+            self.metadata = ReadFile(metadata_file, space_type).read_metadata(self.users)
             self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 
