@@ -29,6 +29,10 @@ Parameters
         file to write final ranking
     - neighbors: int
         The number of user candidates strategy that you can choose for selecting the possible items to recommend.
+    - similarity_metric: string
+        Pairwise metric to compute the similarity between the users.
+        Reference about distances:
+            - http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
 """
 
 import sys
@@ -41,15 +45,15 @@ __author__ = "Arthur Fortes"
 
 class ItemAttributeKNN(ItemKNN):
     def __init__(self, train_file, test_file=None, metadata_file=None, similarity_matrix_file=None, ranking_file=None,
-                 neighbors=30, rank_number=10):
+                 neighbors=30, rank_number=10, space_type="\t", similarity_metric="correlation"):
         ItemKNN.__init__(self, train_file, test_file=test_file, ranking_file=ranking_file, neighbors=neighbors,
-                         rank_number=rank_number)
+                         rank_number=rank_number, similarity_metric=similarity_metric)
         if metadata_file is None and similarity_matrix_file is None:
             print("This algorithm needs a similarity matrix or a matadata file!")
             sys.exit(0)
 
         if metadata_file is not None:
-            self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.users)
+            self.metadata = ReadFile(metadata_file, space_type).read_metadata(self.users)
             self.matrix = self.metadata['matrix']
         self.similarity_matrix_file = similarity_matrix_file
 

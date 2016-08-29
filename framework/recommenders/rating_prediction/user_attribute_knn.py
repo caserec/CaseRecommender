@@ -42,8 +42,9 @@ __author__ = 'Arthur Fortes'
 
 class UserAttributeKNN(UserKNN):
     def __init__(self, train_file, test_file, metadata_file=None, similarity_matrix_file=None, prediction_file=None,
-                 neighbors=30, space_type="\t"):
-        UserKNN.__init__(self, train_file, test_file, prediction_file=prediction_file, neighbors=neighbors)
+                 neighbors=30, space_type="\t", similarity_metric="correlation"):
+        UserKNN.__init__(self, train_file, test_file, prediction_file=prediction_file, neighbors=neighbors,
+                         similarity_metric=similarity_metric)
 
         if metadata_file is None and similarity_matrix_file is None:
             print("This algorithm needs a similarity matrix or a matadata file!")
