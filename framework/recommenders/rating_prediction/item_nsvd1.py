@@ -67,6 +67,12 @@ class ItemNSVD1(BaseNSVD1):
 
         # Internal
         self.x = self.metadata['matrix']
+        self.non_zero_x = list()
+        self.d = list()
+        for i in xrange(self.number_items):
+            self.non_zero_x.append(list(np.where(self.x[i] != 0)[0]))
+            with np.errstate(divide='ignore'):
+                self.d.append(1 / np.dot(self.x[i].T, self.x[i]))
 
     def _update_factors(self, item, i):
         c, e = 0, 0
@@ -99,11 +105,8 @@ class ItemNSVD1(BaseNSVD1):
                 rmse += e
                 count_error += c
 
-                with np.errstate(divide='ignore'):
-                    d = 1 / np.dot(self.x[i].T, self.x[i])
-
-                for l in list(np.nonzero(self.x[i])[0]):
-                    self.w[l] += d * self.x[i][l] * (self.q[i] - a)
+                for l in self.non_zero_x[i]:
+                    self.w[l] += self.d[i] * self.x[i][l] * (self.q[i] - a)
             rmse = math.sqrt(rmse / float(count_error))
 
             if (math.fabs(rmse - self.last_rmse)) <= self.alpha:
@@ -126,16 +129,14 @@ class ItemNSVD1(BaseNSVD1):
             for _ in xrange(self.n2):
                 for i, item in enumerate(self.items):
                     e = self.q[i] - (np.dot(self.x[i], self.w))
-                    with np.errstate(divide='ignore'):
-                        d = 1 / np.dot(self.x[i].T, self.x[i])
 
-                    for l in list(np.nonzero(self.x[i])[0]):
-                        self.w[l] += self.learn_rate2 * (d * np.dot(self.x[i][l], e.T) - np.dot(self.w[l], self.delta2))
+                    for l in self.non_zero_x[i]:
+                        self.w[l] += self.learn_rate2 * (self.d[i] * np.dot(self.x[i][l], e.T) -
+                                                         (self.w[l] * self.delta2))
 
             self.q = np.dot(self.x, self.w)
 
             rmse = math.sqrt(rmse / float(count_error))
-
             if (math.fabs(rmse - self.last_rmse)) <= self.alpha:
                 break
             else:

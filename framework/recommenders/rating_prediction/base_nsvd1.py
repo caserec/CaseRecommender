@@ -85,15 +85,20 @@ class BaseNSVD1(object):
         self.w = self.init_mean * np.random.randn(self.number_metadata, self.factors) + self.init_stdev ** 2
 
     def _predict(self, user, item):
-        return self.b[user] + self.c[item] + np.dot(self.p[user], self.q[item])
+        rui = self.b[user] + self.c[item] + np.dot(self.p[user], self.q[item])
+        return rui[0]
 
     def predict(self):
         if self.test is not None:
             for user in self.test['users']:
                 for item in self.test['feedback'][user]:
                     try:
-                        self.predictions.append((user, item, self._predict(self.map_users[user],
-                                                                           self.map_items[item]), True))
+                        rui = self._predict(self.map_users[user], self.map_items[item])
+                        if rui > self.train["max"]:
+                            rui = self.train["max"]
+                        if rui < self.train["min"]:
+                            rui = self.train["min"]
+                        self.predictions.append((user, item, rui))
                     except KeyError:
                         self.predictions.append((user, item, self.train["mean_rates"]))
 

@@ -89,10 +89,10 @@ class UserKNN(BaseKNNRecommenders):
                             ruj = self.bui[user][item]
 
                         # normalize the ratings based on the highest and lowest value.
-                        if ruj > 5:
-                            ruj = 5.0
-                        if ruj < 0.5:
-                            ruj = 0.5
+                        if ruj > self.train_set["max"]:
+                            ruj = self.train_set["max"]
+                        if ruj < self.train_set["min"]:
+                            ruj = self.train_set["min"]
                         self.predictions.append((user, item, ruj))
 
                     except KeyError:

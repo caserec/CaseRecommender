@@ -51,9 +51,9 @@ __author__ = "Arthur Fortes"
 class UserNSVD1(BaseNSVD1):
     def __init__(self, train_file, test_file, metadata_file, prediction_file=None, steps=30, learn_rate=0.01,
                  delta=0.015, factors=10, init_mean=0.1, init_stdev=0.1, alpha=0.001, batch=False, n2=10,
-                 learn_rate2=0.01, delta2=0.015):
+                 learn_rate2=0.01, delta2=0.015, space_type="\t"):
         BaseNSVD1.__init__(self, train_file, test_file, prediction_file, factors, init_mean, init_stdev)
-        self.metadata = ReadFile(metadata_file, space_type=" ").read_metadata(self.users)
+        self.metadata = ReadFile(metadata_file, space_type).read_metadata(self.users)
         self.number_metadata = len(self.metadata["metadata"])
         self.batch = batch
         self.steps = steps
@@ -66,6 +66,12 @@ class UserNSVD1(BaseNSVD1):
 
         # Internal
         self.x = self.metadata['matrix']
+        self.non_zero_x = list()
+        self.d = list()
+        for u in xrange(self.number_users):
+            self.non_zero_x.append(list(np.where(self.x[u] != 0)[0]))
+            with np.errstate(divide='ignore'):
+                self.d.append(1 / np.dot(self.x[u].T, self.x[u]))
 
     def _update_factors(self, user, u):
         c, e = 0, 0
@@ -74,11 +80,11 @@ class UserNSVD1(BaseNSVD1):
                 i = self.map_items[item]
                 rui = self._predict(u, i)
                 error = self.train['feedback'][user][item] - rui
-                b = np.array(self.p[u])
+                b = np.array(self.q[i])
 
                 # update factors
-                self.p[u] += self.learn_rate * (error * self.q[i] - self.delta * self.p[u])
-                self.q[i] += self.learn_rate * (error * b - self.delta * self.q[i])
+                self.p[u] += self.learn_rate * (error * b - self.delta * self.p[u])
+                self.q[i] += self.learn_rate * (error * self.p[u] - self.delta * self.q[i])
                 self.b[u] += self.learn_rate * (error - self.delta * self.b[u])
                 self.c[i] += self.learn_rate * (error - self.delta * self.c[i])
                 c += 1
@@ -99,11 +105,8 @@ class UserNSVD1(BaseNSVD1):
                 rmse += e
                 count_error += c
 
-                with np.errstate(divide='ignore'):
-                    d = 1 / np.dot(self.x[u].T, self.x[u])
-
-                for l in list(np.nonzero(self.x[u])[0]):
-                    self.w[l] += d * self.x[u][l] * (self.p[u] - a)
+                for l in self.non_zero_x[u]:
+                    self.w[l] += self.d[u] * self.x[u][l] * (self.p[u] - a)
             rmse = math.sqrt(rmse / float(count_error))
 
             if (math.fabs(rmse - self.last_rmse)) <= self.alpha:
@@ -126,16 +129,14 @@ class UserNSVD1(BaseNSVD1):
             for _ in xrange(self.n2):
                 for u, user in enumerate(self.users):
                     e = self.p[u] - (np.dot(self.x[u], self.w))
-                    with np.errstate(divide='ignore'):
-                        d = 1 / np.dot(self.x[u].T, self.x[u])
 
-                    for l in list(np.nonzero(self.x[u])[0]):
-                        self.w[l] += self.learn_rate2 * (d * np.dot(self.x[u][l], e.T) - np.dot(self.w[l], self.delta2))
+                    for l in self.non_zero_x[u]:
+                        self.w[l] += self.learn_rate2 * (self.d[u] * np.dot(self.x[u][l], e.T) -
+                                                         (self.w[l] * self.delta2))
 
-            self.p = np.dot(self.metadata['matrix'], self.w)
+            self.p = np.dot(self.x, self.w)
 
             rmse = math.sqrt(rmse / float(count_error))
-
             if (math.fabs(rmse - self.last_rmse)) <= self.alpha:
                 break
             else:

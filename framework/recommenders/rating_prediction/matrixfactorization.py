@@ -76,7 +76,6 @@ class MatrixFactorization(object):
         self.bui = dict()
         self.p = None
         self.q = None
-        self.final_matrix = None
 
         # methods
         self._create_factors()
@@ -124,11 +123,11 @@ class MatrixFactorization(object):
         del self.bu
         del self.bi
 
-    def _predict(self, user, item, cond=True):
+    def _predict(self, user, item, u, i, cond=True):
         if self.baseline:
-            rui = self.bui[self.map_users_index[user]][self.map_items_index[item]] + np.dot(self.p[user], self.q[item])
+            rui = self.bui[user][item] + np.dot(self.p[u], self.q[i])
         else:
-            rui = self.train["mean_rates"] + np.dot(self.p[user], self.q[item])
+            rui = self.train["mean_rates"] + np.dot(self.p[u], self.q[i])
 
         if cond:
             if rui > self.train["max"]:
@@ -142,12 +141,13 @@ class MatrixFactorization(object):
             error_final = 0.0
             for u, user in enumerate(self.train["users"]):
                 for item in self.train["feedback"][user]:
-                    eui = self.train["feedback"][user][item] - self._predict(u, self.map_items[item], False)
+                    i = self.map_items[item]
+                    eui = self.train["feedback"][user][item] - self._predict(user, item, u, i, False)
                     error_final += (eui ** 2.0)
 
                     # Adjust the factors
                     u_f = self.p[u]
-                    i_f = self.q[self.map_items[item]]
+                    i_f = self.q[i]
 
                     # Compute factor updates
                     delta_u = eui * i_f - self.delta * u_f
@@ -155,20 +155,18 @@ class MatrixFactorization(object):
 
                     # apply updates
                     self.p[u] += self.learn_rate * delta_u
-                    self.q[self.map_items[item]] += self.learn_rate * delta_i
+                    self.q[i] += self.learn_rate * delta_i
 
-            # rmse = np.sqrt(error_final / self.train["ni"])
-            # print rmse
-
-        self.final_matrix = np.dot(self.p, self.q.T)
+            rmse = np.sqrt(error_final / self.train["ni"])
+            print step, rmse
 
     def predict(self):
         if self.test is not None:
             for user in self.test['users']:
                 for item in self.test['feedback'][user]:
+                    u, i = self.map_users[user], self.map_items[item]
                     try:
-                        self.predictions.append((user, item, self._predict(self.map_users[user],
-                                                                           self.map_items[item]), True))
+                        self.predictions.append((user, item, self._predict(user, item, u, i, True)))
                     except KeyError:
                         self.predictions.append((user, item, self.train["mean_rates"]))
 
