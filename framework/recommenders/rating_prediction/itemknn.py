@@ -108,13 +108,13 @@ class ItemKNN(BaseKNNRecommenders):
     def execute(self):
         # methods
         print("[Case Recommender: Rating Prediction > ItemKNN Algorithm]\n")
-        print("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
-            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions")
-        print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
-              " items and " + str(self.test_set['ni']) + " interactions")
+        print(("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
+            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions"))
+        print(("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
+              " items and " + str(self.test_set['ni']) + " interactions"))
         # training baselines bui
         self.fill_matrix()
-        print("training time:: " + str(timed(self.train_baselines))) + " sec"
+        print(("training time:: " + str(timed(self.train_baselines))) + " sec")
         self.compute_similarity()
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        print(("prediction_time:: " + str(timed(self.predict))) + " sec\n")
         self.evaluate(self.predictions)

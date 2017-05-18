@@ -155,12 +155,12 @@ class BprMF(object):
     def train_model(self):
         if self.use_loss:
             num_sample_triples = int(np.sqrt(len(self.users)) * 100)
-            for _ in xrange(num_sample_triples):
+            for _ in range(num_sample_triples):
                 self.loss_sample.append(self._sample_triple())
             self.loss = self._compute_loss()
 
-        for n in xrange(self.num_interactions):
-            for _ in xrange(self.num_events):
+        for n in range(self.num_interactions):
+            for _ in range(self.num_events):
                 u, i, j = self._sample_triple()
                 self._update_factors(u, i, j)
 
@@ -172,13 +172,13 @@ class BprMF(object):
                     self.learn_rate *= 1.1
                 self.loss = actual_loss
 
-            print n, self.loss
+            print(n, self.loss)
 
     def predict(self):
         w = self.bias.T + np.dot(self.p, self.q.T)
         for u, user in enumerate(self.users):
             partial_ranking = list()
-            user_list = sorted(range(len(w[u])), key=lambda k: w[u][k], reverse=True)
+            user_list = sorted(list(range(len(w[u]))), key=lambda k: w[u][k], reverse=True)
             for i in user_list[:100]:
                 item = self.map_items_index[i]
                 try:
@@ -194,21 +194,21 @@ class BprMF(object):
     def evaluate(self):
         result = ItemRecommendationEvaluation()
         res = result.test_env(self.ranking, self.test_file)
-        print("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
-              str(res[6]) + " Map::" + str(res[8]))
+        print(("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
+              str(res[6]) + " Map::" + str(res[8])))
 
     def execute(self):
         # methods
         print("[Case Recommender: Item Recommendation > BPR MF Algorithm]\n")
-        print("training data:: " + str(self.number_users) + " users and " + str(self.number_items) + " items and " +
-              str(self.train_set["number_interactions"]) + " interactions")
+        print(("training data:: " + str(self.number_users) + " users and " + str(self.number_items) + " items and " +
+              str(self.train_set["number_interactions"]) + " interactions"))
         if self.test_file is not None:
             test_set = ReadFile(self.test_file).return_matrix()
-            print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
-                  " items and " + str(test_set["number_interactions"]) + " interactions")
+            print(("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
+                  " items and " + str(test_set["number_interactions"]) + " interactions"))
             del test_set
         self._create_factors()
-        print("training time:: " + str(timed(self.train_model))) + " sec"
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        print(("training time:: " + str(timed(self.train_model))) + " sec")
+        print(("prediction_time:: " + str(timed(self.predict))) + " sec\n")
         if self.test_file is not None:
             self.evaluate()

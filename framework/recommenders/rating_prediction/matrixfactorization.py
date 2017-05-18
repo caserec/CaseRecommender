@@ -85,7 +85,7 @@ class MatrixFactorization(object):
         self.q = self.init_mean * np.random.randn(self.number_items, self.factors) + self.init_stdev ** 2
 
     def _train_baselines(self):
-        for i in xrange(10):
+        for i in range(10):
             self._compute_bi()
             self._compute_bu()
         self._compute_bui()
@@ -137,7 +137,7 @@ class MatrixFactorization(object):
         return rui
 
     def train_mf(self):
-        for step in xrange(self.steps):
+        for step in range(self.steps):
             error_final = 0.0
             for u, user in enumerate(self.train["users"]):
                 for item in self.train["feedback"][user]:
@@ -158,7 +158,7 @@ class MatrixFactorization(object):
                     self.q[i] += self.learn_rate * delta_i
 
             rmse = np.sqrt(error_final / self.train["ni"])
-            print step, rmse
+            print(step, rmse)
 
     def predict(self):
         if self.test is not None:
@@ -177,19 +177,19 @@ class MatrixFactorization(object):
     def evaluate(self, predictions):
         result = RatingPredictionEvaluation()
         res = result.evaluation(predictions, self.test)
-        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))
+        print(("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1])))
 
     def execute(self):
         # methods
         print("[Case Recommender: Rating Prediction > Matrix Factorization]\n")
-        print("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
-            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions")
-        print("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
-              " items and " + str(self.test_set['ni']) + " interactions")
+        print(("training data:: " + str(len(self.train_set['users'])) + " users and " + str(len(
+            self.train_set['items'])) + " items and " + str(self.train_set['ni']) + " interactions"))
+        print(("test data:: " + str(len(self.test_set['users'])) + " users and " + str(len(self.test_set['items'])) +
+              " items and " + str(self.test_set['ni']) + " interactions"))
         # training baselines bui
         if self.baseline:
-            print("training time:: " + str(timed(self._train_baselines) + timed(self.train_mf))) + " sec"
+            print(("training time:: " + str(timed(self._train_baselines) + timed(self.train_mf))) + " sec")
         else:
-            print("training time:: " + str(timed(self.train_mf))) + " sec"
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+            print(("training time:: " + str(timed(self.train_mf))) + " sec")
+        print(("prediction_time:: " + str(timed(self.predict))) + " sec\n")
         self.evaluate(self.predictions)

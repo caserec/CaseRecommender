@@ -40,7 +40,7 @@ class SplitDataset(object):
         tp = ReadFile(self.dataset, space_type=self.space_type)
         tp.split_dataset()
 
-        for fold in xrange(self.n_folds):
+        for fold in range(self.n_folds):
             dict_feedback = list()
             tp.triple_dataset = list(set(tp.triple_dataset))
             random.shuffle(tp.triple_dataset)

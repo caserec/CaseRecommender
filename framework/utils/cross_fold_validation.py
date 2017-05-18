@@ -68,15 +68,15 @@ class CrossFoldValidation(object):
         list_folds = list()
         last = -1
 
-        for p in xrange(self.n_folds):
+        for p in range(self.n_folds):
             initial = 1 + last
             final = (p + 1) * partition_size
             list_folds.append(tp.triple_dataset[initial:final])
             last = final
 
-        for fold in xrange(self.n_folds):
+        for fold in range(self.n_folds):
             train_set = list()
-            for fold_train in xrange(self.n_folds):
+            for fold_train in range(self.n_folds):
                 if fold_train != fold:
                     train_set += list_folds[fold_train]
                 train_set.sort()

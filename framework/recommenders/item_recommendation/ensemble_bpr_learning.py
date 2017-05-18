@@ -82,7 +82,7 @@ class EnsembleLearningBPR(object):
         for i, item in enumerate(self.list_items):
             self.map_item[item] = i
 
-        for r in xrange(len(self.list_train_files)):
+        for r in range(len(self.list_train_files)):
             p, q, bias, beta = self._create_factors()
             self.rf[r] = {"p": p, "q": q, "bias": bias, "beta": beta}
 
@@ -93,7 +93,7 @@ class EnsembleLearningBPR(object):
             ranking_loss += 1 / (1 + np.exp(x_uij))
 
         complexity = 0
-        for r in xrange(len(self.list_train_files)):
+        for r in range(len(self.list_train_files)):
             for sample in self.loss_sample:
                 u, i, j = sample[0], sample[1], sample[2]
                 u, i, j = self.map_user[u], self.map_item[i], self.map_item[j]
@@ -118,7 +118,7 @@ class EnsembleLearningBPR(object):
     def _predict_score(self, user, item):
         u, i = self.map_user[user], self.map_item[item]
         rating = 0
-        for r in xrange(len(self.list_train_files)):
+        for r in range(len(self.list_train_files)):
             rating += self.rf[r]["bias"][i] + np.dot(self.rf[r]["p"][u], self.rf[r]["q"][i])
         return rating
 
@@ -128,7 +128,7 @@ class EnsembleLearningBPR(object):
         ruj = 0
         x_uij = 0
 
-        for r in xrange(len(self.list_rankings_files)):
+        for r in range(len(self.list_rankings_files)):
             try:
                 self.ir[r][user][item_i] = 0
                 rui += self.rf[r]["bias"][i] + np.dot(self.rf[r]["p"][u], self.rf[r]["q"][i])
@@ -141,7 +141,7 @@ class EnsembleLearningBPR(object):
 
         eps = 1 / (1 + np.exp(x_uij))
 
-        for r in xrange(len(self.list_rankings_files)):
+        for r in range(len(self.list_rankings_files)):
             try:
                 self.ir[r][user][item_i] = 0
                 self.rf[r]["bias"][i] += self.learn_rate * (eps - self.reg_bias * self.rf[r]["bias"][i])
@@ -167,13 +167,13 @@ class EnsembleLearningBPR(object):
     def train_model(self):
         if self.use_loss:
             num_sample_triples = int(np.sqrt(len(self.map_user)) * 100)
-            for _ in xrange(num_sample_triples):
+            for _ in range(num_sample_triples):
                 self.loss_sample.append(self._sample_triple())
             self.loss = self._compute_loss()
 
-        for i in xrange(self.num_interactions):
-            print i
-            for j in xrange(self.num_events):
+        for i in range(self.num_interactions):
+            print(i)
+            for j in range(self.num_events):
                 user, item_i, item_j = self._sample_triple()
                 self._update_factors(user, item_i, item_j)
 
@@ -199,8 +199,8 @@ class EnsembleLearningBPR(object):
     def evaluate(self):
         result = ItemRecommendationEvaluation()
         res = result.test_env(self.ranking, self.test_file)
-        print("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
-              str(res[6]) + " Map::" + str(res[8]))
+        print(("Eval:: Prec@1:" + str(res[0]) + " Prec@3:" + str(res[2]) + " Prec@5:" + str(res[4]) + " Prec@10:" +
+              str(res[6]) + " Map::" + str(res[8])))
 
     def execute(self):
         # methods

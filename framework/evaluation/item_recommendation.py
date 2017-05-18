@@ -141,7 +141,7 @@ class ItemRecommendationEvaluation(object):
         result = list()
         list_results = list()
 
-        for fold in xrange(n_folds):
+        for fold in range(n_folds):
             prediction = folds_dir + str(fold) + '\\' + name_prediction
             test = folds_dir + str(fold) + '\\' + name_test
 
@@ -153,9 +153,9 @@ class ItemRecommendationEvaluation(object):
                 print('Error: Invalid recommendation type!')
                 sys.exit()
 
-        for i in xrange(len(result[0])):
+        for i in range(len(result[0])):
             list_partial = list()
-            for j in xrange(n_folds):
+            for j in range(n_folds):
                 list_partial.append(result[j][i])
             if no_deviation:
                 list_results.append(list_partial)

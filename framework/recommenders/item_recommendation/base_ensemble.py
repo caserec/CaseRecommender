@@ -26,7 +26,7 @@ class BaseEnsemble(object):
                         self.final_ranking.setdefault(user, {}).update({item[1]: item[2]})
         self.list_users = sorted(self.list_users)
         for user in self.list_users:
-            self.final_ranking[user] = sorted(self.final_ranking[user].items(), key=lambda x: -x[1])[:10]
+            self.final_ranking[user] = sorted(list(self.final_ranking[user].items()), key=lambda x: -x[1])[:10]
 
     def write_results(self):
         WriteFile(self.write_file, self.final_ranking).write_ensemble(self.list_users)

@@ -52,7 +52,7 @@ class BaseKNNRecommenders(object):
                 pass
 
     def train_baselines(self):
-        for i in xrange(10):
+        for i in range(10):
             self.compute_bi()
             self.compute_bu()
         self.compute_bui()
@@ -101,4 +101,4 @@ class BaseKNNRecommenders(object):
     def evaluate(self, predictions):
         result = RatingPredictionEvaluation()
         res = result.evaluation(predictions, self.test)
-        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))
+        print(("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1])))

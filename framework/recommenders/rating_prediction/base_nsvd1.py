@@ -109,4 +109,4 @@ class BaseNSVD1(object):
     def evaluate(self, predictions):
         result = RatingPredictionEvaluation()
         res = result.evaluation(predictions, self.test)
-        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))
+        print(("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1])))
