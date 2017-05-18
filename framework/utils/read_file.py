@@ -237,7 +237,7 @@ class ReadFile(object):
 
         for user in self.dict_users:
             dict_non_seen[user] = list(set(self.list_items) - set(self.dict_users[user]))
-            user_info[user] = {"j": dict_non_seen[user], "i": self.dict_users[user].keys()}
+            user_info[user] = {"j": dict_non_seen[user], "i": list(self.dict_users[user].keys())}
 
         return user_info, self.list_users, self.list_items, self.number_interactions, rank_info
 

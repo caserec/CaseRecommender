@@ -106,7 +106,7 @@ class EnsembleAverageBased(object):
             for item in self.dict_not_item[user]:
                 scores = list()
                 control = 0
-                for m in xrange(self.num_interactions):
+                for m in range(self.num_interactions):
                     try:
                         score = self.rankings[m][user].get(item, 0)
                         if score > 0:

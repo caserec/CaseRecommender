@@ -93,7 +93,7 @@ class TreatData(object):
         matrix = np.float32(squareform(pdist(matrix, distance)))
         matrix = 1 - matrix
         with open(write_file, "w") as infile:
-            for i in xrange(len(matrix)):
-                for j in xrange(len(matrix[0])):
+            for i in range(len(matrix)):
+                for j in range(len(matrix[0])):
                     infile.write(str(matrix[i][j]) + self.type_space)
                 infile.write("\n")

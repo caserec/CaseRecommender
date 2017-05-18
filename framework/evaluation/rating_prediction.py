@@ -74,7 +74,7 @@ class RatingPredictionEvaluation(object):
         list_rmse = list()
         list_mae = list()
         
-        for fold in xrange(n_folds):
+        for fold in range(n_folds):
             prediction = folds_dir + str(fold) + '\\' + name_prediction
             test = folds_dir + str(fold) + '\\' + name_test
             rmse, mae = self.simple_evaluation(prediction, test)

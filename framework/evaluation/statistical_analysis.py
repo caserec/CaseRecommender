@@ -17,8 +17,8 @@ def statistical_analysis(sample1, sample2):
     sample1, sample2 = np.array(sample1), np.array(sample2)
 
     print("=== Information About Samples ===")
-    print("Standard Deviation Sample1: " + str(np.std(sample1)))
-    print("Standard Deviation Sample2: " + str(np.std(sample2)))
+    print(("Standard Deviation Sample1: " + str(np.std(sample1))))
+    print(("Standard Deviation Sample2: " + str(np.std(sample2))))
 
     """
     T-student
@@ -33,8 +33,8 @@ def statistical_analysis(sample1, sample2):
     t, p = ttest_ind(sample1, sample2)
 
     print("=== T- Student Analysis ===")
-    print("The calculated t-statistic: " + str(t))
-    print("The two-tailed p-value: " + str(p))
+    print(("The calculated t-statistic: " + str(t)))
+    print(("The two-tailed p-value: " + str(p)))
 
     """
     Analyzing the difference
@@ -44,6 +44,6 @@ def statistical_analysis(sample1, sample2):
     """
 
     print("=== Analyzing the Difference Between Samples ===")
-    print "SAD:", np.sum(np.abs(sample1 - sample2))
-    print "SSD:", np.sum(np.square(sample1 - sample2))
-    print "Correlation:", np.corrcoef(np.array((sample1, sample2)))[0, 1]
+    print("SAD:", np.sum(np.abs(sample1 - sample2)))
+    print("SSD:", np.sum(np.square(sample1 - sample2)))
+    print("Correlation:", np.corrcoef(np.array((sample1, sample2)))[0, 1])

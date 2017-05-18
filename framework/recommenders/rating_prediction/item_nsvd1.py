@@ -69,7 +69,7 @@ class ItemNSVD1(BaseNSVD1):
         self.x = self.metadata['matrix']
         self.non_zero_x = list()
         self.d = list()
-        for i in xrange(self.number_items):
+        for i in range(self.number_items):
             self.non_zero_x.append(list(np.where(self.x[i] != 0)[0]))
             with np.errstate(divide='ignore'):
                 self.d.append(1 / np.dot(self.x[i].T, self.x[i]))
@@ -95,7 +95,7 @@ class ItemNSVD1(BaseNSVD1):
         return c, e
 
     def train_model(self):
-        for k in xrange(self.steps):
+        for k in range(self.steps):
             rmse = 0
             count_error = 0
             for i, item in enumerate(self.items):
@@ -113,10 +113,10 @@ class ItemNSVD1(BaseNSVD1):
                 break
             else:
                 self.last_rmse = rmse
-            print k, rmse
+            print(k, rmse)
 
     def train_batch_model(self):
-        for k in xrange(self.steps):
+        for k in range(self.steps):
             rmse = 0
             count_error = 0
             self.q = np.dot(self.x, self.w)
@@ -126,7 +126,7 @@ class ItemNSVD1(BaseNSVD1):
                 rmse += e
                 count_error += c
 
-            for _ in xrange(self.n2):
+            for _ in range(self.n2):
                 for i, item in enumerate(self.items):
                     e = self.q[i] - (np.dot(self.x[i], self.w))
 
@@ -141,23 +141,23 @@ class ItemNSVD1(BaseNSVD1):
                 break
             else:
                 self.last_rmse = rmse
-            print k, rmse
+            print(k, rmse)
 
     def execute(self):
         # methods
         print("[Case Recommender: Rating Prediction > Item NSVD1]\n")
-        print("training data:: " + str(len(self.train['users'])) + " users and " + str(len(
-            self.train['items'])) + " items and " + str(self.train['ni']) + " interactions")
-        print("test data:: " + str(len(self.test['users'])) + " users and " + str(len(self.test['items'])) +
-              " items and " + str(self.test['ni']) + " interactions")
-        print("metadata:: " + str(len(self.metadata['items'])) + " items and " + str(len(self.metadata['metadata'])) +
-              " metadata and " + str(self.metadata['ni']) + " interactions")
+        print(("training data:: " + str(len(self.train['users'])) + " users and " + str(len(
+            self.train['items'])) + " items and " + str(self.train['ni']) + " interactions"))
+        print(("test data:: " + str(len(self.test['users'])) + " users and " + str(len(self.test['items'])) +
+              " items and " + str(self.test['ni']) + " interactions"))
+        print(("metadata:: " + str(len(self.metadata['items'])) + " items and " + str(len(self.metadata['metadata'])) +
+              " metadata and " + str(self.metadata['ni']) + " interactions"))
         self._create_factors()
 
         if self.batch:
-            print("training time:: " + str(timed(self.train_batch_model))) + " sec"
+            print(("training time:: " + str(timed(self.train_batch_model))) + " sec")
         else:
-            print("training time:: " + str(timed(self.train_model))) + " sec"
+            print(("training time:: " + str(timed(self.train_model))) + " sec")
 
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+        print(("prediction_time:: " + str(timed(self.predict))) + " sec\n")
         self.evaluate(self.predictions)

@@ -62,17 +62,17 @@ class UserAttributeKNN(UserKNN):
 
     def execute(self):
         print("[Case Recommender: Item Recommendation > User Attribute KNN Algorithm]\n")
-        print("training data:: " + str(len(self.train_set["map_user"])) + " users and " + str(len(
-            self.train_set["map_item"])) + " items and " + str(self.train_set["number_interactions"]) + " interactions")
+        print(("training data:: " + str(len(self.train_set["map_user"])) + " users and " + str(len(
+            self.train_set["map_item"])) + " items and " + str(self.train_set["number_interactions"]) + " interactions"))
         if self.test_file is not None:
             test_set = ReadFile(self.test_file).return_matrix()
-            print("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
-                  " items and " + str(test_set["number_interactions"]) + " interactions")
+            print(("test data:: " + str(len(test_set["map_user"])) + " users and " + str(len(test_set["map_item"])) +
+                  " items and " + str(test_set["number_interactions"]) + " interactions"))
             del test_set
         if self.similarity_matrix_file is not None:
-            print("training time:: " + str(timed(self.read_matrix))) + " sec"
+            print(("training time:: " + str(timed(self.read_matrix))) + " sec")
         else:
-            print("training time:: " + str(timed(self.compute_similarity))) + " sec"
-        print("prediction_time:: " + str(timed(self.predict))) + " sec\n"
+            print(("training time:: " + str(timed(self.compute_similarity))) + " sec")
+        print(("prediction_time:: " + str(timed(self.predict))) + " sec\n")
         if self.test_file is not None:
             self.evaluate()
