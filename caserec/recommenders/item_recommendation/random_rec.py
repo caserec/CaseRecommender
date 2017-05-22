@@ -2,7 +2,7 @@
 """
 © 2017. Case Recommender All Rights Reserved (License GPL3)
 
-Most Popular Collaborative Filtering Recommender
+Random Recommender
 
 
 Parameters
