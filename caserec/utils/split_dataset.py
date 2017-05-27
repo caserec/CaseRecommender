@@ -13,9 +13,23 @@ user /t item /t feedback /n
 By default algorithm divides the base into 90% for training and 10% for test.
 To modify this parameter, change "test_ratio".
 
+
+Parameters
+-----------
+    - dataset: list of dir files
+        if you want to insert only one file: ['/dir_fold/file.dat']
+    - dir_folds: string
+        dir path to write folds
+    - n_folds: int
+    - test_ratio
+        value to divide to test, e.g 0.1 = 10%
+    - space_type string
+    
 """
 
 import random
+
+from caserec.utils.extra_functions import timed
 from caserec.utils.read_file import ReadFile
 from caserec.utils.write_file import WriteFile
 
@@ -23,7 +37,7 @@ __author__ = 'Arthur Fortes'
 
 
 class SplitDataset(object):
-    def __init__(self, dataset, space_type='\t', dir_folds=None, n_folds=10, test_ratio=0.1):
+    def __init__(self, dataset, dir_folds=None, n_folds=10, test_ratio=0.1, space_type='\t'):
         self.dataset = dataset
         self.n_folds = n_folds
         self.space_type = space_type
@@ -76,4 +90,6 @@ class SplitDataset(object):
                                                                                       self.dataset)
 
     def execute(self):
-        self.divide_dataset()
+        print("[Case Recommender: Split Dataset Process]\n")
+        print("number of folds:: ", self.n_folds, " write folds in:: ", self.dir_folds)
+        print("total process time:: ", timed(self.divide_dataset()), "sec")

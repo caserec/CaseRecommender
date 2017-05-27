@@ -75,3 +75,28 @@ class RatingPredictionEvaluation(object):
             list_mae.append(mae)
 
         return np.mean(list_rmse), np.std(list_rmse), np.mean(list_mae), np.std(list_mae)
+
+    def simple_evaluation_cold_start(self, file_result, file_test, list_user):
+        predict = ReadFile(file_result, space_type=self.space_type).return_information()
+        test = ReadFile(file_test, space_type=self.space_type).return_information()
+
+        rmse = 0
+        mae = 0
+        count_comp = 0
+        for user in test['users']:
+            if user in list_user:
+                for item in test['feedback'][user]:
+                    try:
+                        rui_predict = float(predict['feedback'][item])
+                        rui_test = float(test['feedback'][user][item])
+                        rmse += math.pow((rui_predict - rui_test), 2)
+                        mae += math.fabs(rui_predict - rui_test)
+                        count_comp += 1
+                    except KeyError:
+                        pass
+
+        if count_comp != 0:
+            rmse = math.sqrt(float(rmse) / float(count_comp))
+            mae = math.sqrt(float(mae) / float(count_comp))
+
+        return rmse, mae

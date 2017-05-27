@@ -63,7 +63,7 @@ class BaseKNNRecommenders(object):
         for item in self.train['items']:
             cont = 0
             for user in self.train['di'][item]:
-                self.bi[item] = self.bi.get(item, 0) + float(self.train['feedback'][user][item]) - \
+                self.bi[item] = self.bi.get(item, 0) + float(self.train['feedback'][user].get(item, 0)) - \
                                 self.train['mean_rates'] - self.bu.get(user, 0)
                 cont += 1
             if cont > 1:
@@ -75,7 +75,7 @@ class BaseKNNRecommenders(object):
         for user in self.train['users']:
             cont = 0
             for item in self.train['du'][user]:
-                self.bu[user] = self.bu.get(user, 0) + float(self.train['feedback'][user][item]) - \
+                self.bu[user] = self.bu.get(user, 0) + float(self.train['feedback'][user].get(item, 0)) - \
                                 self.train['mean_rates'] - self.bi.get(item, 0)
                 cont += 1
             if cont > 1:
