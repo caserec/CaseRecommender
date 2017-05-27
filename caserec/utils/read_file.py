@@ -121,7 +121,7 @@ class ReadFile(object):
                     matrix[map_user[user]][map_item[item]] = 1
                 else:
                     matrix[map_user[user]][map_item[item]] = d_feedback[user][item]
-                self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
+                # self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
 
         sparsity = (1 - (self.number_interactions / float(len(self.list_users) * len(self.list_items)))) * 100
         dict_file.update({'feedback': d_feedback, 'users': self.list_users, 'items': self.list_items,
