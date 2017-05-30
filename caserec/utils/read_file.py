@@ -39,6 +39,7 @@ Methods:
 """
 
 import sys
+import copy
 import numpy as np
 from caserec.utils.extra_functions import check_error_file
 
@@ -115,21 +116,23 @@ class ReadFile(object):
 
         matrix = np.zeros((len(self.list_users), len(self.list_items)))
 
+        di = copy.deepcopy(self.dict_items)
+
         for user in self.list_users:
             for item in self.dict_users[user]:
                 if implicit:
                     matrix[map_user[user]][map_item[item]] = 1
                 else:
                     matrix[map_user[user]][map_item[item]] = d_feedback[user][item]
-                # self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
+                self.dict_items.setdefault(map_item[item], set()).add(map_user[user])
 
         sparsity = (1 - (self.number_interactions / float(len(self.list_users) * len(self.list_items)))) * 100
         dict_file.update({'feedback': d_feedback, 'users': self.list_users, 'items': self.list_items,
-                          'du': self.dict_users, 'di': self.dict_items, 'mean_rates': self.mean_feedback,
+                          'du': self.dict_users, 'dir': self.dict_items, 'mean_rates': self.mean_feedback,
                           'list_feedback': self.triple_dataset, 'ni': self.number_interactions,
                           'max': max(list_feedback), 'min': min(list_feedback), 'sparsity': sparsity,
                           'not_seen': not_seen, 'matrix': matrix, 'map_user': map_index_user,
-                          'map_item': map_index_item, 'mu': map_user, 'du_order': du_feed})
+                          'map_item': map_index_item, 'mu': map_user, 'du_order': du_feed, 'di': di})
 
         return dict_file
 

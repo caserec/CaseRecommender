@@ -7,7 +7,7 @@ This file contains Statical functions for recommender systems.
     - Wilcoxon
 """
 
-from scipy.stats import ttest_ind, wilcoxon
+from scipy.stats import ttest_ind, ranksums
 import numpy as np
 
 __author__ = 'Arthur Fortes'
@@ -33,7 +33,7 @@ class StatisticalAnalysis(object):
         print("=== Analyzing the Difference Between Samples ===")
         print("SAD:" + str(np.sum(np.abs(self.sample1 - self.sample2))))
         print("SSD:" + str(np.sum(np.square(self.sample1 - self.sample2))))
-        print("Correlation:" + str(np.corrcoef(np.array((self.sample1, self.sample2)))[0, 1]))
+        print("Correlation:" + str(np.corrcoef(np.array((self.sample1, self.sample2)))[0, 1]) + "\n")
 
     def ttest(self):
         """
@@ -50,7 +50,7 @@ class StatisticalAnalysis(object):
         t, p = ttest_ind(self.sample1, self.sample2)
         print("=== T- Student Analysis ===")
         print("The calculated t-statistic: " + str(t))
-        print("The two-tailed p-value: " + str(p))
+        print("The two-tailed p-value: " + str(p) + "\n")
 
     def wilcoxon(self):
         """
@@ -61,7 +61,16 @@ class StatisticalAnalysis(object):
         is symmetric about zero. It is a non-parametric version of the paired T-test.
         """
 
-        t, p = wilcoxon(self.sample1, self.sample2)
-        print("=== T- Student Analysis ===")
+        t, p = ranksums(self.sample1, self.sample2)
+        print("=== Wilcoxon Analysis ===")
         print("The calculated t-statistic: " + str(t))
-        print("The two-tailed p-value: " + str(p))
+        print("The two-tailed p-value: " + str(p) + "\n")
+
+    def execute(self):
+        self.general_analysis()
+        if self.method.lower() == "wilcoxon":
+            self.wilcoxon()
+        elif self.method.lower() == "ttest":
+            self.ttest()
+        else:
+            print("Error: Method Invalid!")

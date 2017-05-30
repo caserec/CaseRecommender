@@ -75,7 +75,7 @@ class UserKNN(object):
 
             for item in u_list:
                 sim_suv = 0
-                common_user_neighbor = list(set(self.train_set["di"][item]).intersection(set(neighbors[1:self.k])))
+                common_user_neighbor = list(set(self.train_set['dir'][item]).intersection(set(neighbors[1:self.k])))
 
                 if len(common_user_neighbor) > 0:
                     for user_neighbor in common_user_neighbor:
