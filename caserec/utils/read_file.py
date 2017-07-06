@@ -132,7 +132,7 @@ class ReadFile(object):
                           'list_feedback': self.triple_dataset, 'ni': self.number_interactions,
                           'max': max(list_feedback), 'min': min(list_feedback), 'sparsity': sparsity,
                           'not_seen': not_seen, 'matrix': matrix, 'map_user': map_index_user,
-                          'map_item': map_index_item, 'mu': map_user, 'du_order': du_feed, 'di': di})
+                          'map_item': map_index_item, 'mu': map_user, 'mi': map_item, 'du_order': du_feed, 'di': di})
 
         return dict_file
 
