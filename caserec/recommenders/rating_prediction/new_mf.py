@@ -63,45 +63,37 @@ class SVDPlusPlus(MatrixFactorization):
         return rui
 
     def train_model(self):
-        for step in range(self.steps):
-            error_final = 0.0
-            for user in self.train_set['users']:
-                u = self.map_users[user]
-                sqrt_iu = (np.sqrt(len(self.train_set["du"][user])))
+        for epoch in range(self.steps):
+            for user, item, feedback in self.train_set['list_feedback']:
+                user_number = self.map_users_index[user]
+
+                sqrt_iu = (np.sqrt(len(self.train_set["du"][user_number])))
                 self.user_implicit_feedback = np.zeros(self.factors, np.double)
 
-                for item_j in self.train_set['feedback'][user]:
+                for item_j in self.train_set['feedback'][user_number]:
                     self.user_implicit_feedback += (self.y[self.map_items[item_j]] / sqrt_iu)
 
-                for item in self.train_set['feedback'][user]:
-                    i = self.map_items[item]
-                    eui = self.train_set['feedback'][user][item] - self._predict_svd_plus_plus(u, i, cond=False)
-                    error_final += (eui ** 2.0)
+                eui = feedback - self._predict_svd_plus_plus(user, item, False)
+                # Adjust the factors
+                u_f = self.p[user]
+                i_f = self.q[item]
 
-                    # Adjust the factors
-                    u_f = self.p[u]
-                    i_f = self.q[i]
+                # Compute factor updates
+                delta_u = eui * i_f - self.delta * u_f
+                delta_i = eui * u_f - self.delta * i_f
 
-                    # Compute factor updates
-                    delta_u = eui * i_f - self.delta * u_f
-                    delta_i = eui * u_f - self.delta * i_f
+                # apply updates
+                self.p[user] += self.learn_rate * delta_u
+                self.q[item] += self.learn_rate * delta_i
 
-                    # apply updates
-                    self.p[u] += self.learn_rate * delta_u
-                    self.q[i] += self.learn_rate * delta_i
+                # update bu and bi
+                self.bu[user] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[user])
+                self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
 
-                    # update bu and bi
-                    self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
-                    self.bi[i] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[i])
-
-                    # update y (implicit factor)
-                    for item_j in self.train_set['feedback'][user]:
-                        self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
-                                                                   - 0.02 * self.y[self.map_items[item_j]])
-
-            # print error in each step
-            # rmse = np.sqrt(error_final / self.train_set["ni"])
-            # print("step::", step, "RMSE::", rmse)
+                # update y (implicit factor)
+                for item_j in self.train_set['feedback'][user_number]:
+                    self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
+                                                               - 0.02 * self.y[self.map_items[item_j]])
 
     def predict(self):
         if self.test_set is not None:
@@ -122,11 +114,11 @@ class SVDPlusPlus(MatrixFactorization):
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
         print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
               " items and ", (self.test_set['ni']), " interactions | sparsity ", self.test_set['sparsity'])
+        self._create_factors()
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)
 
 
-d1 = "C:/Users/forte/Desktop/bode/"
-# MatrixFactorization(d1 + "train.dat", d1 + "test.dat").execute()
-SVDPlusPlus(d1 + "train.dat", d1 + "test.dat").execute()
+d1 = "/home/arthurfortes/Downloads/ml-100k/"
+print(timed(SVDPlusPlus(d1 + "u1.base", d1 + "u1.test").execute))

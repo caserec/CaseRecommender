@@ -72,7 +72,6 @@ class MatrixFactorization(object):
 
         self.users = sorted(set(list(self.train_set['users']) + list(self.test_set['users'])))
         self.items = sorted(set(list(self.train_set['items']) + list(self.test_set['items'])))
-        self._create_factors()
 
         for i, item in enumerate(self.items):
             self.map_items.update({item: i})
@@ -81,62 +80,60 @@ class MatrixFactorization(object):
             self.map_users.update({user: u})
             self.map_users_index.update({u: user})
 
+        list_feedback = list()
+        for user, item, feedback in self.train_set['list_feedback']:
+            list_feedback.append((self.map_users[user], self.map_items[item], feedback))
+        self.train_set['list_feedback'] = list_feedback
+
     def _create_factors(self):
-        self.p = self.init_mean * np.random.randn(len(self.users), self.factors) + self.init_stdev ** 2
-        self.q = self.init_mean * np.random.randn(len(self.items), self.factors) + self.init_stdev ** 2
-        self.bi = self.init_mean * np.random.randn(len(self.items), 1) + self.init_stdev ** 2
-        self.bu = self.init_mean * np.random.randn(len(self.users), 1) + self.init_stdev ** 2
+        self.p = np.random.normal(self.init_mean, self.init_stdev, (len(self.users), self.factors))
+        self.q = np.random.normal(self.init_mean, self.init_stdev, (len(self.items), self.factors))
+
+        if self.baseline:
+            self.bu = np.zeros(len(self.users), np.double)
+            self.bi = np.zeros(len(self.items), np.double)
 
     def _predict(self, u, i, cond=True):
         if self.baseline:
             rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot(self.p[u], self.q[i])
         else:
-            rui = self.train_set["mean_rates"] + np.dot(self.p[u], self.q[i])
+            rui = self.train_set['mean_rates'] + np.dot(self.p[u], self.q[i])
 
         if cond:
             if rui > self.train_set["max"]:
                 rui = self.train_set["max"]
             elif rui < self.train_set["min"]:
                 rui = self.train_set["min"]
+
         return rui
 
     def train_model(self):
-        for step in range(self.steps):
-            error_final = 0.0
-            for user in self.train_set['users']:
-                u = self.map_users[user]
-                for item in self.train_set['feedback'][user]:
-                    i = self.map_items[item]
-                    eui = self.train_set['feedback'][user][item] - self._predict(u, i, cond=False)
-                    error_final += (eui ** 2.0)
+        for epoch in range(self.steps):
+            for user, item, feedback in self.train_set['list_feedback']:
+                eui = feedback - self._predict(user, item, False)
 
-                    # Adjust the factors
-                    u_f = self.p[u]
-                    i_f = self.q[i]
+                # Adjust the factors
+                u_f = self.p[user]
+                i_f = self.q[item]
 
-                    # Compute factor updates
-                    delta_u = eui * i_f - self.delta * u_f
-                    delta_i = eui * u_f - self.delta * i_f
+                # Compute factor updates
+                delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, u_f))
+                delta_i = np.subtract(np.multiply(eui, u_f), np.multiply(self.delta, i_f))
 
-                    # apply updates
-                    self.p[u] += self.learn_rate * delta_u
-                    self.q[i] += self.learn_rate * delta_i
+                # apply updates
+                self.p[user] += np.multiply(self.learn_rate, delta_u)
+                self.q[item] += np.multiply(self.learn_rate, delta_i)
 
-                    # if baseline = True, update bu and bi
-                    if self.baseline:
-                        self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
-                        self.bi[i] += self.bias_learn_rate * (eui - self.delta_bias  * self.bi[i])
-
-            # print error in each step
-            # rmse = np.sqrt(error_final / self.train_set["ni"])
-            # print("step::", step, "RMSE::", rmse)
+                if self.baseline:
+                    self.bu[user] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[user])
+                    self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
 
     def predict(self):
         if self.test_set is not None:
             for user in self.test_set['users']:
                 for item in self.test_set['feedback'][user]:
                     u, i = self.map_users[user], self.map_items[item]
-                    self.predictions.append((user, item, self._predict(u, i)))
+                    self.predictions.append((user, item, self._predict(u, i, True)))
 
             if self.prediction_file is not None:
                 self.predictions = sorted(self.predictions, key=lambda x: x[0])
@@ -155,6 +152,7 @@ class MatrixFactorization(object):
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
         print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
               " items and ", (self.test_set['ni']), " interactions | sparsity ", self.test_set['sparsity'])
+        self._create_factors()
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)
