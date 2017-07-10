@@ -22,8 +22,9 @@ Item Recommendation:
 
 Rating Prediction:
 
-- Matrix Factorization 
+- Matrix Factorization (with and without baseline)
 
+- SVD ++
 
 - Item KNN
 

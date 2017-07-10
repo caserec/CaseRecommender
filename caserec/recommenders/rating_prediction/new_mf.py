@@ -2,11 +2,10 @@
 """
 © 2017. Case Recommender All Rights Reserved (License GPL3)
 
-Matrix Factorization Based Collaborative Filtering Recommender
+SVD ++
 
-    Literature:
-        Matrix Factorization Techniques for Recommender Systems
-        http://dl.acm.org/citation.cfm?id=1608614
+Yehuda Koren: Factorization meets the neighborhood: a multifaceted collaborative filtering model, KDD 2008
+http://portal.acm.org/citation.cfm?id=1401890.1401944
 
 Parameters
 -----------
@@ -26,68 +25,35 @@ Parameters
         Mean of the normal distribution used to initialize the latent factors
     - init_stdev: float
         Standard deviation of the normal distribution used to initialize the latent factors
-    - baseline: bool
-        if True: Use the training data to build baselines (SVD Algorithm); else: Use only the mean
+    - bias_learn_rate: float
+        Learning rate for baselines
+    - delta_bias: float
+        Regularization value for baselines
 
 """
 
 import numpy as np
-from caserec.evaluation.rating_prediction import RatingPredictionEvaluation
 from caserec.recommenders.rating_prediction.matrixfactorization import MatrixFactorization
 from caserec.utils.extra_functions import timed
-from caserec.utils.read_file import ReadFile
 from caserec.utils.write_file import WriteFile
 
 __author__ = "Arthur Fortes"
 
 
-class NewMatrixFactorization(object):
+class SVDPlusPlus(MatrixFactorization):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
-                 init_mean=0.1, init_stdev=0.1, baseline=False):
-        self.train_set = ReadFile(train_file).return_information()
-        self.test_set = ReadFile(test_file).return_information()
-        self.prediction_file = prediction_file
-        self.steps = steps
-        self.learn_rate = learn_rate
-        self.delta = delta
-        self.factors = factors
-        self.init_mean = init_mean
-        self.init_stdev = init_stdev
-        self.baseline = baseline
-        self.predictions = list()
-        self.map_items = dict()
-        self.map_items_index = dict()
-        self.map_users = dict()
-        self.map_users_index = dict()
-        self.bias_learn_rate = 0.7
-        self.bias_reg = 0.33
-        self.p = None
-        self.q = None
-        self.bu = None
-        self.bi = None
+                 init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002):
+        MatrixFactorization.__init__(self, train_file=train_file, test_file=test_file, prediction_file=prediction_file,
+                                     steps=steps, learn_rate=learn_rate, delta=delta, factors=factors,
+                                     init_mean=init_mean, init_stdev=init_stdev, baseline=True,
+                                     bias_learn_rate=bias_learn_rate, delta_bias=bias_reg)
 
-        self.users = sorted(set(list(self.train_set['users']) + list(self.test_set['users'])))
-        self.items = sorted(set(list(self.train_set['items']) + list(self.test_set['items'])))
-        self._create_factors()
+        self.y = self.init_mean * np.random.randn(len(self.items), self.factors) + self.init_stdev ** 2
+        self.user_implicit_feedback = None
 
-        for i, item in enumerate(self.items):
-            self.map_items.update({item: i})
-            self.map_items_index.update({i: item})
-        for u, user in enumerate(self.users):
-            self.map_users.update({user: u})
-            self.map_users_index.update({u: user})
-
-    def _create_factors(self):
-        self.p = self.init_mean * np.random.randn(len(self.users), self.factors) + self.init_stdev ** 2
-        self.q = self.init_mean * np.random.randn(len(self.items), self.factors) + self.init_stdev ** 2
-        self.bi = self.init_mean * np.random.randn(len(self.items), 1) + self.init_stdev ** 2
-        self.bu = self.init_mean * np.random.randn(len(self.users), 1) + self.init_stdev ** 2
-
-    def _predict(self, u, i, cond=True):
-        if self.baseline:
-            rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot(self.p[u], self.q[i])
-        else:
-            rui = self.train_set["mean_rates"] + np.dot(self.p[u], self.q[i])
+    def _predict_svd_plus_plus(self, u, i, cond=True):
+        rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot((self.p[u] + self.user_implicit_feedback),
+                                                                              self.q[i])
 
         if cond:
             if rui > self.train_set["max"]:
@@ -101,9 +67,15 @@ class NewMatrixFactorization(object):
             error_final = 0.0
             for user in self.train_set['users']:
                 u = self.map_users[user]
+                sqrt_iu = (np.sqrt(len(self.train_set["du"][user])))
+                self.user_implicit_feedback = np.zeros(self.factors, np.double)
+
+                for item_j in self.train_set['feedback'][user]:
+                    self.user_implicit_feedback += (self.y[self.map_items[item_j]] / sqrt_iu)
+
                 for item in self.train_set['feedback'][user]:
                     i = self.map_items[item]
-                    eui = self.train_set['feedback'][user][item] - self._predict(u, i, self.baseline)
+                    eui = self.train_set['feedback'][user][item] - self._predict_svd_plus_plus(u, i, cond=False)
                     error_final += (eui ** 2.0)
 
                     # Adjust the factors
@@ -118,12 +90,16 @@ class NewMatrixFactorization(object):
                     self.p[u] += self.learn_rate * delta_u
                     self.q[i] += self.learn_rate * delta_i
 
-                    if self.baseline:
-                        bu_w = self.delta / float(len(self.train_set['du'][user]))
-                        bi_w = self.delta / float(len(self.train_set['dir'][item]))
-                        self.bu[u] += self.bias_learn_rate * self.learn_rate * (eui - self.bias_reg * bu_w * self.bu[u])
-                        self.bi[i] += self.bias_learn_rate * self.learn_rate * (eui - self.bias_reg * bi_w * self.bi[i])
+                    # update bu and bi
+                    self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
+                    self.bi[i] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[i])
 
+                    # update y (implicit factor)
+                    for item_j in self.train_set['feedback'][user]:
+                        self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
+                                                                   - 0.02 * self.y[self.map_items[item_j]])
+
+            # print error in each step
             # rmse = np.sqrt(error_final / self.train_set["ni"])
             # print("step::", step, "RMSE::", rmse)
 
@@ -132,21 +108,16 @@ class NewMatrixFactorization(object):
             for user in self.test_set['users']:
                 for item in self.test_set['feedback'][user]:
                     u, i = self.map_users[user], self.map_items[item]
-                    self.predictions.append((user, item, self._predict(u, i, self.baseline)))
+                    self.predictions.append((user, item, self._predict_svd_plus_plus(u, i)))
 
             if self.prediction_file is not None:
                 self.predictions = sorted(self.predictions, key=lambda x: x[0])
                 WriteFile(self.prediction_file, self.predictions).write_recommendation()
             return self.predictions
 
-    def evaluate(self, predictions):
-        result = RatingPredictionEvaluation()
-        res = result.evaluation(predictions, self.test_set)
-        print("Eval:: RMSE:" + str(res[0]) + " MAE:" + str(res[1]))
-
     def execute(self):
         # methods
-        print("[Case Recommender: Rating Prediction > Matrix Factorization]\n")
+        print("[Case Recommender: Rating Prediction > SVD++]\n")
         print("training data:: ", len(self.train_set['users']), " users and ", len(self.train_set['items']),
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
         print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
@@ -154,3 +125,8 @@ class NewMatrixFactorization(object):
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)
+
+
+d1 = "C:/Users/forte/Desktop/bode/"
+# MatrixFactorization(d1 + "train.dat", d1 + "test.dat").execute()
+SVDPlusPlus(d1 + "train.dat", d1 + "test.dat").execute()
