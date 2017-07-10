@@ -118,7 +118,3 @@ class SVDPlusPlus(MatrixFactorization):
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)
-
-
-d1 = "/home/arthurfortes/Downloads/ml-100k/"
-print(timed(SVDPlusPlus(d1 + "u1.base", d1 + "u1.test").execute))

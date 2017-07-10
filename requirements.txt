@@ -1,3 +1,2 @@
-Cython
 scipy
 numpy
