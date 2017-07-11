@@ -49,11 +49,11 @@ class SVDPlusPlus(MatrixFactorization):
                                      bias_learn_rate=bias_learn_rate, delta_bias=bias_reg)
 
         self.y = self.init_mean * np.random.randn(len(self.items), self.factors) + self.init_stdev ** 2
-        self.user_implicit_feedback = None
+        self.user_implicit_feedback = np.zeros((len(self.users), self.factors))
 
     def _predict_svd_plus_plus(self, u, i, cond=True):
-        rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot((self.p[u] + self.user_implicit_feedback),
-                                                                              self.q[i])
+        rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot(
+            (self.p[u] + self.user_implicit_feedback[u]), self.q[i])
 
         if cond:
             if rui > self.train_set["max"]:
@@ -64,36 +64,36 @@ class SVDPlusPlus(MatrixFactorization):
 
     def train_model(self):
         for epoch in range(self.steps):
-            for user, item, feedback in self.train_set['list_feedback']:
-                user_number = self.map_users_index[user]
+            for user in self.train_set['feedback']:
+                sqrt_iu = (np.sqrt(len(self.train_set["du"][user])))
+                u = self.map_users[user]
+                for item_j in self.train_set['feedback'][user]:
+                    self.user_implicit_feedback[u] += (self.y[self.map_items[item_j]] / sqrt_iu)
 
-                sqrt_iu = (np.sqrt(len(self.train_set["du"][user_number])))
-                self.user_implicit_feedback = np.zeros(self.factors, np.double)
+                for item in self.train_set['feedback'][user]:
+                    feedback = self.train_set['feedback'][user][item]
+                    i = self.map_items[item]
+                    eui = feedback - self._predict_svd_plus_plus(u, i, False)
+                    # Adjust the factors
+                    u_f = self.p[u]
+                    i_f = self.q[i]
 
-                for item_j in self.train_set['feedback'][user_number]:
-                    self.user_implicit_feedback += (self.y[self.map_items[item_j]] / sqrt_iu)
+                    # Compute factor updates
+                    delta_u = eui * i_f - self.delta * u_f
+                    delta_i = eui * u_f - self.delta * i_f
 
-                eui = feedback - self._predict_svd_plus_plus(user, item, False)
-                # Adjust the factors
-                u_f = self.p[user]
-                i_f = self.q[item]
+                    # apply updates
+                    self.p[u] += self.learn_rate * delta_u
+                    self.q[i] += self.learn_rate * delta_i
 
-                # Compute factor updates
-                delta_u = eui * i_f - self.delta * u_f
-                delta_i = eui * u_f - self.delta * i_f
+                    # update bu and bi
+                    self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
+                    self.bi[i] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[i])
 
-                # apply updates
-                self.p[user] += self.learn_rate * delta_u
-                self.q[item] += self.learn_rate * delta_i
-
-                # update bu and bi
-                self.bu[user] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[user])
-                self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
-
-                # update y (implicit factor)
-                for item_j in self.train_set['feedback'][user_number]:
-                    self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
-                                                               - 0.02 * self.y[self.map_items[item_j]])
+                    # update y (implicit factor)
+                    for item_j in self.train_set['feedback'][user]:
+                        self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
+                                                                   - 0.02 * self.y[self.map_items[item_j]])
 
     def predict(self):
         if self.test_set is not None:
