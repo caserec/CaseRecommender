@@ -67,24 +67,26 @@ class SVDPlusPlus(MatrixFactorization):
             for user in self.train_set['feedback']:
                 sqrt_iu = (np.sqrt(len(self.train_set["du"][user])))
                 u = self.map_users[user]
-                for item_j in self.train_set['feedback'][user]:
-                    self.user_implicit_feedback[u] += (self.y[self.map_items[item_j]] / sqrt_iu)
 
                 for item in self.train_set['feedback'][user]:
+                    for item_j in self.train_set['feedback'][user]:
+                        self.user_implicit_feedback[u] += (self.y[self.map_items[item_j]] / sqrt_iu)
+
                     feedback = self.train_set['feedback'][user][item]
                     i = self.map_items[item]
                     eui = feedback - self._predict_svd_plus_plus(u, i, False)
+
                     # Adjust the factors
                     u_f = self.p[u]
                     i_f = self.q[i]
 
                     # Compute factor updates
-                    delta_u = eui * i_f - self.delta * u_f
-                    delta_i = eui * u_f - self.delta * i_f
+                    delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, u_f))
+                    delta_i = np.subtract(np.multiply(eui, u_f), np.multiply(self.delta, i_f))
 
                     # apply updates
-                    self.p[u] += self.learn_rate * delta_u
-                    self.q[i] += self.learn_rate * delta_i
+                    self.p[u] += np.multiply(self.learn_rate, delta_u)
+                    self.q[i] += np.multiply(self.learn_rate, delta_i)
 
                     # update bu and bi
                     self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
@@ -92,8 +94,9 @@ class SVDPlusPlus(MatrixFactorization):
 
                     # update y (implicit factor)
                     for item_j in self.train_set['feedback'][user]:
-                        self.y[self.map_items[item_j]] += 0.007 * (eui * i_f / sqrt_iu
-                                                                   - 0.02 * self.y[self.map_items[item_j]])
+                        self.y[self.map_items[item_j]] += np.multiply(
+                            0.007, (np.subtract(np.multiply(eui, i_f / sqrt_iu),
+                                                np.multiply(0.02, self.y[self.map_items[item_j]]))))
 
     def predict(self):
         if self.test_set is not None:
