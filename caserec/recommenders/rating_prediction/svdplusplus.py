@@ -114,7 +114,6 @@ class SVDPlusPlus(MatrixFactorization):
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
         print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
               " items and ", (self.test_set['ni']), " interactions | sparsity ", self.test_set['sparsity'])
-        self._create_factors()
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)

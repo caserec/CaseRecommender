@@ -84,6 +84,7 @@ class MatrixFactorization(object):
         for user, item, feedback in self.train_set['list_feedback']:
             list_feedback.append((self.map_users[user], self.map_items[item], feedback))
         self.train_set['list_feedback'] = list_feedback
+        self._create_factors()
 
     def _create_factors(self):
         self.p = np.random.normal(self.init_mean, self.init_stdev, (len(self.users), self.factors))
@@ -152,7 +153,6 @@ class MatrixFactorization(object):
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
         print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
               " items and ", (self.test_set['ni']), " interactions | sparsity ", self.test_set['sparsity'])
-        self._create_factors()
         print("training time:: ", timed(self.train_model), " sec")
         print("\nprediction_time:: ", timed(self.predict), " sec\n")
         self.evaluate(self.predictions)
