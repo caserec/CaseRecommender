@@ -81,8 +81,10 @@ class MatrixFactorization(object):
             self.map_users_index.update({u: user})
 
         list_feedback = list()
+        self.dict_index = dict()
         for user, item, feedback in self.train_set['list_feedback']:
             list_feedback.append((self.map_users[user], self.map_items[item], feedback))
+            self.dict_index.setdefault(self.map_users[user], []).append(self.map_items[item])
         self.train_set['list_feedback'] = list_feedback
         self._create_factors()
 
