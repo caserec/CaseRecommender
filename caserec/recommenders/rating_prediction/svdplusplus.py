@@ -95,6 +95,7 @@ class SVDPlusPlus(MatrixFactorization):
                 # update y (implicit factor)
                 # ∀j E N(u) :
                 # yj ← yj + γ2 · (eui · |N(u)|−1/2 · qi − λ7 · yj )
+
                 for j in self.dict_index[user]:
                     delta_y = np.subtract(eui * self.n_u[user] * self.q[item], self.delta * self.y[j])
                     self.y[j] += self.learn_rate * delta_y
