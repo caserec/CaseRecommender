@@ -43,6 +43,7 @@ __author__ = "Arthur Fortes"
 class SVDPlusPlus(MatrixFactorization):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
                  init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002):
+        np.random.seed(0)
         MatrixFactorization.__init__(self, train_file=train_file, test_file=test_file, prediction_file=prediction_file,
                                      steps=steps, learn_rate=learn_rate, delta=delta, factors=factors,
                                      init_mean=init_mean, init_stdev=init_stdev, baseline=True,
@@ -56,7 +57,7 @@ class SVDPlusPlus(MatrixFactorization):
 
     def _predict_svd_plus_plus(self, u, i, sum_imp, cond=True):
         rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot((
-            self.p[u] * self.n_u[u] * sum_imp), self.q[i])
+            self.p[u] + self.n_u[u] * sum_imp), self.q[i])
 
         if cond:
             if rui > self.train_set["max"]:
@@ -67,7 +68,6 @@ class SVDPlusPlus(MatrixFactorization):
 
     def train_model(self):
         for epoch in range(self.steps):
-            print(epoch)
             for user, item, feedback in self.train_set['list_feedback']:
 
                 # Incorporating implicit feedback in the SVD: Sum (j E N(u)) Yj
@@ -81,8 +81,8 @@ class SVDPlusPlus(MatrixFactorization):
                 i_f = self.q[item]
 
                 # Compute factor updates
-                delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, (u_f + self.n_u[user] * sum_imp)))
-                delta_i = np.subtract(np.multiply(eui, (u_f * self.n_u[user] * sum_imp)), np.multiply(self.delta, i_f))
+                delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, u_f))
+                delta_i = np.subtract(np.multiply(eui, (u_f + self.n_u[user] * sum_imp)), np.multiply(self.delta, i_f))
 
                 # apply updates
                 self.p[user] += np.multiply(self.learn_rate, delta_u)
@@ -108,7 +108,7 @@ class SVDPlusPlus(MatrixFactorization):
                 try:
                     sum_imp = sum(self.y[self.dict_index[user]])
                 except KeyError:
-                    sum_imp = np.zeros(self.factors, np.double)
+                    sum_imp = np.ones(self.factors, np.double)
 
                 for item in self.test_set['feedback'][user]:
                     self.predictions.append((user, item, self._predict_svd_plus_plus(
