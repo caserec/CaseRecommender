@@ -67,7 +67,9 @@ class SVDPlusPlus(MatrixFactorization):
         return rui
 
     def train_model(self):
+        rmse_old = .0
         for epoch in range(self.steps):
+            error_final = .0
             for user, item, feedback in self.train_set['list_feedback']:
 
                 # Incorporating implicit feedback in the SVD: Sum (j E N(u)) Yj
@@ -75,6 +77,7 @@ class SVDPlusPlus(MatrixFactorization):
 
                 # Calculate error
                 eui = feedback - self._predict_svd_plus_plus(user, item, sum_imp, False)
+                error_final += (eui ** 2.0)
 
                 # Adjust the factors
                 u_f = self.p[user]
@@ -99,6 +102,14 @@ class SVDPlusPlus(MatrixFactorization):
                 for j in self.dict_index[user]:
                     delta_y = np.subtract(eui * self.n_u[user] * self.q[item], self.delta * self.y[j])
                     self.y[j] += self.learn_rate * delta_y
+
+            rmse_new = np.sqrt(error_final / self.train_set["ni"])
+            print("step::", epoch, "RMSE::", rmse_new)
+
+            if np.fabs(rmse_new - rmse_old) <= 0.009:
+                break
+            else:
+                rmse_old = rmse_new
 
     def predict(self):
         if self.test_set is not None:
