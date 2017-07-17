@@ -104,8 +104,6 @@ class SVDPlusPlus(MatrixFactorization):
                     self.y[j] += self.learn_rate * delta_y
 
             rmse_new = np.sqrt(error_final / self.train_set["ni"])
-            print("step::", epoch, "RMSE::", rmse_new)
-
             if np.fabs(rmse_new - rmse_old) <= 0.009:
                 break
             else:

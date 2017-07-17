@@ -135,7 +135,6 @@ class MatrixFactorization(object):
                     self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
 
             rmse_new = np.sqrt(error_final / self.train_set["ni"])
-            print("step::", epoch, "RMSE::", rmse_new)
             if np.fabs(rmse_new - rmse_old) <= 0.009:
                 break
             else:
