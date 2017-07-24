@@ -81,8 +81,10 @@ class MatrixFactorization(object):
             self.map_users_index.update({u: user})
 
         list_feedback = list()
+        self.dict_index = dict()
         for user, item, feedback in self.train_set['list_feedback']:
             list_feedback.append((self.map_users[user], self.map_items[item], feedback))
+            self.dict_index.setdefault(self.map_users[user], []).append(self.map_items[item])
         self.train_set['list_feedback'] = list_feedback
         self._create_factors()
 
@@ -109,9 +111,12 @@ class MatrixFactorization(object):
         return rui
 
     def train_model(self):
+        rmse_old = .0
         for epoch in range(self.steps):
+            error_final = .0
             for user, item, feedback in self.train_set['list_feedback']:
                 eui = feedback - self._predict(user, item, False)
+                error_final += (eui ** 2.0)
 
                 # Adjust the factors
                 u_f = self.p[user]
@@ -128,6 +133,12 @@ class MatrixFactorization(object):
                 if self.baseline:
                     self.bu[user] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[user])
                     self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
+
+            rmse_new = np.sqrt(error_final / self.train_set["ni"])
+            if np.fabs(rmse_new - rmse_old) <= 0.009:
+                break
+            else:
+                rmse_old = rmse_new
 
     def predict(self):
         if self.test_set is not None:

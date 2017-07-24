@@ -43,17 +43,21 @@ __author__ = "Arthur Fortes"
 class SVDPlusPlus(MatrixFactorization):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
                  init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002):
+        np.random.seed(0)
         MatrixFactorization.__init__(self, train_file=train_file, test_file=test_file, prediction_file=prediction_file,
                                      steps=steps, learn_rate=learn_rate, delta=delta, factors=factors,
                                      init_mean=init_mean, init_stdev=init_stdev, baseline=True,
                                      bias_learn_rate=bias_learn_rate, delta_bias=bias_reg)
 
-        self.y = self.init_mean * np.random.randn(len(self.items), self.factors) + self.init_stdev ** 2
-        self.user_implicit_feedback = np.zeros((len(self.users), self.factors))
+        self.y = np.random.normal(self.init_mean, self.init_stdev, (len(self.items), self.factors))
+        self.n_u = dict()
+        # |N(u)|^(-1/2)
+        for u, user in enumerate(self.users):
+            self.n_u[u] = np.power(len(self.train_set["feedback"].get(user, [0])), -.5)
 
-    def _predict_svd_plus_plus(self, u, i, cond=True):
-        rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot(
-            (self.p[u] + self.user_implicit_feedback[u]), self.q[i])
+    def _predict_svd_plus_plus(self, u, i, sum_imp, cond=True):
+        rui = self.train_set["mean_rates"] + self.bu[u] + self.bi[i] + np.dot((
+            self.p[u] + self.n_u[u] * sum_imp), self.q[i])
 
         if cond:
             if rui > self.train_set["max"]:
@@ -63,47 +67,61 @@ class SVDPlusPlus(MatrixFactorization):
         return rui
 
     def train_model(self):
+        rmse_old = .0
         for epoch in range(self.steps):
-            for user in self.train_set['feedback']:
-                sqrt_iu = (np.sqrt(len(self.train_set["du"][user])))
-                u = self.map_users[user]
+            error_final = .0
+            for user, item, feedback in self.train_set['list_feedback']:
 
-                for item in self.train_set['feedback'][user]:
-                    for item_j in self.train_set['feedback'][user]:
-                        self.user_implicit_feedback[u] += (self.y[self.map_items[item_j]] / sqrt_iu)
+                # Incorporating implicit feedback in the SVD: Sum (j E N(u)) Yj
+                sum_imp = sum(self.y[self.dict_index[user]])
 
-                    feedback = self.train_set['feedback'][user][item]
-                    i = self.map_items[item]
-                    eui = feedback - self._predict_svd_plus_plus(u, i, False)
+                # Calculate error
+                eui = feedback - self._predict_svd_plus_plus(user, item, sum_imp, False)
+                error_final += (eui ** 2.0)
 
-                    # Adjust the factors
-                    u_f = self.p[u]
-                    i_f = self.q[i]
+                # Adjust the factors
+                u_f = self.p[user]
+                i_f = self.q[item]
 
-                    # Compute factor updates
-                    delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, u_f))
-                    delta_i = np.subtract(np.multiply(eui, u_f), np.multiply(self.delta, i_f))
+                # Compute factor updates
+                delta_u = np.subtract(np.multiply(eui, i_f), np.multiply(self.delta, u_f))
+                delta_i = np.subtract(np.multiply(eui, (u_f + self.n_u[user] * sum_imp)), np.multiply(self.delta, i_f))
 
-                    # apply updates
-                    self.p[u] += np.multiply(self.learn_rate, delta_u)
-                    self.q[i] += np.multiply(self.learn_rate, delta_i)
+                # apply updates
+                self.p[user] += np.multiply(self.learn_rate, delta_u)
+                self.q[item] += np.multiply(self.learn_rate, delta_i)
 
-                    # update bu and bi
-                    self.bu[u] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[u])
-                    self.bi[i] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[i])
+                # update bu and bi
+                self.bu[user] += self.bias_learn_rate * (eui - self.delta_bias * self.bu[user])
+                self.bi[item] += self.bias_learn_rate * (eui - self.delta_bias * self.bi[item])
 
-                    # update y (implicit factor)
-                    for item_j in self.train_set['feedback'][user]:
-                        self.y[self.map_items[item_j]] += np.multiply(
-                            0.007, (np.subtract(np.multiply(eui, i_f / sqrt_iu),
-                                                np.multiply(0.02, self.y[self.map_items[item_j]]))))
+                # update y (implicit factor)
+                # ∀j E N(u) :
+                # yj ← yj + γ2 · (eui · |N(u)|−1/2 · qi − λ7 · yj )
+
+                for j in self.dict_index[user]:
+                    delta_y = np.subtract(eui * self.n_u[user] * self.q[item], self.delta * self.y[j])
+                    self.y[j] += self.learn_rate * delta_y
+
+            rmse_new = np.sqrt(error_final / self.train_set["ni"])
+            if np.fabs(rmse_new - rmse_old) <= 0.009:
+                break
+            else:
+                rmse_old = rmse_new
 
     def predict(self):
         if self.test_set is not None:
             for user in self.test_set['users']:
+
+                # sum (j E N(u)) Yj
+                try:
+                    sum_imp = sum(self.y[self.dict_index[user]])
+                except KeyError:
+                    sum_imp = np.ones(self.factors, np.double)
+
                 for item in self.test_set['feedback'][user]:
-                    u, i = self.map_users[user], self.map_items[item]
-                    self.predictions.append((user, item, self._predict_svd_plus_plus(u, i)))
+                    self.predictions.append((user, item, self._predict_svd_plus_plus(
+                        self.map_users[user], self.map_items[item], sum_imp)))
 
             if self.prediction_file is not None:
                 self.predictions = sorted(self.predictions, key=lambda x: x[0])
