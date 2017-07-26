@@ -92,4 +92,4 @@ class SplitDataset(object):
     def execute(self):
         print("[Case Recommender: Split Dataset Process]\n")
         print("number of folds:: ", self.n_folds, " write folds in:: ", self.dir_folds)
-        print("total process time:: ", timed(self.divide_dataset()), "sec")
+        print("total process time:: ", timed(self.divide_dataset), "sec")
