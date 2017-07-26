@@ -117,13 +117,16 @@ class EnsembleTagBased(object):
         write_ensemble = WriteFile(self.file_write, self.final_ranking, self.space_type)
         write_ensemble.write_recommendation()
 
-    def evaluate(self):
+    def evaluate(self, measures):
         res = ItemRecommendationEvaluation().evaluation_ranking(self.final_ranking, self.test_file)
-        print("Eval:: Prec@1:", res[0], " Prec@3:", res[3], " Prec@5:", res[6], " Prec@10:", res[9], " Map::", res[12])
+        evaluation = 'Eval:: '
+        for measure in measures:
+            evaluation += measure + ': ' + str(res[measure]) + ' '
+        print(evaluation)
 
-    def execute(self):
+    def execute(self, measures=('Prec@5', 'Prec@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')):
         # methods
-        print("[Case Recommender: Item Recommendation > Ensemble Average Based Algorithm]\n")
+        print("[Case Recommender: Item Recommendation > Ensemble Tag Based Algorithm]\n")
         # call internal methods
         self.read_ranking_files()
         print("Read Ranking Files...")
@@ -133,12 +136,4 @@ class EnsembleTagBased(object):
         self.write_ranking()
 
         if self.test_file is not None:
-            self.evaluate()
-
-        # call internal methods
-        self.read_ranking_files()
-        print('Read Ranking Files...')
-        self.treat_interactions()
-        self.ensemble_ranks()
-        print('Finished Ensemble interactions...')
-        self.write_ranking()
+            self.evaluate(measures)

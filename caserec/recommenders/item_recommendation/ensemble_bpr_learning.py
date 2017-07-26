@@ -195,11 +195,14 @@ class EnsembleLearningBPR(object):
         if self.ranking_file is not None:
             WriteFile(self.ranking_file, self.ranking).write_recommendation()
 
-    def evaluate(self):
+    def evaluate(self, measures):
         res = ItemRecommendationEvaluation().evaluation_ranking(self.ranking, self.test_file)
-        print("Eval:: Prec@1:", res[0], " Prec@3:", res[3], " Prec@5:", res[6], " Prec@10:", res[9], " Map::", res[12])
+        evaluation = 'Eval:: '
+        for measure in measures:
+            evaluation += measure + ': ' + str(res[measure]) + ' '
+        print(evaluation)
 
-    def execute(self):
+    def execute(self, measures=('Prec@5', 'Prec@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')):
         # methods
         print("[Case Recommender: Item Recommendation > Ensemble BPR Learning Algorithm]\n")
         self.read_training_data()
@@ -207,4 +210,4 @@ class EnsembleLearningBPR(object):
         self.train_model()
         self.predict()
         if self.test_file is not None:
-            self.evaluate()
+            self.evaluate(measures)

@@ -45,7 +45,7 @@ Rating Prediction:
 
 - Cross-fold- Validation
 
-- Item Recommendation: Precision, Recall and Map
+- Item Recommendation: Precision, Recall, NDCG and Map
 
 - Rating Prediction: MAE and RMSE
 
@@ -93,7 +93,7 @@ Run Rating Prediction Algorithm (E.g: ItemKNN)
     >> from caserec.recommenders.rating_prediction.itemknn import ItemKNN
     >> ItemKNN(train_file, test_file).execute()
 
-Evaluate Ranking (Prec@N, Recall@N, Map@N and Map Total)
+Evaluate Ranking (Prec@N, Recall@N, NDCG@, Map@N and Map Total)
 
     >> from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
     >> ItemRecommendationEvaluation().simple_evaluation(ranking_file, test_file)

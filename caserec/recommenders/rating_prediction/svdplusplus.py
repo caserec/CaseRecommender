@@ -43,7 +43,6 @@ __author__ = "Arthur Fortes"
 class SVDPlusPlus(MatrixFactorization):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
                  init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002):
-        np.random.seed(0)
         MatrixFactorization.__init__(self, train_file=train_file, test_file=test_file, prediction_file=prediction_file,
                                      steps=steps, learn_rate=learn_rate, delta=delta, factors=factors,
                                      init_mean=init_mean, init_stdev=init_stdev, baseline=True,
@@ -104,6 +103,7 @@ class SVDPlusPlus(MatrixFactorization):
                     self.y[j] += self.learn_rate * delta_y
 
             rmse_new = np.sqrt(error_final / self.train_set["ni"])
+
             if np.fabs(rmse_new - rmse_old) <= 0.009:
                 break
             else:

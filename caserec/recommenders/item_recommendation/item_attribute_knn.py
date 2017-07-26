@@ -62,7 +62,7 @@ class ItemAttributeKNN(ItemKNN):
     def read_matrix(self):
         self.si_matrix = ReadFile(self.similarity_matrix_file).read_matrix()
 
-    def execute(self):
+    def execute(self, measures=('Prec@5', 'Prec@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')):
         print("[Case Recommender: Item Recommendation > Item Attribute KNN Algorithm]\n")
         print("training data:: ", len(self.train_set['users']), " users and ", len(self.train_set['items']),
               " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
@@ -79,4 +79,4 @@ class ItemAttributeKNN(ItemKNN):
             print("training time:: ", timed(self.compute_similarity), " sec")
             print("prediction_time:: ", timed(self.predict), " sec\n")
         if self.test_file is not None:
-            self.evaluate()
+            self.evaluate(measures)
