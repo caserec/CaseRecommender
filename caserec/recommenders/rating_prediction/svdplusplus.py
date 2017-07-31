@@ -42,11 +42,11 @@ __author__ = "Arthur Fortes"
 
 class SVDPlusPlus(MatrixFactorization):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
-                 init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002):
+                 init_mean=0.1, init_stdev=0.1, bias_learn_rate=0.005, bias_reg=0.002, random_seed=0):
         MatrixFactorization.__init__(self, train_file=train_file, test_file=test_file, prediction_file=prediction_file,
                                      steps=steps, learn_rate=learn_rate, delta=delta, factors=factors,
                                      init_mean=init_mean, init_stdev=init_stdev, baseline=True,
-                                     bias_learn_rate=bias_learn_rate, delta_bias=bias_reg)
+                                     bias_learn_rate=bias_learn_rate, delta_bias=bias_reg, random_seed=random_seed)
 
         self.y = np.random.normal(self.init_mean, self.init_stdev, (len(self.items), self.factors))
         self.n_u = dict()

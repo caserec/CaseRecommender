@@ -46,7 +46,8 @@ __author__ = "Arthur Fortes"
 
 class MatrixFactorization(object):
     def __init__(self, train_file, test_file, prediction_file=None, steps=30, learn_rate=0.01, delta=0.015, factors=10,
-                 init_mean=0.1, init_stdev=0.1, baseline=False, bias_learn_rate=0.005, delta_bias=0.002):
+                 init_mean=0.1, init_stdev=0.1, baseline=False, bias_learn_rate=0.005, delta_bias=0.002,
+                 random_seed=0):
         self.train_set = ReadFile(train_file).return_information()
         self.test_set = ReadFile(test_file).return_information()
         self.prediction_file = prediction_file
@@ -64,6 +65,9 @@ class MatrixFactorization(object):
         self.map_users_index = dict()
         self.bias_learn_rate = bias_learn_rate
         self.delta_bias = delta_bias
+
+        if random_seed != 0:
+            np.random.seed(1)
 
         self.p = None
         self.q = None
