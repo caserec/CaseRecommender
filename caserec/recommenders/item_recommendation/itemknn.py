@@ -61,8 +61,8 @@ class ItemKNN(object):
     def compute_similarity(self):
         # Calculate distance matrix between users]
         self.si_matrix = np.float32(squareform(pdist(self.matrix.T, self.similarity_metric)))
-        # transform distances in similarities
-        self.si_matrix = 1 - self.si_matrix
+        # transform distances in similarities. Values in matrix range from 0-1
+        self.si_matrix = (self.si_matrix.max() - self.si_matrix) / self.si_matrix.max()
 
     def _predict_score(self, user_i, user_j):
         pass
