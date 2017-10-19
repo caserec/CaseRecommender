@@ -51,8 +51,8 @@ class UserKNN(BaseKNNRecommenders):
     def compute_similarity(self):
         # Calculate distance matrix between users
         self.su_matrix = np.float32(squareform(pdist(self.matrix, self.similarity_metric)))
-        # transform distances in similarities
-        self.su_matrix = 1 - self.su_matrix
+        # transform distances in similarities. Values in matrix range from 0-1
+        self.su_matrix = (self.su_matrix.max() - self.su_matrix) / self.su_matrix.max()
         del self.matrix
 
     """
