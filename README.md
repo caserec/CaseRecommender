@@ -59,7 +59,7 @@ Rating Prediction:
 
 For Linux and MAC use:
 
-    $ pip install requiriment
+    $ pip install requeriments
 
 For Windows use:
 
