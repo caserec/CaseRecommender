@@ -36,12 +36,60 @@ from caserec.utils.read_file import ReadFile
 __author__ = 'Arthur Fortes'
 
 
+def precision_at_k(ranking, k):
+    """
+    Score is precision @ k
+    Relevance is binary (nonzero is relevant).
+
+    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
+    :type ranking: list, np.array
+    :param k: length of ranking
+    :return: Precision @ k
+    """
+
+    assert k >= 1
+    ranking = np.asarray(ranking)[:k] != 0
+    if ranking.size != k:
+        raise ValueError('Relevance score length < k')
+    return np.mean(ranking)
+
+
+def average_precision(ranking):
+    """
+    Score is average precision (area under PR curve). Relevance is binary (nonzero is relevant).
+
+    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
+    :type ranking: list, np.array
+    :return: Average precision
+    """
+
+    ranking = np.asarray(ranking) != 0
+    out = [precision_at_k(ranking, k + 1) for k in range(ranking.size) if ranking[k]]
+    if not out:
+        return 0.
+    return np.mean(out)
+
+
+def mean_average_precision(ranking):
+    """
+    Score is mean average precision. Relevance is binary (nonzero is relevant).
+
+    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
+    :type ranking: list, np.array
+    :return: Mean average precision
+    """
+
+    return np.mean([average_precision(r) for r in ranking])
+
+
 def ndcg_at_k(ranking):
     """
-    Calculate the value of ndcg in ranking
+    Score is normalized discounted cumulative gain (ndcg). Relevance is positive real values.  Can use binary
+    as the previous methods.
 
-    :param ranking: (numpy array) ranking
-    :return: (float) value of ndcg
+    :param ranking: ranking to evaluate in dcg format [0, 0, 1], where 1 is correct info
+    :type ranking: list
+    :return: Normalized discounted cumulative gain
     """
     ranking = np.asfarray(ranking)
     r_ideal = np.asfarray(sorted(ranking, reverse=True))
@@ -75,9 +123,9 @@ class ItemRecommendationEvaluation(object):
         :return: (dict) values of the quality of ranking
         """
 
-        avg_prec_total = list()
         final_values_dict = dict()
         num_user = len(test['users'])
+        partial_map_all = None
 
         for i, n in enumerate(self.n_ranks):
             if n < 1:
@@ -85,30 +133,27 @@ class ItemRecommendationEvaluation(object):
 
             partial_precision = list()
             partial_recall = list()
-            avg_prec_total = list()
             partial_ndcg = list()
+            partial_map = list()
 
             for user in test['users']:
-                avg_prec_sum = 0
-
                 hit_cont = 0
                 # Generate user intersection list between the recommended items and test.
                 list_feedback = set(list(ranking['du_order'].get(user, []))[:n])
                 intersection = list(list_feedback.intersection(test['du_order'][user]))
 
                 if len(intersection) > 0:
-                    partial_precision.append((float(len(intersection)) / float(n)))
-                    partial_recall.append((float(len(intersection)) / float(len(test['du'][user]))))
-
                     ig_ranking = np.zeros(n)
                     for item in intersection:
                         hit_cont += 1
-                        avg_prec_sum += (float(hit_cont) / float(list(
-                            ranking['du_order'][user])[:n].index(item) + 1))
                         ig_ranking[ranking['du_order'][user].index(item)] = 1
 
-                    partial_ndcg.append(ndcg_at_k(ig_ranking))
-                    avg_prec_total.append(float(avg_prec_sum) / float(len(test['du_order'][user])))
+                    partial_precision.append(precision_at_k([ig_ranking], n))
+                    partial_recall.append((float(len(intersection)) / float(len(test['du'][user]))))
+                    partial_map.append(mean_average_precision([ig_ranking]))
+                    partial_ndcg.append(ndcg_at_k(list(ig_ranking)))
+
+                partial_map_all = partial_map
 
             # calculate final precision and recall
             if not self.only_map and not self.only_ndcg:
@@ -121,10 +166,10 @@ class ItemRecommendationEvaluation(object):
                 final_values_dict.update({'NDCG@' + str(n): round(sum(partial_ndcg) / float(num_user), 5)})
 
             if not self.only_ndcg:
-                final_values_dict.update({'MAP@' + str(n): round(sum(avg_prec_total) / float(num_user), 5)})
+                final_values_dict.update({'MAP@' + str(n): round(sum(partial_map) / float(num_user), 5)})
 
         if not self.only_ndcg:
-            final_values_dict.update({'MAP': round(sum(avg_prec_total) / float(num_user), 5)})
+            final_values_dict.update({'MAP': round(sum(partial_map_all) / float(num_user), 5)})
 
         return final_values_dict
 

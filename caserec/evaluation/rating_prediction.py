@@ -38,7 +38,7 @@ class RatingPredictionEvaluation(object):
 
         if count_comp != 0:
             rmse = math.sqrt(float(rmse) / float(count_comp))
-            mae = math.sqrt(float(mae) / float(count_comp))
+            mae = float(mae) / float(count_comp)
 
         return rmse, mae
 
@@ -59,7 +59,7 @@ class RatingPredictionEvaluation(object):
                 pass
         if count_comp != 0:
             rmse = math.sqrt(float(rmse) / float(count_comp))
-            mae = math.sqrt(float(mae) / float(count_comp))
+            mae = float(mae) / float(count_comp)
 
         return rmse, mae
 
@@ -111,7 +111,7 @@ class RatingPredictionEvaluation(object):
 
         if count_comp != 0:
             rmse = math.sqrt(float(rmse) / float(count_comp))
-            mae = math.sqrt(float(mae) / float(count_comp))
+            mae = float(mae) / float(count_comp)
 
         return rmse, mae
 
@@ -121,7 +121,7 @@ class RatingPredictionEvaluation(object):
         train = ReadFile(file_train, space_type=self.space_type).return_information()
         new_items = set()
         for item in train['items']:
-            if len(train['di'][item]) <= min_feedback:
+            if len(train['di'][item]) < min_feedback:
                 new_items.add(item)
 
         print(len(new_items))
@@ -143,6 +143,6 @@ class RatingPredictionEvaluation(object):
 
         if count_comp != 0:
             rmse = math.sqrt(float(rmse) / float(count_comp))
-            mae = math.sqrt(float(mae) / float(count_comp))
+            mae = float(mae) / float(count_comp)
 
         return rmse, mae

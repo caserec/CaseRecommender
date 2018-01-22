@@ -2,9 +2,9 @@
 """
 © 2016. Case Recommender All Rights Reserved (License GPL3)
 
-User Based Collaborative Filtering Recommender
+Item Based Collaborative Filtering Recommender
 
-    User-kNN predicts a user’s rating according to how similar users rated the same item. The algorithm matches similar
+    Item-kNN predicts a user’s rating according to how similar item rated the same item. The algorithm matches similar
     users based on the similarity of their ratings on items.
 
 
