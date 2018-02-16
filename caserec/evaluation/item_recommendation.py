@@ -1,131 +1,91 @@
 # coding=utf-8
-"""
-© 2017. Case Recommender All Rights Reserved (License GPL3)
+""""
+    This class is responsible for evaluate item recommendation algorithms (rankings).
 
-This file contains item recommendation measures:
-    MAP
-    Precision
-    Recall
-    NDCG
+    This file contains item recommendation evaluation metrics:
+        - Mean average precision - MAP
+        - Precision
+        - Recall
+        - Normalized Discounted Cumulative Gain - NDCG
 
-    Class:
-
-        - ItemRecommendationEvaluation
-
-    Methods:
-
-        - default_evaluation: returns:
-            * prec@1, recall@1, ndcg@1, map@1 ... prec@10, recall@10, ndcg@10, map@10 and map_total
-            * with only_map=True: map@1, map@3, map@5, map@10 and map_total
-            * with only_ndcg=True: ndcg@1, ndcg@3, ndcg@5, ndcg@10
-
-        - simple_evaluation: Evaluation only one ranking
-
-        - all_but_one_evaluation: All-but-one Protocol
-
-        - folds_evaluation: Evaluate N-Cross-Fold-Validation
-
-        - evaluation_ranking: This method is used to build evaluate process into the recommenders files
+    Types of evaluation:
+        - Simple: Evaluation with traditional strategy
+        - All-but-one Protocol: Considers only one pair (u, i) from the test set to evaluate the ranking
 
 """
+
+# © 2018. Case Recommender (MIT License)
 
 import numpy as np
-from caserec.utils.extra_functions import check_error_file
-from caserec.utils.read_file import ReadFile
+import random
 
-__author__ = 'Arthur Fortes'
+from caserec.evaluation.base_evaluation import BaseEvaluation
+from caserec.evaluation.item_recomendation_functions import precision_at_k, mean_average_precision, ndcg_at_k
 
-
-def precision_at_k(ranking, k):
-    """
-    Score is precision @ k
-    Relevance is binary (nonzero is relevant).
-
-    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
-    :type ranking: list, np.array
-    :param k: length of ranking
-    :return: Precision @ k
-    """
-
-    assert k >= 1
-    ranking = np.asarray(ranking)[:k] != 0
-    if ranking.size != k:
-        raise ValueError('Relevance score length < k')
-    return np.mean(ranking)
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
-def average_precision(ranking):
-    """
-    Score is average precision (area under PR curve). Relevance is binary (nonzero is relevant).
-
-    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
-    :type ranking: list, np.array
-    :return: Average precision
-    """
-
-    ranking = np.asarray(ranking) != 0
-    out = [precision_at_k(ranking, k + 1) for k in range(ranking.size) if ranking[k]]
-    if not out:
-        return 0.
-    return np.mean(out)
-
-
-def mean_average_precision(ranking):
-    """
-    Score is mean average precision. Relevance is binary (nonzero is relevant).
-
-    :param ranking: Relevance scores (list or numpy) in rank order (first element is the first item)
-    :type ranking: list, np.array
-    :return: Mean average precision
-    """
-
-    return np.mean([average_precision(r) for r in ranking])
-
-
-def ndcg_at_k(ranking):
-    """
-    Score is normalized discounted cumulative gain (ndcg). Relevance is positive real values.  Can use binary
-    as the previous methods.
-
-    :param ranking: ranking to evaluate in dcg format [0, 0, 1], where 1 is correct info
-    :type ranking: list
-    :return: Normalized discounted cumulative gain
-    """
-    ranking = np.asfarray(ranking)
-    r_ideal = np.asfarray(sorted(ranking, reverse=True))
-    dcg_ideal = r_ideal[0] + np.sum(r_ideal[1:] / np.log2(np.arange(2, r_ideal.size + 1)))
-    dcg_ranking = ranking[0] + np.sum(ranking[1:] / np.log2(np.arange(2, ranking.size + 1)))
-
-    return dcg_ranking / dcg_ideal
-
-
-class ItemRecommendationEvaluation(object):
-    def __init__(self, space_type='\t', only_map=False, only_ndcg=False, n_ranks=list([1, 3, 5, 10])):
+class ItemRecommendationEvaluation(BaseEvaluation):
+    def __init__(self, sep='\t', n_ranks=list([1, 3, 5, 10]),
+                 metrics=list(['PREC@5', 'PREC@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10']), all_but_one_eval=False,
+                 verbose=True, as_table=False, table_sep='\t'):
         """
-        Class to evaluate rankings in a item recommendation scenario
+        Class to evaluate predictions in a item recommendation (ranking) scenario
 
-        :param space_type: (string) delimiter (e.g ',' ' ' '\t')
-        :param only_map: (bool) return only map values
-        :param only_ndcg: (bool) return only ndcg values
-        :param n_ranks: (list of int) list of positions to evaluate the ranking
+        :param sep: Delimiter for input files
+        :type sep: str, default '\t'
+
+        :param n_ranks: List of positions to evaluate the ranking
+        :type n_ranks: list, default [1, 3, 5, 10]
+
+        :param metrics: List of evaluation metrics
+        :type metrics: list, default ('PREC@5', 'PREC@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')
+
+        :param all_but_one_eval: If True, considers only one pair (u, i) from the test set to evaluate the ranking
+        :type all_but_one_eval: bool, default False
+
+        :param verbose: Print the evaluation results
+        :type verbose: bool, default True
+
+        :param as_table: Print the evaluation results as table (only work with verbose=True)
+        :type as_table: bool, default False
+
+        :param table_sep: Delimiter for print results (only work with verbose=True and as_table=True)
+        :type table_sep: str, default '\t'
+
         """
-        self.space_type = space_type
-        self.only_map = only_map
-        self.only_ndcg = only_ndcg
+        super(ItemRecommendationEvaluation, self).__init__(sep=sep, metrics=metrics, all_but_one_eval=all_but_one_eval,
+                                                           verbose=verbose, as_table=as_table, table_sep=table_sep)
+
         self.n_ranks = n_ranks
 
-    def default_evaluation(self, ranking, test):
+    def evaluate(self, predictions, test_set, all_but_one=False):
         """
-        Calculate all the measures for item recommendation scenario
+        Method to calculate all the metrics for item recommendation scenario using dictionaries of ranking
+        and test set. Use read() in ReadFile to transform your file in a dict
 
-        :param ranking: (dict) dict generated by ReadFile(...).return_information()
-        :param test:  (dict) dict generated by ReadFile(...).return_information()
-        :return: (dict) values of the quality of ranking
+        :param predictions: Dictionary with ranking information
+        :type predictions: dict
+
+        :param test_set: Dictionary with test set information.
+        :type test_set: dict
+
+        :param all_but_one: If True, considers only one pair (u, i) from the test set to evaluate the ranking
+        :type all_but_one: bool, default False
+
+        :return: Dictionary with all evaluation metrics and results
+        :rtype: dict
+
         """
 
-        final_values_dict = dict()
-        num_user = len(test['users'])
+        eval_results = {}
+        num_user = len(test_set['users'])
         partial_map_all = None
+
+        if all_but_one:
+            for user in test_set['users']:
+                # select a random item
+                test_set['items_seen_by_user'][user] = [random.choice(test_set['items_seen_by_user'][user])]
 
         for i, n in enumerate(self.n_ranks):
             if n < 1:
@@ -136,125 +96,36 @@ class ItemRecommendationEvaluation(object):
             partial_ndcg = list()
             partial_map = list()
 
-            for user in test['users']:
+            for user in test_set['users']:
                 hit_cont = 0
                 # Generate user intersection list between the recommended items and test.
-                list_feedback = set(list(ranking['du_order'].get(user, []))[:n])
-                intersection = list(list_feedback.intersection(test['du_order'][user]))
+                list_feedback = set(list(predictions.get(user, []))[:n])
+                intersection = list(list_feedback.intersection(test_set['items_seen_by_user'][user]))
 
                 if len(intersection) > 0:
                     ig_ranking = np.zeros(n)
                     for item in intersection:
                         hit_cont += 1
-                        ig_ranking[ranking['du_order'][user].index(item)] = 1
+                        ig_ranking[list(predictions[user]).index(item)] = 1
 
                     partial_precision.append(precision_at_k([ig_ranking], n))
-                    partial_recall.append((float(len(intersection)) / float(len(test['du'][user]))))
+                    partial_recall.append((float(len(intersection)) / float(len(test_set['items_seen_by_user'][user]))))
                     partial_map.append(mean_average_precision([ig_ranking]))
                     partial_ndcg.append(ndcg_at_k(list(ig_ranking)))
 
                 partial_map_all = partial_map
 
-            # calculate final precision and recall
-            if not self.only_map and not self.only_ndcg:
-                final_values_dict.update({
-                    'Prec@' + str(n): round(sum(partial_precision) / float(num_user), 5),
-                    'Recall@' + str(n): round(sum(partial_recall) / float(num_user), 5),
-                })
+            # create a dictionary with final results
+            eval_results.update({
+                'PREC@' + str(n): round(sum(partial_precision) / float(num_user), 6),
+                'RECALL@' + str(n): round(sum(partial_recall) / float(num_user), 6),
+                'NDCG@' + str(n): round(sum(partial_ndcg) / float(num_user), 6),
+                'MAP@' + str(n): round(sum(partial_map) / float(num_user), 6),
+                'MAP': round(sum(partial_map_all) / float(num_user), 6)
 
-            if not self.only_map:
-                final_values_dict.update({'NDCG@' + str(n): round(sum(partial_ndcg) / float(num_user), 5)})
+            })
 
-            if not self.only_ndcg:
-                final_values_dict.update({'MAP@' + str(n): round(sum(partial_map) / float(num_user), 5)})
+        if self.verbose:
+            self.print_results(eval_results)
 
-        if not self.only_ndcg:
-            final_values_dict.update({'MAP': round(sum(partial_map_all) / float(num_user), 5)})
-
-        return final_values_dict
-
-    def simple_evaluation(self, file_result, file_test):
-        """
-        A simple evaluation method to return the quality of a ranking
-
-        :param file_result: (file) ranking file to evaluate
-        :param file_test: (file) test file
-        :return: Values of evaluation
-        """
-
-        # Verify that the files are valid
-        check_error_file(file_result)
-        check_error_file(file_test)
-
-        predict = ReadFile(file_result, space_type=self.space_type).return_information()
-        test = ReadFile(file_test, space_type=self.space_type).return_information()
-
-        return self.default_evaluation(predict, test)
-
-    def all_but_one_evaluation(self, file_result, file_test):
-        """
-        All-but-one Protocol: Considers only one pair (u, i) from the test set to evaluate the ranking
-
-        :param file_result: (file) ranking file to evaluate
-        :param file_test: (file) test file
-        :return: Values of evaluation
-        """
-
-        # Verify that the files are valid
-        check_error_file(file_result)
-        check_error_file(file_test)
-
-        predict = ReadFile(file_result, space_type=self.space_type).return_information()
-        test = ReadFile(file_test, space_type=self.space_type).return_information()
-
-        for user in test['users']:
-            test['du'][user] = [list(test['du'][user])[0]]
-
-        return self.default_evaluation(predict, test)
-
-    def folds_evaluation(self, folds_dir, n_folds, name_prediction, name_test, type_recommendation='SimpleEvaluation',
-                         no_deviation=False):
-        """
-        Evaluation N-Fold-Validation
-
-        :param folds_dir: (string) fold of the files
-        :param n_folds: (int) number of folds to evaluate
-        :param name_prediction: (string) name of the ranking file [p.s: same in all folds]
-        :param name_test: (string) name of the test file [p.s: same in all folds]
-        :param type_recommendation: (string) choice 'SimpleEvaluation' or 'AllButOne'
-        :param no_deviation: (bool) if true returns the standard deviation
-        :return: Values of evaluation
-        """
-        result = list()
-        list_results = list()
-
-        for fold in range(n_folds):
-            prediction = folds_dir + str(fold) + '/' + name_prediction
-            test = folds_dir + str(fold) + '/' + name_test
-
-            if type_recommendation == "SimpleEvaluation":
-                result.append(self.simple_evaluation(prediction, test))
-            elif type_recommendation == "AllButOne":
-                result.append(self.all_but_one_evaluation(prediction, test))
-            else:
-                raise ValueError('Error: Invalid recommendation type!')
-
-        for i in range(len(result[0])):
-            list_partial = list()
-            for j in range(n_folds):
-                list_partial.append(result[j][i])
-            if no_deviation:
-                list_results.append(list_partial)
-            else:
-                list_results.append([np.mean(list_partial), np.std(list_partial)])
-
-        return list_results
-
-    def evaluation_ranking(self, ranking, test_file):
-        ranking_dict = {'du_order': {}}
-        test = ReadFile(test_file, space_type=self.space_type).return_information()
-
-        for sample in ranking:
-            ranking_dict['du_order'].setdefault(sample[0], list()).append(sample[1])
-
-        return self.default_evaluation(ranking_dict, test)
+        return eval_results

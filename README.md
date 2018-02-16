@@ -4,17 +4,15 @@ Case Recommender is a Python implementation of a number of popular recommendatio
 # Algorithms
 Item Recommendation:
 
-- BPR MF
+- BPRMF
 
-- Item KNN
+- ItemKNN
 
 - Item Attribute KNN
 
-- User KNN
+- UserKNN
 
 - User Attribute KNN
-
-- Ensemble BPR Learning
 
 - Most Popular
 
@@ -24,13 +22,15 @@ Rating Prediction:
 
 - Matrix Factorization (with and without baseline)
 
-- SVD ++
+- SVD
 
-- Item KNN
+- SVD++
+
+- ItemKNN
 
 - Item Attribute KNN
 
-- User KNN
+- UserKNN
 
 - User Attribute KNN
 
@@ -43,7 +43,7 @@ Rating Prediction:
 
 - All-but-one Protocol
 
-- Cross-fold- Validation
+- Cross-fold-Validation
 
 - Item Recommendation: Precision, Recall, NDCG and Map
 
@@ -53,9 +53,11 @@ Rating Prediction:
 
 # Requirements 
 
-- Python 3
+- Python >= 3.5
 - scipy
 - numpy 
+- pandas
+- scikit-learn
 
 For Linux and MAC use:
 
@@ -78,30 +80,31 @@ If you want to run the latest version of the code, you can install from git:
     
 # Usage
 
-Divide datasets (Cross Fold Validation)
+Divide Database (Fold Cross Validation)
 
-    >> from caserec.utils.cross_fold_validation import CrossFoldValidation
-    >> CrossFoldValidation(input_file=dataset, dir_folds=dir_path, n_folds=10).execute()
+    >> from caserec.utils.split_database import SplitDatabase
+    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_folds=10).kfoldcrossvalidation()             
+              
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)
 
     >> from caserec.recommenders.item_recommendation.itemknn import ItemKNN
-    >> ItemKNN(train_file, test_file).execute()
+    >> ItemKNN(train_file, test_file).compute()
     
 Run Rating Prediction Algorithm (E.g: ItemKNN)
 
     >> from caserec.recommenders.rating_prediction.itemknn import ItemKNN
-    >> ItemKNN(train_file, test_file).execute()
+    >> ItemKNN(train_file, test_file).compute()
 
 Evaluate Ranking (Prec@N, Recall@N, NDCG@, Map@N and Map Total)
 
     >> from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
-    >> ItemRecommendationEvaluation().simple_evaluation(ranking_file, test_file)
+    >> ItemRecommendationEvaluation().evaluate_with_files(predictions_file, test_file)
     
 Evaluate Ranking (MAE and RMSE)
 
     >> from caserec.evaluation.rating_prediction import RatingPredictionEvaluation
-    >> RatingPredictionEvaluation().simple_evaluation(predictions_file, test_file)
+    >> RatingPredictionEvaluation().evaluate_with_files(predictions_file, test_file)
 
 # Documentation
 Soon...
@@ -161,19 +164,16 @@ BibTex (.bib)
     publisher = {SBC}
     } 
 
-# License (GPL)
+# License (MIT)
 
-    © 2017. Case Recommender All Rights Reserved
+    © 2018. Case Recommender All Rights Reserved
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+    permit persons to whom the Software is furnished to do so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.

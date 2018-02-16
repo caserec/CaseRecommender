@@ -1,112 +1,133 @@
 # coding=utf-8
 """
-© 2016. Case Recommender All Rights Reserved (License GPL3)
+    This class is base for NSVD1 algorithms.
 
-Base NSVD1
+    Used by: ItemNSVD1, and UserNSVD1
 
-Parameters
------------
-    - train_file: string
-    - test_file: string
-     - prediction_file: string
-     - steps: int
-        Number of steps over the training data
-     - learn_rate: float
-        Learning rate
-     - delta: float
-        Regularization value
-     - factors: int
-        Number of latent factors per user/item
-     - init_mean: float
-        Mean of the normal distribution used to initialize the latent factors
-     - init_stdev: float
-        Standard deviation of the normal distribution used to initialize the latent factors
-     - alpha: float
-     - batch: bool
-        if True: Use batch model to train the model (default False)
-     - n2: int
-        Number of interactions in batch step
-     - learn_rate2: float
-        Learning rate in batch step
-     - delta2: float
-        Regularization value in Batch step
+    Literature:
+    István Pilászy and 	Domonkos Tikk:
+    Recommending new movies: even a few ratings are more valuable than metadata
+    RecSys 2009
+    https://dl.acm.org/citation.cfm?id=1639731
 
 """
 
-from caserec.evaluation.rating_prediction import RatingPredictionEvaluation
-from caserec.utils.read_file import ReadFile
-from caserec.utils.write_file import WriteFile
+# © 2018. Case Recommender (MIT License)
+
 import numpy as np
 
-__author__ = "Arthur Fortes"
+from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
+
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
-class BaseNSVD1(object):
-    def __init__(self, train_file, test_file, prediction_file=None, factors=10, init_mean=0.1, init_stdev=0.1,
-                 space_type='\t'):
-        self.train_set = ReadFile(train_file, space_type=space_type).return_information()
-        self.test_set = ReadFile(test_file, space_type=space_type).return_information()
-        self.prediction_file = prediction_file
+class BaseNSVD1(BaseRatingPrediction):
+    def __init__(self, train_file, test_file, output_file=None, factors=10, init_mean=0, init_stdev=0.1,
+                 sep='\t', output_sep='\t', random_seed=None):
+        """
+        This class is base for all NSVD1 algorithms.
+
+        :param train_file: File which contains the train set. This file needs to have at least 3 columns
+        (user item feedback_value).
+        :type train_file: str
+
+        :param test_file: File which contains the test set. This file needs to have at least 3 columns
+        (user item feedback_value).
+        :type test_file: str, default None
+
+        :param output_file: File with dir to write the final predictions
+        :type output_file: str, default None
+
+        :param factors: Number of latent factors per user/item
+        :type factors: int, default 10
+
+        :param init_mean: Mean of the normal distribution used to initialize the latent factors
+        :type init_mean: float, default 0
+
+        :param init_stdev: Standard deviation of the normal distribution used to initialize the latent factors
+        :type init_stdev: float, default 0.1
+
+        :param sep: Delimiter for input files
+        :type sep: str, default'\t'
+
+        :param output_sep: Delimiter for output file
+        :type output_sep: str, default '\t'
+
+        :param random_seed: Number of seed. Lock random numbers for reproducibility of experiments.
+        :type random_seed: int, default None
+
+        """
+        super(BaseNSVD1, self).__init__(train_file=train_file, test_file=test_file, output_file=output_file, sep=sep,
+                                        output_sep=output_sep)
+
         self.factors = factors
         self.init_mean = init_mean
         self.init_stdev = init_stdev
-        self.users = sorted(set(list(self.train_set["users"]) + list(self.test_set["users"])))
-        self.items = sorted(set(list(self.train_set["items"]) + list(self.test_set["items"])))
-        self.number_users = len(self.users)
-        self.number_items = len(self.items)
-        self.metadata = None
-        self.number_metadata = None
-        self.map_items = dict()
-        self.map_items_index = dict()
-        self.map_users = dict()
-        self.map_users_index = dict()
-        for i, item in enumerate(self.items):
-            self.map_items.update({item: i})
-            self.map_items_index.update({i: item})
-        for u, user in enumerate(self.users):
-            self.map_users.update({user: u})
-            self.map_users_index.update({u: user})
+
+        if random_seed is not None:
+            np.random.seed(random_seed)
 
         # internal vars
+        self.number_users = len(self.users)
+        self.number_items = len(self.items)
+        self.item_to_item_id = {}
+        self.item_id_to_item = {}
+        self.user_to_user_id = {}
+        self.user_id_to_user = {}
         self.x = None
         self.p = None
         self.q = None
         self.w = None
         self.b = None
         self.c = None
+        self.metadata = None
+        self.number_metadata = None
+
         self.last_rmse = 0
-        self.predictions = list()
+        self.predictions = []
 
-    def _create_factors(self):
-        self.b = self.init_mean * np.random.randn(self.number_users, 1) + self.init_stdev ** 2
-        self.c = self.init_mean * np.random.randn(self.number_items, 1) + self.init_stdev ** 2
-        self.p = self.init_mean * np.random.randn(self.number_users, self.factors) + self.init_stdev ** 2
-        self.q = self.init_mean * np.random.randn(self.number_items, self.factors) + self.init_stdev ** 2
-        self.w = self.init_mean * np.random.randn(self.number_metadata, self.factors) + self.init_stdev ** 2
+    def init_model(self):
+        """
+        Method to treat and initialize the model
 
-    def _predict(self, user, item):
+        """
+
+        # Map items and users with their respective ids and upgrade unobserved items with test set samples
+        for i, item in enumerate(self.items):
+            self.item_to_item_id.update({item: i})
+            self.item_id_to_item.update({i: item})
+        for u, user in enumerate(self.users):
+            self.user_to_user_id.update({user: u})
+            self.user_id_to_user.update({u: user})
+
+    def create_factors(self):
+        self.b = np.random.normal(self.init_mean, self.init_stdev, self.number_users)
+        self.c = np.random.normal(self.init_mean, self.init_stdev, self.number_items)
+        self.p = np.random.normal(self.init_mean, self.init_stdev, (self.number_users, self.factors))
+        self.q = np.random.normal(self.init_mean, self.init_stdev, (self.number_items, self.factors))
+        self.w = np.random.normal(self.init_mean, self.init_stdev, (self.number_metadata, self.factors))
+
+    def _predict(self, user, item, cond=True):
         rui = self.b[user] + self.c[item] + np.dot(self.p[user], self.q[item])
-        return rui[0]
+
+        if cond:
+            if rui > self.train_set["max_value"]:
+                rui = self.train_set["max_value"]
+            if rui < self.train_set["min_value"]:
+                rui = self.train_set["min_value"]
+
+        return rui
 
     def predict(self):
-        if self.test_set is not None:
+        """
+        This method computes a final rating for unknown pairs (user, item)
+
+        """
+
+        if self.test_file is not None:
             for user in self.test_set['users']:
                 for item in self.test_set['feedback'][user]:
-                    try:
-                        rui = self._predict(self.map_users[user], self.map_items[item])
-                        if rui > self.train_set["max"]:
-                            rui = self.train_set["max"]
-                        if rui < self.train_set["min"]:
-                            rui = self.train_set["min"]
-                        self.predictions.append((user, item, rui))
-                    except KeyError:
-                        self.predictions.append((user, item, self.train_set["mean_rates"]))
-
-            if self.prediction_file is not None:
-                WriteFile(self.prediction_file, self.predictions).write_recommendation()
-            return self.predictions
-
-    def evaluate(self, predictions):
-        result = RatingPredictionEvaluation()
-        res = result.evaluation(predictions, self.test_set)
-        print("\nEval:: RMSE:", res[0], " MAE:", res[1], '\n')
+                    rui = self._predict(self.user_to_user_id[user], self.item_to_item_id[item])
+                    self.predictions.append((user, item, rui))
+        else:
+            raise NotImplemented

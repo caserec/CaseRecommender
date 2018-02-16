@@ -1,59 +1,132 @@
 # coding=utf-8
 """
-© 2016. Case Recommender All Rights Reserved (License GPL3)
-
-Item Based Collaborative Filtering Recommender
-
-    Its philosophy is as follows: in order to determine the rating of User u on Movie m, we can find other movies that
-    are similar to Movie m, and based on User u’s ratings on those similar movies we infer his rating on Movie m.
+    ItemKNN based on Collaborative Filtering Recommender
+    [Rating Prediction]
 
     Literature:
-        http://cs229.stanford.edu/proj2008/Wen-RecommendationSystemBasedOnCollaborativeFiltering.pdf
-
-Parameters
------------
-    - train_file: string
-    - test_file: string
-    - prediction_file: string
-        file to write final prediction
-    - similarity_metric: string
-        Pairwise metric to compute the similarity between the users.
-        Reference about distances:
-            - http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
-    - neighbors: int
-        The number of item candidates strategy that you can choose for selecting the possible items to recommend.
-    - space_type: string
+        KAggarwal, Charu C.:
+        Chapter 2: Neighborhood-Based Collaborative Filtering
+        Recommender Systems: The Textbook. 2016
+        file:///home/fortesarthur/Documentos/9783319296579-c1.pdf
 
 """
 
+# © 2018. Case Recommender (MIT License)
+from collections import defaultdict
+
 import numpy as np
-from scipy.spatial.distance import squareform, pdist
 from caserec.utils.extra_functions import timed
-from caserec.utils.read_file import ReadFile
-from caserec.recommenders.rating_prediction.base_knn import BaseKNNRecommenders
-from caserec.utils.write_file import WriteFile
 
-__author__ = 'Arthur Fortes'
+from caserec.recommenders.rating_prediction.base_knn import BaseKNN
+
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
-class ItemKNN(BaseKNNRecommenders):
-    def __init__(self, train_file, test_file, prediction_file=None, similarity_metric="correlation", neighbors=30,
-                 space_type='\t'):
-        self.train_set = ReadFile(train_file, space_type=space_type).return_information()
-        self.test_set = ReadFile(test_file, space_type=space_type).return_information()
-        BaseKNNRecommenders.__init__(self, self.train_set, self.test_set)
-        self.k = neighbors
-        self.prediction_file = prediction_file
-        self.similarity_metric = similarity_metric
-        self.predictions = list()
+class ItemKNN(BaseKNN):
+    def __init__(self, train_file=None, test_file=None, output_file=None, similarity_metric="cosine", k_neighbors=None,
+                 as_similar_first=False, sep='\t', output_sep='\t'):
+        """
+        ItemKNN for rating prediction
+
+        Its philosophy is as follows: in order to determine the rating of User u on item m, we can find other items
+        that are similar to item m, and based on User u’s ratings on those similar items we infer his rating on
+        item m.
+
+        Usage::
+
+            >> ItemKNN(train, test).compute()
+            >> ItemKNN(train, test, ranking_file, as_similar_first=True).compute()
+
+        :param train_file: File which contains the train set. This file needs to have at least 3 columns
+        (user item feedback_value).
+        :type train_file: str
+
+        :param test_file: File which contains the test set. This file needs to have at least 3 columns
+        (user item feedback_value).
+        :type test_file: str, default None
+
+        :param output_file: File with dir to write the final predictions
+        :type output_file: str, default None
+
+        :param similarity_metric: Pairwise metric to compute the similarity between the items. Reference about
+        distances: http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
+        :type similarity_metric: str, default cosine
+
+        :param k_neighbors: Number of neighbors to use. If None, k_neighbor = int(sqrt(n_users))
+        :type k_neighbors: int, default None
+
+        :param as_similar_first: If True, for each unknown item, which will be predicted, we first look for its k
+        most similar users and then take the intersection with the users that
+        seen that item.
+        :type as_similar_first: bool, default False
+
+        :param sep: Delimiter for input files
+        :type sep: str, default '\t'
+
+        :param output_sep: Delimiter for output file
+        :type output_sep: str, default '\t'
+
+        """
+
+        super(ItemKNN, self).__init__(train_file=train_file, test_file=test_file, output_file=output_file, sep=sep,
+                                      output_sep=output_sep, similarity_metric=similarity_metric)
+
+        self.recommender_name = 'ItemKNN Algorithm'
+
+        self.as_similar_first = as_similar_first
+        self.k_neighbors = k_neighbors
+
+        # internal vars
         self.si_matrix = None
+        self.similar_items = None
 
-    def compute_similarity(self):
-        # Calculate distance matrix between items
-        self.si_matrix = np.float32(squareform(pdist(self.matrix.T, self.similarity_metric)))
-        # transform distances in similarities. Values in matrix range from 0-1
-        self.si_matrix = (self.si_matrix.max() - self.si_matrix) / self.si_matrix.max()
-        del self.matrix
+    def init_model(self):
+        """
+        Method to initialize the model. Create and calculate a similarity matrix
+
+        """
+        super(ItemKNN, self).init_model()
+
+        self.similar_items = defaultdict(list)
+
+        # Set the value for k
+        if self.k_neighbors is None:
+            self.k_neighbors = int(np.sqrt(len(self.items)))
+
+        self.si_matrix = self.compute_similarity(transpose=True)
+
+        for i_id, item in enumerate(self.items):
+            self.similar_items[i_id] = sorted(range(len(self.si_matrix[i_id])),
+                                              key=lambda k: -self.si_matrix[i_id][k])[1:self.k_neighbors + 1]
+
+    def predict(self):
+        """
+        Method to predict ratings for all known users in the train set.
+
+        """
+
+        for user in self.users:
+            if len(self.train_set['feedback'].get(user, [])) != 0:
+                if self.test_file is not None:
+                    if self.as_similar_first:
+                        self.predictions += self.predict_similar_first_scores(user, self.test_set['items_seen_by_user']
+                                                                              .get(user, []))
+                    else:
+                        self.predictions += self.predict_scores(user, self.test_set['items_seen_by_user'].get(user, []))
+                else:
+                    # Selects items that user has not interacted with.
+                    items_seen_by_user = []
+                    u_list = list(np.flatnonzero(self.matrix[self.user_to_user_id[user]] == 0))
+                    for item_id in u_list:
+                        items_seen_by_user.append(self.item_id_to_item[item_id])
+
+                    if self.as_similar_first:
+                        self.predictions += self.predict_similar_first_scores(user, items_seen_by_user)
+                    else:
+                        self.predictions += self.predict_scores(user, items_seen_by_user)
+            else:
+                # Implement cold start user
+                pass
 
     '''
      for each pair (u,i) in test set, this method returns a prediction based
@@ -62,61 +135,125 @@ class ItemKNN(BaseKNNRecommenders):
      rui = bui + (sum((ruj - buj) * sim(i,j)) / sum(sim(i,j)))
 
     '''
-    def predict(self):
-        if self.test is not None:
-            for user in self.test['users']:
-                for item_j in self.test['feedback'][user]:
-                    list_n = list()
-                    ruj = 0.0
-                    try:
-                        sum_sim = 0.0
-                        for item_i in self.train['feedback'][user]:
-                            try:
-                                sim = self.si_matrix[self.map_items[item_i]][self.map_items[item_j]]
-                                if np.math.isnan(sim):
-                                    sim = 0.0
-                            except KeyError:
-                                sim = 0.0
-                            list_n.append((item_i, sim))
-                        list_n = sorted(list_n, key=lambda x: -x[1])
+    def predict_scores(self, user, unpredicted_items):
+        predictions = []
 
-                        for pair in list_n[:self.k]:
-                            try:
-                                ruj += (self.train['feedback'][user][pair[0]] -
-                                        self.bui[user][pair[0]]) * pair[1]
-                                sum_sim += pair[1]
-                            except KeyError:
-                                pass
+        # predict score for item_i
+        for item_j in unpredicted_items:
+            item_j_id = self.item_to_item_id[item_j]
+            rui = 0
+            sim_sum = 0
 
-                        try:
-                            ruj = self.bui[user][item_j] + (ruj / sum_sim)
-                        except ZeroDivisionError:
-                            ruj = self.bui[user][item_j]
+            neighbors_list = []
+            for item in self.train_set['items_seen_by_user'][user]:
+                neighbors_list.append((item, self.si_matrix[item_j_id, self.item_to_item_id[item]],
+                                       self.train_set['feedback'][user][item]))
 
-                    except KeyError:
-                        ruj = self.bui[user][item_j]
+            neighbors_list = sorted(neighbors_list, key=lambda x: -x[1])[::self.k_neighbors]
 
-                    # normalize the ratings based on the highest and lowest value.
-                    if ruj > self.train_set["max"]:
-                        ruj = self.train_set["max"]
-                    if ruj < self.train_set["min"]:
-                        ruj = self.train_set["min"]
-                    self.predictions.append((user, item_j, ruj))
+            if neighbors_list:
+                for triple in neighbors_list:
+                    rui += (triple[2] - self.bui[user][triple[0]]) * triple[1] if triple[1] != 0 else 0.001
+                    sim_sum += triple[1] if triple[1] != 0 else 0.001
 
-            if self.prediction_file is not None:
-                WriteFile(self.prediction_file, self.predictions).write_recommendation()
-            return self.predictions
+                rui = self.bui[user][item_j] + (rui / sim_sum)
 
-    def execute(self):
-        # methods
-        print("[Case Recommender: Rating Prediction > ItemKNN Algorithm]\n")
-        print("training data:: ", len(self.train_set['users']), " users and ", len(self.train_set['items']),
-              " items and ", self.train_set['ni'], " interactions | sparsity ", self.train_set['sparsity'])
-        print("test data:: ", len(self.test_set['users']), " users and ", len(self.test_set['items']),
-              " items and ", (self.test_set['ni']), " interactions | sparsity ", self.test_set['sparsity'])
-        # training baselines bui
-        self.fill_matrix()
-        print("training time:: ", timed(self.train_baselines), " sec")
-        self.compute_similarity()
-        print("\nprediction_time:: ", timed(self.predict), " sec\n")
-        self.evaluate(self.predictions)
+            else:
+                rui = self.bui[user][item_j]
+
+            # normalize the ratings based on the highest and lowest value.
+            if rui > self.train_set["max_value"]:
+                rui = self.train_set["max_value"]
+            if rui < self.train_set["min_value"]:
+                rui = self.train_set["min_value"]
+
+            predictions.append((user, item_j, rui))
+
+        return sorted(predictions, key=lambda x: x[1])
+
+    def predict_similar_first_scores(self, user, unpredicted_items):
+        """
+        In this implementation, for each unknown item, which will be
+        predicted, we first look for its k most similar items and then take the intersection with the seen items of
+        the user. Finally, the score of the unknown item will be the sum of the  similarities of k's most similar
+        to it, taking into account only the items that each user seen.
+
+        """
+
+        predictions = []
+        user_id = self.user_to_user_id[user]
+        seen_items_id = np.flatnonzero(self.matrix[user_id])
+
+        # predict score for item_i
+        for item_j in unpredicted_items:
+            item_j_id = self.item_to_item_id[item_j]
+            rui = 0
+            sim_sum = 0
+
+            neighbors_list_id = list(set(self.similar_items[item_j_id]).intersection(seen_items_id))
+
+            if neighbors_list_id:
+                for item_id in neighbors_list_id:
+                    item = self.item_id_to_item[item_id]
+                    similarity = self.si_matrix[item_j_id, item_id]
+                    rui += (self.train_set['feedback'][user][item] - self.bui[user][item]) * \
+                        similarity if similarity != 0 else 0.001
+
+                    sim_sum += similarity if similarity != 0 else 0.001
+
+                rui = self.bui[user][item_j] + (rui / sim_sum)
+
+            else:
+                rui = self.bui[user][item_j]
+
+            # normalize the ratings based on the highest and lowest value.
+            if rui > self.train_set["max_value"]:
+                rui = self.train_set["max_value"]
+            if rui < self.train_set["min_value"]:
+                rui = self.train_set["min_value"]
+
+            predictions.append((user, item_j, rui))
+
+        return sorted(predictions, key=lambda x: x[1])
+
+    def compute(self, verbose=True, metrics=None, verbose_evaluation=True, as_table=False, table_sep='\t'):
+        """
+        Extends compute method from BaseItemRecommendation. Method to run recommender algorithm
+
+        :param verbose: Print recommender and database information
+        :type verbose: bool, default True
+
+        :param metrics: List of evaluation metrics
+        :type metrics: list, default None
+
+        :param verbose_evaluation: Print the evaluation results
+        :type verbose_evaluation: bool, default True
+
+        :param as_table: Print the evaluation results as table
+        :type as_table: bool, default False
+
+        :param table_sep: Delimiter for print results (only work with verbose=True and as_table=True)
+        :type table_sep: str, default '\t'
+
+        """
+
+        super(ItemKNN, self).compute(verbose=verbose)
+
+        if verbose:
+            self.init_model()
+            print("training_time:: %4f sec" % timed(self.train_baselines))
+            if self.extra_info_header is not None:
+                print(self.extra_info_header)
+            print("prediction_time:: %4f sec" % timed(self.predict))
+
+        else:
+            # Execute all in silence without prints
+            self.extra_info_header = None
+            self.init_model()
+            self.train_baselines()
+            self.predict()
+
+        self.write_predictions()
+
+        if self.test_file is not None:
+            self.evaluate(metrics, verbose_evaluation, as_table=as_table, table_sep=table_sep)

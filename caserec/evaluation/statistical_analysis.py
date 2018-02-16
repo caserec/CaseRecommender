@@ -1,20 +1,35 @@
 # coding=utf-8
 """
-© 2016. Case Recommender All Rights Reserved (License GPL3)
+    This class contains Statical functions for recommender systems.
 
-This file contains Statical functions for recommender systems.
     - T-test
     - Wilcoxon
+
 """
+
+# © 2018. Case Recommender (MIT License)
 
 from scipy.stats import ttest_ind, ranksums
 import numpy as np
 
-__author__ = 'Arthur Fortes'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class StatisticalAnalysis(object):
     def __init__(self, sample1, sample2, method='ttest'):
+        """
+        Class for statical analyse. This class compares 2 list of sample and generate a statical analyse
+
+        :param sample1: List of results of a recommender 1 in K folds (list with len K)
+        :type sample1: list
+
+        :param sample2: List of results of a recommender 2 in K folds (list with len K)
+        :type sample2: list
+
+        :param method:
+        :type method: str, default 'ttest'
+
+        """
         self.sample1 = np.array(sample1)
         self.sample2 = np.array(sample2)
         self.method = method
