@@ -29,7 +29,7 @@ setup(
     author_email='fortes.arthur@gmail.com',
 
     url='https://github.com/ArthurFortes/CaseRecommender',
-    download_url='https://github.com/ArthurFortes/CaseRecommender/tarball/1.0',
+    download_url='https://github.com/ArthurFortes/CaseRecommender/archive/master.zip',
 
     keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering'],
 
