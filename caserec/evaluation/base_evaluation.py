@@ -84,7 +84,7 @@ class BaseEvaluation(object):
         predict = ReadFile(prediction_file, sep=self.sep).read()
         test_set = ReadFile(test_file, sep=self.sep).read()
 
-        return self.evaluate(predict, test_set)
+        return self.evaluate(predict['feedback'], test_set)
 
     def evaluate_recommender(self, predictions, test_set):
         """
