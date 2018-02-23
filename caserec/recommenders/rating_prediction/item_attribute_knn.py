@@ -11,6 +11,7 @@
 
 # © 2018. Case Recommender (MIT License)
 
+from collections import defaultdict
 import numpy as np
 
 from caserec.recommenders.rating_prediction.itemknn import ItemKNN
@@ -96,6 +97,9 @@ class ItemAttributeKNN(ItemKNN):
         matrix
 
         """
+
+        self.similar_items = defaultdict(list)
+
         # Set the value for k
         if self.k_neighbors is None:
             self.k_neighbors = int(np.sqrt(len(self.items)))

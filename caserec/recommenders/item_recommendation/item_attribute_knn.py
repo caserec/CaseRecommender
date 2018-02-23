@@ -11,6 +11,7 @@
 
 # © 2018. Case Recommender (MIT License)
 
+from collections import defaultdict
 import numpy as np
 
 from caserec.recommenders.item_recommendation.itemknn import ItemKNN
@@ -102,6 +103,8 @@ class ItemAttributeKNN(ItemKNN):
 
         """
 
+        self.similar_items = defaultdict(list)
+
         # Set the value for k
         if self.k_neighbors is None:
             self.k_neighbors = int(np.sqrt(len(self.items)))
@@ -154,5 +157,3 @@ class ItemAttributeKNN(ItemKNN):
         for i_id, item in enumerate(self.items):
             self.similar_items[i_id] = sorted(range(len(self.si_matrix[i_id])),
                                               key=lambda k: -self.si_matrix[i_id][k])[1:self.k_neighbors + 1]
-
-
