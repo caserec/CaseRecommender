@@ -18,7 +18,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 class CrossValidation(object):
     def __init__(self, input_file, recommender, dir_folds, k_folds=10, header=None, sep='\t', write_predictions=False,
                  write_sep='\t', recommender_verbose=False, evaluation_in_fold_verbose=True, metrics=None,
-                 as_table=False, table_sep='\t', del_folds=False):
+                 as_table=False, table_sep='\t', del_folds=False, random_seed=None):
         """
         Cross Validation
 
@@ -72,6 +72,9 @@ class CrossValidation(object):
         :param del_folds: Delete folds after evaluation
         :type del_folds: bool, default False
 
+        :param random_seed: Random seed
+        :type random_seed: int, default None
+
         """
 
         self.input_file = input_file
@@ -88,6 +91,7 @@ class CrossValidation(object):
         self.as_table = as_table
         self.table_sep = table_sep
         self.del_folds = del_folds
+        self.random_seed = random_seed
 
         # internal vars
         self.folds_results = defaultdict(list)
@@ -99,7 +103,7 @@ class CrossValidation(object):
         """
 
         SplitDatabase(input_file=self.input_file, n_splits=self.k_folds, dir_folds=self.dir_folds,
-                      sep_read=self.sep, header=self.header).kfoldcrossvalidation()
+                      sep_read=self.sep, header=self.header).kfoldcrossvalidation(random_state=self.random_seed)
 
     def execute_algorithm(self):
         """
