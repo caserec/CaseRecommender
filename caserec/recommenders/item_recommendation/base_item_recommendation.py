@@ -105,7 +105,7 @@ class BaseItemRecommendation(object):
 
         self.matrix = np.zeros((len(self.users), len(self.items)))
 
-        for user in self.train_set['feedback']:
+        for user in self.train_set['users']:
             for item in self.train_set['feedback'][user]:
                 self.matrix[self.user_to_user_id[user]][self.item_to_item_id[item]] = \
                     self.train_set['feedback'][user][item]
