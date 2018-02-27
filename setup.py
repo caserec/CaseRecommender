@@ -20,7 +20,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='1.0.5',
+    version='1.0.8',
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,

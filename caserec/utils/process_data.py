@@ -97,7 +97,7 @@ class ReadFile(object):
         list_items = sorted(list(list_items))
 
         # Create a dictionary with unobserved items for each user / Map user with its respective id
-        for u, user in enumerate(list_users):
+        for user in list_users:
             items_unobserved[user] = list(set(list_items) - set(items_seen_by_user[user]))
 
         # Calculate the sparsity of the set: N / (nu * ni)

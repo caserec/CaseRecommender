@@ -83,7 +83,7 @@ If you want to run the latest version of the code, you can install from git:
 Divide Database (Fold Cross Validation)
 
     >> from caserec.utils.split_database import SplitDatabase
-    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_folds=10).kfoldcrossvalidation()             
+    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()             
               
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)

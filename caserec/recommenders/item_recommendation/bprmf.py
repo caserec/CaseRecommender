@@ -153,7 +153,7 @@ class BprMF(BaseItemRecommendation):
         """
 
         for n in range(self.epochs):
-            random_users = random.choices(self.users, k=self.num_interactions)
+            random_users = random.choices(self.train_set['users'], k=self.num_interactions)
             for user in random_users:
                 i, j = self.sample_pair(user)
                 self.update_factors(self.user_to_user_id[user], self.item_to_item_id[i], self.item_to_item_id[j])
@@ -178,7 +178,6 @@ class BprMF(BaseItemRecommendation):
         :return: known item, unknown item
 
         """
-
         return random.choice(list(self.train_set['items_seen_by_user'][user])), random.choice(
             self.train_set['items_unobserved'][user])
 
@@ -245,7 +244,7 @@ class BprMF(BaseItemRecommendation):
             for i in candidate_items:
                 item = self.item_id_to_item[i]
 
-                if item not in self.train_set['items_seen_by_user'][user]:
+                if item not in self.train_set['items_seen_by_user'].get(user, self.items):
                     partial_ranking.append((user, item, w[u][i]))
 
                 if len(partial_ranking) == self.rank_length:
