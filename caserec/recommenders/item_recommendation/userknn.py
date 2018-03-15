@@ -127,13 +127,14 @@ class UserKNN(BaseItemRecommendation):
         """
 
         predictions = []
-        for item in unpredicted_items:
+        for item_id in unpredicted_items:
+            item = self.items[item_id]
             sim_sum = []
             for user_v in self.users_id_viewed_item.get(item, []):
                 sim_sum.append(self.su_matrix[user_id, user_v])
             sim_sum = sorted(sim_sum, reverse=True)
 
-            predictions.append((user, self.items[item], sum(sim_sum[:self.k_neighbors])))
+            predictions.append((user, item, sum(sim_sum[:self.k_neighbors])))
 
         return sorted(predictions, key=lambda x: -x[2])[:self.rank_length]
 
@@ -150,7 +151,8 @@ class UserKNN(BaseItemRecommendation):
         # Select user neighbors, sorting user similarity vector. Returns a list with index of sorting values
         neighbors = sorted(range(len(self.su_matrix[user_id])), key=lambda m: -self.su_matrix[user_id][m])
 
-        for item in unpredicted_items:
+        for item_id in unpredicted_items:
+            item = self.items[item_id]
             # Intersection bt. the neighbors closest to the user and the users who accessed the unknown item.
             common_users = list(set(self.users_id_viewed_item.get(item, [])).
                                 intersection(neighbors[1:self.k_neighbors]))
@@ -159,7 +161,7 @@ class UserKNN(BaseItemRecommendation):
             for user_v in common_users:
                 sim_sum += self.su_matrix[user_id, user_v]
 
-            predictions.append((user, self.items[item], sim_sum))
+            predictions.append((user, item, sim_sum))
 
         return sorted(predictions, key=lambda x: -x[2])[:self.rank_length]
 
