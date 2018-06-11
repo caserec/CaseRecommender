@@ -107,9 +107,10 @@ Evaluate Ranking (MAE and RMSE)
     >> RatingPredictionEvaluation().evaluate_with_files(predictions_file, test_file)
 
 # Documentation
+
 Soon...
 
-#Input
+# Input
 
 The input-files of traditional have to be placed in the corresponding subdirectory and are in csv-format with 3 columns 
 
