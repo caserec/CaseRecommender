@@ -6,6 +6,9 @@ explicit feedback.  The framework aims to provide a rich set of components from 
 recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating
 prediction approaches, and different metrics validation and evaluation.
 
+.. image:: https://badge.fury.io/py/CaseRecommender.svg
+    :target: https://badge.fury.io/py/CaseRecommender
+
 Algorithms
 ^^^^^^^^^^^^
 
