@@ -38,6 +38,8 @@ Rating Prediction:
 
 - User NSVD1 (with and without Batch)
 
+- Most Popular
+
 
 # Evaluation and Validation Metrics
 
