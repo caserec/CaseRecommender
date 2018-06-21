@@ -1,7 +1,10 @@
 Case Recommender - A Recommender Framework for Python
 ======================================================
 
-Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and explicit feedback.  The framework aims to provide a rich set of components from which you can construct a customized recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating prediction approaches, and different metrics validation and evaluation.
+Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and
+explicit feedback.  The framework aims to provide a rich set of components from which you can construct a customized
+recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating
+prediction approaches, and different metrics validation and evaluation.
 
 Algorithms
 ^^^^^^^^^^^^
@@ -89,7 +92,7 @@ If you want to run the latest version of the code, you can install from git:
 More Details
 ^^^^^^^^^^^^^
 
-    `https://github.com/ArthurFortes/CaseRecommender <https://github.com/ArthurFortes/CaseRecommender>`_
+    `https://github.com/ArthurFortes/CaseRecommender <https://github.com/caserec/CaseRecommender>`_
 
 
 License (MIT)
@@ -102,6 +105,11 @@ License (MIT)
     rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions
+    of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+    TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
