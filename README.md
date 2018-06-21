@@ -141,31 +141,6 @@ To help the project with contributions follow the steps:
 
 For bugs or feedback use this link: https://github.com/ArthurFortes/CaseRecommender/issues
 
-# Developed By
-
-Arthur Fortes da Costa
-
-University of São Paulo - ICMC (USP)
-
-fortes.arthur@gmail.com
-
-# Reference 
-
-da Costa Fortes, A. and Manzato, M. G. Case recommender: A recommender framework. In Proceedings of the
-22Nd Brazilian Symposium on Multimedia and the Web. Webmedia ’16. SBC, pp. 99–102, 2016.
-
-BibTex (.bib)
-
-    @inproceedings{daCostaCase:16,
-    author = {da Costa Fortes, Arthur and Manzato, Marcelo Garcia},
-    title = {Case Recommender: A Recommender Framework},
-    booktitle = {Proceedings of the 22Nd Brazilian Symposium on Multimedia and the Web},
- 	series = {Webmedia '16},
- 	year = {2016},
-    pages = {99--102},
-    numpages = {4},
-    publisher = {SBC}
-    } 
 
 # License (MIT)
 
