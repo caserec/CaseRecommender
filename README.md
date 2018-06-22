@@ -1,6 +1,7 @@
 # Case Recommender - A Recommender Framework for Python
 
 [![PyPI version](https://badge.fury.io/py/CaseRecommender.svg)](https://badge.fury.io/py/CaseRecommender)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![GitHub license](https://img.shields.io/github/license/caserec/CaseRecommender.svg)](https://github.com/caserec/CaseRecommender/blob/master/COPYING)
 
 
