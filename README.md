@@ -1,4 +1,4 @@
-# Case Recommender - A Recommender Framework
+# Case Recommender - A Python Framework for RecSys
 
 [![PyPI version](https://badge.fury.io/py/CaseRecommender.svg)](https://badge.fury.io/py/CaseRecommender)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
