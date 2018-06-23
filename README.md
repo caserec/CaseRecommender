@@ -1,4 +1,4 @@
-# Case Recommender - A Recommender Framework for Python
+# Case Recommender - A Recommender Framework
 
 [![PyPI version](https://badge.fury.io/py/CaseRecommender.svg)](https://badge.fury.io/py/CaseRecommender)
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
@@ -50,6 +50,8 @@ Rating Prediction:
 Clustering:
 
 - PaCo: EntroPy Anomalies in Co-Clustering
+
+- k-medoids
 
 # Evaluation and Validation Metrics
 

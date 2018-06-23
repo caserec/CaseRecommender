@@ -1,5 +1,5 @@
-Case Recommender - A Recommender Framework for Python
-======================================================
+Case Recommender - A Recommender Framework
+============================================
 
 .. image:: https://badge.fury.io/py/CaseRecommender.svg
     :target: https://badge.fury.io/py/CaseRecommender
@@ -56,6 +56,8 @@ Rating Prediction:
 Clustering:
 
 - PaCo: EntroPy Anomalies in Co-Clustering
+
+- k-medoids
 
 Evaluation and Validation Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
