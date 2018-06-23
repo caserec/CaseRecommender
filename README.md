@@ -47,6 +47,9 @@ Rating Prediction:
 
 - Most Popular
 
+Clustering:
+
+- PaCo: EntroPy Anomalies in Co-Clustering
 
 # Evaluation and Validation Metrics
 
@@ -60,11 +63,11 @@ Rating Prediction:
 
 - Statistical Analysis (T-test and Wilcoxon)
 
-# Requirements 
+# Requirements
 
-- Python >= 3.5
+- Python >= 3
 - scipy
-- numpy 
+- numpy
 - pandas
 - scikit-learn
 
@@ -75,7 +78,7 @@ For Linux and MAC use:
 For Windows use:
 
     http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
-    
+
 
 # Quick start
 
@@ -84,22 +87,22 @@ Case Recommender can be installed using pip:
     $ pip install caserecommender
 
 If you want to run the latest version of the code, you can install from git:
-    
-    $ pip install -U git+git://github.com/ArthurFortes/CaseRecommender.git
-    
+
+    $ pip install -U git+git://github.com/caserec/CaseRecommender.git
+
 # Usage
 
 Divide Database (Fold Cross Validation)
 
     >> from caserec.utils.split_database import SplitDatabase
     >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()             
-              
+
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)
 
     >> from caserec.recommenders.item_recommendation.itemknn import ItemKNN
     >> ItemKNN(train_file, test_file).compute()
-    
+
 Run Rating Prediction Algorithm (E.g: ItemKNN)
 
     >> from caserec.recommenders.rating_prediction.itemknn import ItemKNN
@@ -109,29 +112,19 @@ Evaluate Ranking (Prec@N, Recall@N, NDCG@, Map@N and Map Total)
 
     >> from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
     >> ItemRecommendationEvaluation().evaluate_with_files(predictions_file, test_file)
-    
+
 Evaluate Ranking (MAE and RMSE)
 
     >> from caserec.evaluation.rating_prediction import RatingPredictionEvaluation
     >> RatingPredictionEvaluation().evaluate_with_files(predictions_file, test_file)
 
-# Documentation
-
-Soon...
-
 # Input
 
-The input-files of traditional have to be placed in the corresponding subdirectory and are in csv-format with 3 columns 
-
-- User
-
-- Item
-
-- Feedback
-
-Example: user_1\titem_1\tfeedback
+The input-files of traditional have to be placed in the corresponding subdirectory and are in csv-format with at least
+3 columns. Example: user_1,item_1,feedback
 
 # Help CaseRecommender
+
 To help the project with contributions follow the steps:
 
 - Fork CaseRecommender
@@ -153,17 +146,16 @@ For bugs or feedback use this link: https://github.com/caserec/CaseRecommender/i
 
     © 2018. Case Recommender All Rights Reserved
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
-    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the 
-    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+    documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+    rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all copies or substantial portions of
     the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
     THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
     IN THE SOFTWARE.
-

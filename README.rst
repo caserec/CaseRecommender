@@ -53,6 +53,9 @@ Rating Prediction:
 
 - Most Popular
 
+Clustering:
+
+- PaCo: EntroPy Anomalies in Co-Clustering
 
 Evaluation and Validation Metrics
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -70,7 +73,7 @@ Evaluation and Validation Metrics
 Requirements
 ^^^^^^^^^^^^^
 
-- Python >= 3.5
+- Python >= 3
 - scipy
 - numpy
 - pandas
@@ -93,12 +96,12 @@ Case Recommender can be installed using pip:
 
 If you want to run the latest version of the code, you can install from git:
 
-    $ pip install -U git+git://github.com/ArthurFortes/CaseRecommender.git
+    $ pip install -U git+git://github.com/caserec/CaseRecommender.git
 
 More Details
 ^^^^^^^^^^^^^
 
-    `https://github.com/ArthurFortes/CaseRecommender <https://github.com/caserec/CaseRecommender>`_
+    `https://github.com/caserec/CaseRecommender <https://github.com/caserec/CaseRecommender>`_
 
 
 License (MIT)
