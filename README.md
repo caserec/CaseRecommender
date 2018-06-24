@@ -47,6 +47,8 @@ Rating Prediction:
 
 - Most Popular
 
+- Random
+
 Clustering:
 
 - PaCo: EntroPy Anomalies in Co-Clustering
