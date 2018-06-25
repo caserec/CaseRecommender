@@ -24,7 +24,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 class RatingPredictionEvaluation(BaseEvaluation):
     def __init__(self, sep='\t', metrics=list(['MAE', 'RMSE']), all_but_one_eval=False, verbose=True, as_table=False,
-                 table_sep='\t', as_rank=False, n_rank=10):
+                 table_sep='\t', as_rank=False, n_rank=(5, 10)):
         """
         Class to evaluate predictions in a rating prediction scenario
 
