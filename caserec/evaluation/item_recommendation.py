@@ -27,7 +27,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 class ItemRecommendationEvaluation(BaseEvaluation):
     def __init__(self, sep='\t', n_ranks=list([1, 3, 5, 10]),
-                 metrics=list(['PREC@5', 'PREC@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10']), all_but_one_eval=False,
+                 metrics=list(['PREC', 'RECALL', 'MAP', 'NDCG']), all_but_one_eval=False,
                  verbose=True, as_table=False, table_sep='\t'):
         """
         Class to evaluate predictions in a item recommendation (ranking) scenario
@@ -39,7 +39,7 @@ class ItemRecommendationEvaluation(BaseEvaluation):
         :type n_ranks: list, default [1, 3, 5, 10]
 
         :param metrics: List of evaluation metrics
-        :type metrics: list, default ('PREC@5', 'PREC@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')
+        :type metrics: list, default ('PREC', 'RECALL', 'MAP', 'NDCG')
 
         :param all_but_one_eval: If True, considers only one pair (u, i) from the test set to evaluate the ranking
         :type all_but_one_eval: bool, default False
@@ -54,12 +54,14 @@ class ItemRecommendationEvaluation(BaseEvaluation):
         :type table_sep: str, default '\t'
 
         """
+
+        metrics = [m + '@' + str(n) for m in metrics for n in n_ranks]
         super(ItemRecommendationEvaluation, self).__init__(sep=sep, metrics=metrics, all_but_one_eval=all_but_one_eval,
                                                            verbose=verbose, as_table=as_table, table_sep=table_sep)
 
         self.n_ranks = n_ranks
 
-    def evaluate(self, predictions, test_set, all_but_one=False):
+    def evaluate(self, predictions, test_set):
         """
         Method to calculate all the metrics for item recommendation scenario using dictionaries of ranking
         and test set. Use read() in ReadFile to transform your file in a dict
@@ -70,9 +72,6 @@ class ItemRecommendationEvaluation(BaseEvaluation):
         :param test_set: Dictionary with test set information.
         :type test_set: dict
 
-        :param all_but_one: If True, considers only one pair (u, i) from the test set to evaluate the ranking
-        :type all_but_one: bool, default False
-
         :return: Dictionary with all evaluation metrics and results
         :rtype: dict
 
@@ -82,10 +81,10 @@ class ItemRecommendationEvaluation(BaseEvaluation):
         num_user = len(test_set['users'])
         partial_map_all = None
 
-        if all_but_one:
+        if self.all_but_one_eval:
             for user in test_set['users']:
                 # select a random item
-                test_set['items_seen_by_user'][user] = [random.choice(test_set['items_seen_by_user'][user])]
+                test_set['items_seen_by_user'][user] = [random.choice(test_set['items_seen_by_user'].get(user, [-1]))]
 
         for i, n in enumerate(self.n_ranks):
             if n < 1:
@@ -100,7 +99,7 @@ class ItemRecommendationEvaluation(BaseEvaluation):
                 hit_cont = 0
                 # Generate user intersection list between the recommended items and test.
                 list_feedback = set(list(predictions.get(user, []))[:n])
-                intersection = list(list_feedback.intersection(test_set['items_seen_by_user'][user]))
+                intersection = list(list_feedback.intersection(test_set['items_seen_by_user'].get(user, [])))
 
                 if len(intersection) > 0:
                     ig_ranking = np.zeros(n)

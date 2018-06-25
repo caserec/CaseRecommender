@@ -48,7 +48,7 @@ class BaseEvaluation(object):
         self.as_table = as_table
         self.table_sep = table_sep
 
-    def evaluate(self, predictions, test_set, all_but_one=False):
+    def evaluate(self, predictions, test_set):
         """
         Method to be implemented for each strategy using their respective metrics.
         Use read() in ReadFile to transform your file in a dict
@@ -58,9 +58,6 @@ class BaseEvaluation(object):
 
         :param test_set: Dictionary with test set information.
         :type test_set: dict
-
-        :param all_but_one: If True, considers only one pair (u, i) from the test set to evaluate the ranking
-        :type all_but_one: bool, default False
 
         """
         raise NotImplemented

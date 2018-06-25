@@ -11,7 +11,7 @@
         - All-but-one Protocol: Considers only one pair (u, i) from the test set to evaluate the predictions
 
 """
-
+from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import numpy as np
 import random
@@ -23,7 +23,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 class RatingPredictionEvaluation(BaseEvaluation):
     def __init__(self, sep='\t', metrics=list(['MAE', 'RMSE']), all_but_one_eval=False, verbose=True, as_table=False,
-                 table_sep='\t'):
+                 table_sep='\t', as_rank=False):
         """
         Class to evaluate predictions in a rating prediction scenario
 
@@ -44,13 +44,17 @@ class RatingPredictionEvaluation(BaseEvaluation):
 
         :param table_sep: Delimiter for print results (only work with verbose=True and as_table=True)
         :type table_sep: str, default '\t'
+        
+        :param as_rank: If True, evaluate as rank.
+        :type as_rank: bool, default False
 
         """
 
         super(RatingPredictionEvaluation, self).__init__(sep=sep, metrics=metrics, all_but_one_eval=all_but_one_eval,
                                                          verbose=verbose, as_table=as_table, table_sep=table_sep)
+        self.as_rank = as_rank
 
-    def evaluate(self, predictions, test_set, all_but_one=False):
+    def evaluate(self, predictions, test_set):
         """
         Method to calculate all the metrics for item recommendation scenario using dictionaries of ranking
         and test set. Use read() in ReadFile to transform your prediction and test files in a dict
@@ -61,9 +65,6 @@ class RatingPredictionEvaluation(BaseEvaluation):
         :param test_set: Dictionary with test set information.
         :type test_set: dict
 
-        :param all_but_one: If True, considers only one pair (u, i) from the test set to evaluate the ranking
-        :type all_but_one: bool, default False
-
         :return: Dictionary with all evaluation metrics and results
         :rtype: dict
 
@@ -72,28 +73,57 @@ class RatingPredictionEvaluation(BaseEvaluation):
         eval_results = {}
         predictions_list = []
         test_list = []
+        
+        if not self.as_rank:
+            # Create All but one set, selecting only one sample from the test set for each user
+            if self.all_but_one_eval:
+                for user in test_set['users']:
+                    # select a random item
+                    item = random.choice(test_set['feedback'][user])
+                    test_set['feedback'][user] = {item: test_set['feedback'][user][item]}
+    
+            for user in predictions:
+                for item in predictions[user]:
+                    rui_predict = predictions[user][item]
+                    rui_test = test_set["feedback"].get(user, {}).get(item, np.nan)
+                    if not np.isnan(rui_test):
+                        predictions_list.append(rui_predict)
+                        test_list.append(float(rui_test))
+    
+            eval_results.update({
+                'MAE': round(mean_absolute_error(test_list, predictions_list), 6),
+                'RMSE': round(np.sqrt(mean_squared_error(test_list, predictions_list)), 6)
+            })
+    
+            if self.verbose:
+                self.print_results(eval_results)
+                
+        else:
+            new_predict_set = []
+            new_test_set = {}
+            high_len_rank = 0
 
-        # Create All but one set, selecting only one sample from the test set for each user
-        if all_but_one:
-            for user in test_set['users']:
-                # select a random item
-                item = random.choice(test_set['feedback'][user])
-                test_set['feedback'][user] = {item: test_set['feedback'][user][item]}
+            for user in predictions:
+                partial_predictions = []
+                for item in predictions[user]:
 
-        for user in predictions:
-            for item in predictions[user]:
-                rui_predict = predictions[user][item]
-                rui_test = test_set["feedback"].get(user, {}).get(item, np.nan)
-                if not np.isnan(rui_test):
-                    predictions_list.append(rui_predict)
-                    test_list.append(float(rui_test))
+                    if predictions[user][item] > 3:
+                        partial_predictions.append([user, item, predictions[user][item]])
 
-        eval_results.update({
-            'MAE': round(mean_absolute_error(test_list, predictions_list), 6),
-            'RMSE': round(np.sqrt(mean_squared_error(test_list, predictions_list)), 6)
-        })
+                    if test_set["feedback"].get(user, {}).get(item, 0) > 3:
+                        new_test_set.setdefault(user, []).append(item)
 
-        if self.verbose:
-            self.print_results(eval_results)
+                partial_predictions = sorted(partial_predictions, key=lambda x: -x[2])
+                new_predict_set += partial_predictions
+
+                if high_len_rank < len(partial_predictions):
+                    high_len_rank = len(partial_predictions)
+
+            new_test_set['items_seen_by_user'] = new_test_set
+            new_test_set['users'] = test_set['users']
+
+            ItemRecommendationEvaluation(n_ranks=[high_len_rank],
+                                         all_but_one_eval=self.all_but_one_eval).evaluate_recommender(
+                new_predict_set, new_test_set)
 
         return eval_results
