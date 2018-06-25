@@ -20,7 +20,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='1.0.9',
+    version='1.0.10',
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,
@@ -28,14 +28,13 @@ setup(
     author='Arthur Fortes',
     author_email='fortes.arthur@gmail.com',
 
-    url='https://github.com/ArthurFortes/CaseRecommender',
-    download_url='https://github.com/ArthurFortes/CaseRecommender/archive/master.zip',
+    url='https://github.com/caserec/CaseRecommender',
+    download_url='https://github.com/caserec/CaseRecommender/archive/master.zip',
 
-    keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering'],
+    keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering',
+              'recommendation'],
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
-
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
