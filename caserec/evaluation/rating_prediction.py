@@ -24,7 +24,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 class RatingPredictionEvaluation(BaseEvaluation):
     def __init__(self, sep='\t', metrics=list(['MAE', 'RMSE']), all_but_one_eval=False, verbose=True, as_table=False,
-                 table_sep='\t', as_rank=False):
+                 table_sep='\t', as_rank=False, n_rank=10):
         """
         Class to evaluate predictions in a rating prediction scenario
 
@@ -54,6 +54,7 @@ class RatingPredictionEvaluation(BaseEvaluation):
         super(RatingPredictionEvaluation, self).__init__(sep=sep, metrics=metrics, all_but_one_eval=all_but_one_eval,
                                                          verbose=verbose, as_table=as_table, table_sep=table_sep)
         self.as_rank = as_rank
+        self.n_rank = n_rank
 
     def evaluate(self, predictions, test_set):
         """
@@ -102,7 +103,6 @@ class RatingPredictionEvaluation(BaseEvaluation):
         else:
             new_predict_set = []
             new_test_set = {}
-            high_len_rank = 0
 
             for user in predictions:
                 partial_predictions = []
@@ -117,13 +117,10 @@ class RatingPredictionEvaluation(BaseEvaluation):
                 partial_predictions = sorted(partial_predictions, key=lambda x: -x[2])
                 new_predict_set += partial_predictions
 
-                if high_len_rank < len(partial_predictions):
-                    high_len_rank = len(partial_predictions)
-
             new_test_set['items_seen_by_user'] = new_test_set
             new_test_set['users'] = test_set['users']
 
-            ItemRecommendationEvaluation(n_ranks=[high_len_rank],
+            ItemRecommendationEvaluation(n_ranks=self.n_rank,
                                          all_but_one_eval=self.all_but_one_eval).evaluate_recommender(
                 new_predict_set, new_test_set)
 
