@@ -10,7 +10,7 @@ from scipy.spatial.distance import squareform, pdist
 import numpy as np
 
 from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
-from caserec.utils.extra_functions import print_header, check_error_file
+from caserec.utils.extra_functions import print_header
 from caserec.utils.process_data import ReadFile, WriteFile
 
 __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
@@ -137,7 +137,7 @@ class BaseItemRecommendation(object):
         Method to evaluate the final ranking
 
         :param metrics: List of evaluation metrics
-        :type metrics: list, default ('Prec@5', 'Prec@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10')
+        :type metrics: list, default ('Prec', 'Recall', 'MAP, 'NDCG')
 
         :param verbose: Print the evaluation results
         :type verbose: bool, default True
@@ -153,13 +153,11 @@ class BaseItemRecommendation(object):
         self.evaluation_results = {}
 
         if metrics is None:
-            metrics = list(['PREC@5', 'PREC@10', 'NDCG@5', 'NDCG@10', 'MAP@5', 'MAP@10'])
+            metrics = list(['PREC', 'RECALL', 'MAP', 'NDCG'])
 
         results = ItemRecommendationEvaluation(verbose=verbose, as_table=as_table, table_sep=table_sep,
-                                               metrics=metrics).evaluate_recommender(predictions=self.ranking,
-                                                                                     test_set=self.test_set)
-        for metric in metrics:
-            self.evaluation_results[metric.upper()] = results[metric.upper()]
+                                               metrics=metrics)
+        results.evaluate_recommender(predictions=self.ranking, test_set=self.test_set)
 
     def write_ranking(self):
         """

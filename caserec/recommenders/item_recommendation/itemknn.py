@@ -43,7 +43,8 @@ class ItemKNN(BaseItemRecommendation):
         :param output_file: File with dir to write the final predictions
         :type output_file: str, default None
 
-        :param similarity_metric:
+        :param similarity_metric: Pairwise metric to compute the similarity between the items. Reference about
+        distances: http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.spatial.distance.pdist.html
         :type similarity_metric: str, default cosine
 
         :param k_neighbors: Number of neighbors to use. If None, k_neighbor = int(sqrt(n_items))

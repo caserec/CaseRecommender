@@ -11,11 +11,12 @@
         - All-but-one Protocol: Considers only one pair (u, i) from the test set to evaluate the predictions
 
 """
-from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
+
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import numpy as np
 import random
 
+from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
 from caserec.evaluation.base_evaluation import BaseEvaluation
 
 __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'

@@ -14,18 +14,20 @@
 # © 2018. Case Recommender (MIT License)
 
 import itertools
+import random
+
 import numpy as np
 from scipy.spatial.distance import squareform, pdist
 from sklearn.cluster import KMeans
 
-from caserec_demo.utils.process_data import ReadFile
+from caserec.utils.process_data import ReadFile
 
 __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class PaCo(object):
     def __init__(self, train_file, k_row=None, l_col=None, density_low=0.008, as_binary=True,
-                 sep='\t', randon_seed=None):
+                 sep='\t', random_seed=None):
         """
         PaCo: EntroPy Anomalies in Co-Clustering
 
@@ -57,7 +59,7 @@ class PaCo(object):
 
         """
 
-        self.train_set = ReadFile(train_file, as_binary=as_binary).read()
+        self.train_set = ReadFile(train_file, as_binary=as_binary, sep=sep).read()
         self.density_low = density_low
         self.users = self.train_set['users']
         self.items = self.train_set['items']

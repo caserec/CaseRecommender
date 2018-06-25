@@ -27,6 +27,10 @@ Item Recommendation:
 
 - User Attribute KNN
 
+- Group-based (Clustering-based algorithm)
+
+- Paco Recommender (Co-Clustering-based algorithm)
+
 - Most Popular
 
 - Random

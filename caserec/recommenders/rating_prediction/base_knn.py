@@ -120,7 +120,7 @@ class BaseKNN(BaseRatingPrediction):
         for user in self.users:
             count = 0
 
-            for item in self.train_set['items_seen_by_user'][user]:
+            for item in self.train_set['items_seen_by_user'].get(user, []):
                 self.bu[user] = self.bu.get(user, 0) + float(self.train_set['feedback'][user].get(item, 0)) - \
                                 self.train_set['mean_value'] - self.bi.get(item, 0)
                 count += 1
@@ -140,7 +140,7 @@ class BaseKNN(BaseRatingPrediction):
         for user in self.users:
             for item in self.items:
                 self.bui.setdefault(user, {}).update(
-                    {item: self.train_set['mean_value'] + self.bu[user] + self.bi[item]})
+                    {item: self.train_set['mean_value'] + self.bu.get(user, 0) + self.bi.get(item, 0)})
 
         del self.bu
         del self.bi
