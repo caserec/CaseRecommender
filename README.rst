@@ -1,5 +1,5 @@
 Case Recommender - A Python Framework for RecSys
-============================================
+===================================================
 
 .. image:: https://badge.fury.io/py/CaseRecommender.svg
     :target: https://badge.fury.io/py/CaseRecommender
