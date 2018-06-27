@@ -22,7 +22,7 @@ from sklearn.cluster import KMeans
 
 from caserec.utils.process_data import ReadFile
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class PaCo(object):

@@ -12,7 +12,7 @@ import shutil
 
 from caserec.utils.split_database import SplitDatabase
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class CrossValidation(object):

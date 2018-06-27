@@ -10,7 +10,7 @@
 
 import numpy as np
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 def precision_at_k(ranking, k):

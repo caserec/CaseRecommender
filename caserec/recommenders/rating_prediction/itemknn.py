@@ -19,7 +19,7 @@ from caserec.utils.extra_functions import timed
 
 from caserec.recommenders.rating_prediction.base_knn import BaseKNN
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class ItemKNN(BaseKNN):

@@ -21,7 +21,7 @@ from caserec.utils.extra_functions import timed
 from caserec.utils.process_data import ReadFile
 
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class UserNSVD1(BaseNSVD1):

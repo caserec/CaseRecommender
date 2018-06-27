@@ -14,7 +14,7 @@ import numpy as np
 from caserec.recommenders.item_recommendation.base_item_recommendation import BaseItemRecommendation
 from caserec.utils.extra_functions import timed
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class UserKNN(BaseItemRecommendation):

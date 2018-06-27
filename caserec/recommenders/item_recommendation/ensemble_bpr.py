@@ -15,7 +15,7 @@
 
 from caserec.recommenders.item_recommendation.base_item_recommendation import BaseItemRecommendation
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class EnsembleBPRLearning(BaseItemRecommendation):

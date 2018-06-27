@@ -19,7 +19,7 @@ import random
 from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
 from caserec.evaluation.base_evaluation import BaseEvaluation
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class RatingPredictionEvaluation(BaseEvaluation):

@@ -12,7 +12,7 @@
 from scipy.stats import ttest_ind, ranksums
 import numpy as np
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class StatisticalAnalysis(object):

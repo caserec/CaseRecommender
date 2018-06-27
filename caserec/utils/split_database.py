@@ -13,7 +13,7 @@ import os
 
 from caserec.utils.process_data import ReadFile, WriteFile
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class SplitDatabase(ReadFile):

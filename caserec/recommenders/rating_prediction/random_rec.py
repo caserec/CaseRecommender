@@ -14,7 +14,7 @@ from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRa
 from caserec.utils.extra_functions import timed
 
 
-__author__ = 'Fernando S. de Aguiar Neto <fsan110792@gmail.com>'
+__author__ = 'removed for double-blind-review'
 
 class RandomRec(BaseRatingPrediction):
     def __init__(self, train_file, test_file, uniform=True, output_file=None, sep='\t', output_sep='\t', random_seed=None):

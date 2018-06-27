@@ -14,7 +14,7 @@
 
 import numpy as np
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 def kmedoids(distance_matrix, k, max_interactions=10000, random_seed=None):

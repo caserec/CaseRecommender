@@ -22,7 +22,7 @@ import random
 from caserec.evaluation.base_evaluation import BaseEvaluation
 from caserec.evaluation.item_recomendation_functions import precision_at_k, mean_average_precision, ndcg_at_k
 
-__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+__author__ = 'removed for double blind review'
 
 
 class ItemRecommendationEvaluation(BaseEvaluation):
