@@ -81,7 +81,7 @@ Clustering:
 
 For Linux and MAC use:
 
-    $ pip install requeriments
+    $ pip install requirements
 
 For Windows use:
 
