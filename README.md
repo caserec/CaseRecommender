@@ -73,7 +73,7 @@ Clustering:
 
 # Requirements
 
-- Python >= 3
+- Python
 - scipy
 - numpy
 - pandas
