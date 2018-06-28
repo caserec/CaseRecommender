@@ -73,7 +73,7 @@ Clustering:
 
 # Requirements
 
-- Python >= 3
+- Python
 - scipy
 - numpy
 - pandas
@@ -81,7 +81,7 @@ Clustering:
 
 For Linux and MAC use:
 
-    $ pip install requeriments
+    $ pip install requirements
 
 For Windows use:
 
@@ -104,7 +104,6 @@ Divide Database (Fold Cross Validation)
 
     >> from caserec.utils.split_database import SplitDatabase
     >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()             
-
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)
 
