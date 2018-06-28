@@ -10,7 +10,7 @@ import pandas as pd
 
 from caserec.utils.extra_functions import check_error_file
 
-__author__ = 'removed for double-blind-review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class ReadFile(object):

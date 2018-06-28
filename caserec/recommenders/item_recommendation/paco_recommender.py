@@ -18,6 +18,8 @@ from caserec.clustering.paco import PaCo
 from caserec.evaluation.item_recommendation import ItemRecommendationEvaluation
 from caserec.utils.process_data import ReadFile
 
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
+
 
 class PaCoRecommender(object):
     def __init__(self, train_file, test_file=None, output_file=None, k_row=None, l_col=None,

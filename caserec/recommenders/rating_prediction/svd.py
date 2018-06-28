@@ -19,7 +19,7 @@ from scipy.sparse.linalg import svds
 from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 from caserec.utils.extra_functions import timed
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class SVD(BaseRatingPrediction):

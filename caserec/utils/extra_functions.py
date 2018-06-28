@@ -13,7 +13,7 @@
 import sys
 import time
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 def check_error_file(file_check):

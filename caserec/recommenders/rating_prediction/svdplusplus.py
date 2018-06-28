@@ -17,7 +17,7 @@ import numpy as np
 
 from caserec.recommenders.rating_prediction.matrixfactorization import MatrixFactorization
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class SVDPlusPlus(MatrixFactorization):

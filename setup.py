@@ -25,7 +25,7 @@ setup(
     description='A recommender systems framework for Python',
     long_description=long_description,
 
-    author='removed for double blind review',
+    author='Arthur Fortes <fortes.arthur@gmail.com>',
     author_email='fortes.arthur@gmail.com',
 
     url='https://github.com/caserec/CaseRecommender',

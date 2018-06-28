@@ -18,7 +18,7 @@ import numpy as np
 from caserec.utils.extra_functions import timed
 from caserec.recommenders.rating_prediction.base_knn import BaseKNN
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class UserKNN(BaseKNN):

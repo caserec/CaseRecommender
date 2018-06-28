@@ -18,7 +18,7 @@ import numpy as np
 
 from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class BaseNSVD1(BaseRatingPrediction):

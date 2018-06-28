@@ -17,7 +17,7 @@ import numpy as np
 from caserec.recommenders.item_recommendation.userknn import UserKNN
 from caserec.utils.process_data import ReadFile
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class UserAttributeKNN(UserKNN):

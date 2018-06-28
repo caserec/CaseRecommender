@@ -10,14 +10,16 @@
 # © 2018. Case Recommender (MIT License)
 
 import numpy as np
+
 from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 from caserec.utils.extra_functions import timed
 
+__author__ = 'Fernando S. de Aguiar Neto <fsan110792@gmail.com>'
 
-__author__ = 'removed for double-blind-review'
 
 class RandomRec(BaseRatingPrediction):
-    def __init__(self, train_file, test_file, uniform=True, output_file=None, sep='\t', output_sep='\t', random_seed=None):
+    def __init__(self, train_file, test_file, uniform=True, output_file=None, sep='\t', output_sep='\t',
+                 random_seed=None):
         """
         Random recommendation for Rating Prediction
 
@@ -55,14 +57,12 @@ class RandomRec(BaseRatingPrediction):
         """
 
         super(RandomRec, self).__init__(train_file=train_file, test_file=test_file, output_file=output_file,
-                                          sep=sep, output_sep=output_sep)
+                                        sep=sep, output_sep=output_sep)
 
         if random_seed is not None:
             np.random.seed(random_seed)
 
         self.uniform = uniform
-
-
 
         self.recommender_name = 'Random Recommender'
 
@@ -70,7 +70,7 @@ class RandomRec(BaseRatingPrediction):
         if not self.uniform:
             feedbacks = []
             for user in self.train_set["users"]:
-                for item in  self.train_set['items_seen_by_user'][user]:
+                for item in self.train_set['items_seen_by_user'][user]:
                     feedbacks.append(self.train_set['feedback'][user][item])
 
             std = np.std(feedbacks)
@@ -79,14 +79,13 @@ class RandomRec(BaseRatingPrediction):
             for user in self.test_set['users']:
                 for item in self.test_set['feedback'][user]:
                     if self.uniform:
-                        feedback_value = np.random.uniform(self.train_set['min_value'],self.train_set['max_value'])
+                        feedback_value = np.random.uniform(self.train_set['min_value'], self.train_set['max_value'])
                     else:
                         feedback_value = np.random.normal(self.train_set['mean_value'], std)
 
                     self.predictions.append((user, item, feedback_value))
         else:
             raise NotImplemented
-
 
     def compute(self, verbose=True, metrics=None, verbose_evaluation=True, as_table=False, table_sep='\t'):
         """

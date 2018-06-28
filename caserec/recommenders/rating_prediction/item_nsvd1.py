@@ -20,7 +20,7 @@ from caserec.recommenders.rating_prediction.base_nsvd1 import BaseNSVD1
 from caserec.utils.extra_functions import timed
 from caserec.utils.process_data import ReadFile
 
-__author__ = 'removed for double blind review'
+__author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class ItemNSVD1(BaseNSVD1):
