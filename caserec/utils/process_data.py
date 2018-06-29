@@ -206,6 +206,35 @@ class ReadFile(object):
             df.iloc[:, self.binary_col] = 1
         return df.sort_values(by=[0, 1])
 
+    def read_item_category(self):
+        list_item_category = []
+        dict_category = {}
+        set_items = set()
+        dict_item_category = {}
+
+        with open(self.input_file, 'r', encoding='utf-8') as infile:
+            for line in infile:
+                if line.strip():
+                    inline = line.split(self.sep)
+                    item, category = int(inline[0]), inline[1].rstrip()
+
+                    list_item_category.append([item, category])
+
+                    if category in dict_category:
+                        dict_category[category] += 1
+                    else:
+                        dict_category[category] = 1
+
+                    set_items.add(item)
+
+                    if item not in dict_item_category:
+                        dict_item_category[item] = []
+                        dict_item_category[item].append(category)
+                    else:
+                        dict_item_category[item].append(category)
+
+        return [dict_category, list_item_category, set_items, dict_item_category]
+
 
 class WriteFile(object):
     def __init__(self, output_file, data=None, sep="\t", mode='w', as_binary=False):
