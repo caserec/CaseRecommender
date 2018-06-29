@@ -27,7 +27,7 @@ class GSVDPlusPlus(MatrixFactorization):
         """
         gSVD++ for rating prediction
 
-        The algorithm gSVD++ exploits implicit feedback from users by considering not only the latent space of
+        The gSVD++ algorithm exploits implicit feedback from users by considering not only the latent space of
         factors describing the user and item, but also the available metadata associated to the content.
 
         Usage::
