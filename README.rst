@@ -59,6 +59,10 @@ Rating Prediction:
 
 - Random
 
+- gSVD++
+
+- Item-MSMF
+
 Clustering:
 
 - PaCo: EntroPy Anomalies in Co-Clustering
