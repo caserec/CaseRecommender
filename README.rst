@@ -35,6 +35,8 @@ Item Recommendation:
 
 - Random
 
+- Content Based
+
 Rating Prediction:
 
 - Matrix Factorization (with and without baseline)
