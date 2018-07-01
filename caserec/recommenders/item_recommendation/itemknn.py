@@ -154,7 +154,7 @@ class ItemKNN(BaseItemRecommendation):
 
         return sorted(predictions, key=lambda x: -x[2])[:self.rank_length]
 
-    def compute(self, verbose=True, metrics=None, verbose_evaluation=True, as_table=False, table_sep='\t'):
+    def compute(self, verbose=True, metrics=None, verbose_evaluation=True, as_table=False, table_sep='\t', n_ranks=None):
         """
         Extends compute method from BaseItemRecommendation. Method to run recommender algorithm
 
@@ -172,6 +172,9 @@ class ItemKNN(BaseItemRecommendation):
 
         :param table_sep: Delimiter for print results (only work with verbose=True and as_table=True)
         :type table_sep: str, default '\t'
+
+        :param n_ranks: List of positions to evaluate the ranking
+        :type n_ranks: list, None
 
         """
 
@@ -191,4 +194,4 @@ class ItemKNN(BaseItemRecommendation):
         self.write_ranking()
 
         if self.test_file is not None:
-            self.evaluate(metrics, verbose_evaluation, as_table=as_table, table_sep=table_sep)
+            self.evaluate(metrics, verbose_evaluation, as_table=as_table, table_sep=table_sep, n_ranks=n_ranks)

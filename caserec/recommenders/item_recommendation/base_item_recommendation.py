@@ -132,7 +132,7 @@ class BaseItemRecommendation(object):
 
         return similarity_matrix
 
-    def evaluate(self, metrics, verbose=True, as_table=False, table_sep='\t'):
+    def evaluate(self, metrics, verbose=True, as_table=False, table_sep='\t', n_ranks=None):
         """
         Method to evaluate the final ranking
 
@@ -148,6 +148,9 @@ class BaseItemRecommendation(object):
         :param table_sep: Delimiter for print results (only work with verbose=True and as_table=True)
         :type table_sep: str, default '\t'
 
+        :param n_ranks: List of positions to evaluate the ranking
+        :type n_ranks: list, None
+
         """
 
         self.evaluation_results = {}
@@ -156,7 +159,7 @@ class BaseItemRecommendation(object):
             metrics = list(['PREC', 'RECALL', 'MAP', 'NDCG'])
 
         results = ItemRecommendationEvaluation(verbose=verbose, as_table=as_table, table_sep=table_sep,
-                                               metrics=metrics)
+                                               metrics=metrics, n_ranks=n_ranks)
         results.evaluate_recommender(predictions=self.ranking, test_set=self.test_set)
 
     def write_ranking(self):
