@@ -77,7 +77,7 @@ class BaseRatingPrediction(object):
         self.train_set = ReadFile(self.train_file, sep=self.sep).read()
 
         if self.test_file is not None:
-            self.test_set = ReadFile(self.test_file).read()
+            self.test_set = ReadFile(self.test_file, sep=self.sep).read()
             self.users = sorted(set(list(self.train_set['users']) + list(self.test_set['users'])))
             self.items = sorted(set(list(self.train_set['items']) + list(self.test_set['items'])))
         else:

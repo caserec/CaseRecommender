@@ -69,7 +69,10 @@ class MostPopular(BaseRatingPrediction):
                         count_value += 1
 
                     if feedback_value == 0:
-                        feedback_value = np.mean(list(self.train_set['feedback'][user].values()))
+                        try:
+                            feedback_value = np.mean(list(self.train_set['feedback'][user].values()))
+                        except KeyError:
+                            feedback_value = self.train_set['mean_value']
                     else:
                         feedback_value /= count_value
 
@@ -111,3 +114,18 @@ class MostPopular(BaseRatingPrediction):
 
         if self.test_file is not None:
             self.evaluate(metrics, verbose_evaluation, as_table=as_table, table_sep=table_sep)
+
+
+for f in range(10):
+    dataset = 'amazon'
+    dir = '/home/fortesarthur/Documentos/Experiments/CoTraining/datasets/%s/folds/%d/' % (dataset, f)
+    train_file = dir + 'train.dat'
+    test_file = dir + 'test.dat'
+    prediction_file = dir + 'pred_wards.dat'
+    print('------  Fold  %d   -----' % f)
+    # MatrixFactorization(train_file, test_file, random_seed=1).compute()
+    # UserKNN(train_file, test_file).compute(verbose=False)
+    # ItemKNN(train_file, test_file).compute(verbose=False)
+    # Alg(train_file, test_file, prediction_file).compute()
+    MostPopular(train_file, test_file).compute(verbose=False)
+    break
