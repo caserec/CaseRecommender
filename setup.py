@@ -5,6 +5,7 @@
 
 # © 2018. Case Recommender (MIT License)
 
+from pip.req import parse_requirements
 from distutils.core import setup
 from setuptools import find_packages
 from os import path
@@ -17,13 +18,18 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+# Get requiriments
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='1.0.13',
+    version='1.0.14',
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,
+    install_requires=requirements,
 
     author='Arthur Fortes <fortes.arthur@gmail.com>',
     author_email='fortes.arthur@gmail.com',

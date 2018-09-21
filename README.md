@@ -94,7 +94,7 @@ For Windows use:
     http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
 
 
-# Quick start
+# Installation
 
 Case Recommender can be installed using pip:
 
@@ -103,6 +103,10 @@ Case Recommender can be installed using pip:
 If you want to run the latest version of the code, you can install from git:
 
     $ pip install -U git+git://github.com/caserec/CaseRecommender.git
+
+# Quick Start and Guide
+
+For more information about RiVal and the documentation, visit the Case Recommender [Wiki](https://github.com/caserec/CaseRecommender/wiki). If you have not used Case Recommender before, do check out the Getting Started guide.
 
 # Usage
 
