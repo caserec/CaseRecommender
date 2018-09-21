@@ -5,7 +5,6 @@
 
 # © 2018. Case Recommender (MIT License)
 
-from pip.req import parse_requirements
 from distutils.core import setup
 from setuptools import find_packages
 from os import path
@@ -19,8 +18,12 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Get requiriments
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+REQUIRED_PACKAGES = [
+    'numpy',
+    'scipy',
+    'sklearn'
+    'pandas'
+]
 
 setup(
     name='CaseRecommender',
@@ -29,7 +32,7 @@ setup(
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,
-    install_requires=requirements,
+    install_requires=REQUIRED_PACKAGES,
 
     author='Arthur Fortes <fortes.arthur@gmail.com>',
     author_email='fortes.arthur@gmail.com',
