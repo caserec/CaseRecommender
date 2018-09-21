@@ -21,14 +21,14 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 REQUIRED_PACKAGES = [
     'numpy',
     'scipy',
-    'sklearn'
+    'scikit-learn',
     'pandas'
 ]
 
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='1.0.14',
+    version='1.0.15',
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,
