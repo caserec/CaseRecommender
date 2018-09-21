@@ -158,6 +158,9 @@ class BaseItemRecommendation(object):
         if metrics is None:
             metrics = list(['PREC', 'RECALL', 'MAP', 'NDCG'])
 
+        if n_ranks is None:
+            n_ranks = list([1, 3, 5, 10])
+
         results = ItemRecommendationEvaluation(verbose=verbose, as_table=as_table, table_sep=table_sep,
                                                metrics=metrics, n_ranks=n_ranks)
         results.evaluate_recommender(predictions=self.ranking, test_set=self.test_set)
