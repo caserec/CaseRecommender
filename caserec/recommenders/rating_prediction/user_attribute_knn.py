@@ -94,6 +94,9 @@ class UserAttributeKNN(UserKNN):
         matrix
 
         """
+
+        self.users_id_viewed_item = {}
+        
         # Set the value for k
         if self.k_neighbors is None:
             self.k_neighbors = int(np.sqrt(len(self.users)))
