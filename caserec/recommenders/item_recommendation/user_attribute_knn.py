@@ -119,12 +119,16 @@ class UserAttributeKNN(UserKNN):
             self.matrix = np.zeros((len(self.users), len(metadata['col_2'])))
 
             meta_to_meta_id = {}
+
             for m, data in enumerate(metadata['col_2']):
                 meta_to_meta_id[data] = m
 
             for user_m in metadata['col_1']:
                 for m1 in metadata['dict'][user_m]:
-                    self.matrix[self.user_to_user_id[user_m], meta_to_meta_id[m1]] = metadata['dict'][user_m][m1]
+                    try:
+                        self.matrix[self.user_to_user_id[user_m], meta_to_meta_id[m1]] = metadata['dict'][user_m][m1]
+                    except KeyError:
+                        pass
 
             # create header info for metadata
             sparsity = (1 - (metadata['number_interactions'] / (len(metadata['col_1']) * len(metadata['col_2'])))) * 100
