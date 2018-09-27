@@ -102,6 +102,8 @@ class UserAttributeKNN(UserKNN):
 
         """
 
+        self.users_id_viewed_item = {}
+
         for item in self.items:
             for user in self.train_set['users_viewed_item'].get(item, []):
                 self.users_id_viewed_item.setdefault(item, []).append(self.user_to_user_id[user])
