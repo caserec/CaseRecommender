@@ -163,7 +163,8 @@ class BaseItemRecommendation(object):
 
         results = ItemRecommendationEvaluation(verbose=verbose, as_table=as_table, table_sep=table_sep,
                                                metrics=metrics, n_ranks=n_ranks)
-        results.evaluate_recommender(predictions=self.ranking, test_set=self.test_set)
+
+        self.evaluation_results = results.evaluate_recommender(predictions=self.ranking, test_set=self.test_set)
 
     def write_ranking(self):
         """

@@ -55,7 +55,8 @@ class ItemRecommendationEvaluation(BaseEvaluation):
 
         """
 
-        metrics = [m + '@' + str(n) for m in metrics for n in n_ranks]
+        if type(metrics) == list:
+            metrics = [m + '@' + str(n) for m in metrics for n in n_ranks]
         super(ItemRecommendationEvaluation, self).__init__(sep=sep, metrics=metrics, all_but_one_eval=all_but_one_eval,
                                                            verbose=verbose, as_table=as_table, table_sep=table_sep)
 
