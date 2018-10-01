@@ -59,6 +59,8 @@ Rating Prediction:
 
 - Item-MSMF
 
+- (E)CoRec
+
 Clustering:
 
 - PaCo: EntroPy Anomalies in Co-Clustering

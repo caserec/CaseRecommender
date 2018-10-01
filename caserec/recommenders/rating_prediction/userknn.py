@@ -7,7 +7,7 @@
         KAggarwal, Charu C.:
         Chapter 2: Neighborhood-Based Collaborative Filtering
         Recommender Systems: The Textbook. 2016
-        file:///home/fortesarthur/Documentos/9783319296579-c1.pdf
+        https://www.springer.com/br/book/9783319296579
 
 """
 

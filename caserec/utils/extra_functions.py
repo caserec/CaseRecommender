@@ -85,3 +85,64 @@ def print_header(header_info, test_info=None):
         print("test data:: %d users and %d items (%d interactions) | sparsity:: %.2f%%\n" %
               (test_info['n_users'], test_info['n_items'], test_info['n_interactions'], test_info['sparsity']))
 
+
+class ComputeBui(object):
+    """
+    Compute baselines based on training information considering information about users and items
+
+    """
+    def __init__(self, training_set):
+        """
+
+        :param training_set: Dictionary returned by ReadFile with method read()
+        :type training_set: dict
+        """
+        self.training_set = training_set
+        self.bu = dict()
+        self.bi = dict()
+        self.bui = dict()
+
+    def train_baselines(self):
+        for i in range(10):
+            self.compute_bi()
+            self.compute_bu()
+        self.compute_bui()
+
+    def compute_bi(self):
+        # bi = (rui - mi - bu) / (regBi + number of interactions)
+        self.bi = dict()
+
+        for item in self.training_set['items']:
+            cont = 0
+            for user in self.training_set['users_viewed_item'][item]:
+                self.bi[item] = self.bi.get(item, 0) + float(self.training_set['feedback'][user][item]) - \
+                                self.training_set['mean_value'] - self.bu.get(user, 0)
+                cont += 1
+            if cont > 1:
+                self.bi[item] = float(self.bi[item]) / float(10 + cont)
+
+    def compute_bu(self):
+        # bu = (rui - mi - bi) / (regBu + number of interactions)
+        self.bu = dict()
+        for user in self.training_set['users']:
+            cont = 0
+            for item in self.training_set['items_seen_by_user'][user]:
+                self.bu[user] = self.bu.get(user, 0) + float(self.training_set['feedback'][user][item]) - \
+                                self.training_set['mean_value'] - self.bi.get(item, 0)
+                cont += 1
+            if cont > 1:
+                self.bu[user] = float(self.bu[user]) / float(15 + cont)
+
+    def compute_bui(self):
+        # bui = mi + bu + bi
+        for user in self.training_set['users']:
+            for item in self.training_set['items']:
+                try:
+                    self.bui.setdefault(user, {}).update(
+                        {item: self.training_set['mean_value'] + self.bu[user] + self.bi[item]})
+                except KeyError:
+                    self.bui.setdefault(user, {}).update({item: self.training_set['mean_value']})
+
+    def execute(self):
+        self.train_baselines()
+        return self.bui
