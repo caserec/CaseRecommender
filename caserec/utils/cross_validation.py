@@ -103,7 +103,7 @@ class CrossValidation(object):
         """
 
         SplitDatabase(input_file=self.input_file, n_splits=self.k_folds, dir_folds=self.dir_folds,
-                      sep_read=self.sep, header=self.header).kfoldcrossvalidation(random_state=self.random_seed)
+                      sep_read=self.sep, header=self.header).k_fold_cross_validation(random_state=self.random_seed)
 
     def execute_algorithm(self):
         """

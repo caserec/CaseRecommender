@@ -1,11 +1,11 @@
 from caserec.recommenders.item_recommendation.content_based import ContentBased
 from caserec.recommenders.item_recommendation.item_attribute_knn import ItemAttributeKNN
 
-train = '../../datasets/ml-100k/train.dat'
-test = '../../datasets/ml-100k/test.dat'
-rank_cb = '../../datasets/ml-100k/rank_cb.dat'
-rank_attr = '../../datasets/ml-100k/rank_attr.dat'
-similarity = '../../datasets/ml-100k/vsm.dat'
+train = '../../datasets/ml-100k/folds/0/train.dat'
+test = '../../datasets/ml-100k/folds/0/test.dat'
+rank_cb = '../../datasets/ml-100k/folds/0/rank_cb.dat'
+rank_attr = '../../datasets/ml-100k/folds/0/rank_attr.dat'
+similarity = '../../datasets/ml-100k/folds/0/vsm.dat'
 top_n = 10
 metrics = ('PREC', 'RECALL', 'NDCG', 'MAP')
 

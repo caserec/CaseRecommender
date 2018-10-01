@@ -28,9 +28,9 @@ class SplitDatabase(ReadFile):
 
         Usage:
 
-            >> SplitDatabase(input_file=database, dir_folds=dir_path, n_folds=10).kfoldcrossvalidation()
+            >> SplitDatabase(input_file=database, dir_folds=dir_path, n_folds=10).k_fold_cross_validation()
             >> SplitDatabase(input_file=database, dir_folds=dir_path, n_folds=10).shuffle_split(test_size=0.3)
-            # To use only one fold, you should use only shuffle_split. kfoldcrossvalidation works only with
+            # To use only one fold, you should use only shuffle_split. k_fold_cross_validation works only with
             # n_folds >= 2:
             >> SplitDatabase(input_file=database, dir_folds=dir_path, n_folds=1).shuffle_split(test_size=0.1)
 
@@ -94,8 +94,8 @@ class SplitDatabase(ReadFile):
                 train_file = self.dir_folds + str(fold) + '/train.dat'
                 test_file = self.dir_folds + str(fold) + '/test.dat'
 
-                df_train = self.df.ix[train_index]
-                df_test = self.df.ix[test_index]
+                df_train = self.df.iloc[train_index]
+                df_test = self.df.iloc[test_index]
 
                 WriteFile(train_file, sep=self.sep_write, mode=self.write_mode
                           ).write_with_pandas(df_train.sort_values(by=[0, 1]))
@@ -104,7 +104,7 @@ class SplitDatabase(ReadFile):
 
                 fold += 1
 
-    def kfoldcrossvalidation(self, shuffle=True, random_state=None):
+    def k_fold_cross_validation(self, shuffle=True, random_state=None):
         """
         k-fold cross-validation
 
@@ -132,8 +132,6 @@ class SplitDatabase(ReadFile):
         if self.dir_folds is not None:
             self.write_files(trained_model)
 
-        return trained_model
-
     def shuffle_split(self, test_size=0.1, random_state=None):
         """
         Shuffle Split
@@ -158,5 +156,3 @@ class SplitDatabase(ReadFile):
 
         if self.dir_folds is not None:
             self.write_files(trained_model)
-
-        return trained_model
