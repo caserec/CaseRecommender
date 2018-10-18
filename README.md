@@ -142,6 +142,32 @@ Evaluate Ranking (MAE and RMSE)
 The input-files of traditional have to be placed in the corresponding subdirectory and are in csv-format with at least
 3 columns. Example: user_1,item_1,feedback
 
+# Cite us
+
+If you use Case Recommender in a scientific publication, we would appreciate citations of our paper where this framework was first mentioned and used.
+
+To cite Case Recommender use: Arthur da Costa, Eduardo Fressato, Fernando Neto, Marcelo Manzato, and Ricardo Campello. 2018. Case recommender: a flexible and extensible python framework for recommender systems. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys '18). ACM, New York, NY, USA, 494-495. DOI: https://doi.org/10.1145/3240323.3241611.
+
+For TeX/LaTeX (BibTex):
+
+        @inproceedings{daCosta:2018:CRF:3240323.3241611,
+            author = {da Costa, Arthur and Fressato, Eduardo and Neto, Fernando and Manzato, Marcelo and Campello, Ricardo},
+            title = {Case Recommender: A Flexible and Extensible Python Framework for Recommender Systems},
+            booktitle = {Proceedings of the 12th ACM Conference on Recommender Systems},
+            series = {RecSys '18},
+            year = {2018},
+            isbn = {978-1-4503-5901-6},
+            location = {Vancouver, British Columbia, Canada},
+            pages = {494--495},
+            numpages = {2},
+            url = {http://doi.acm.org/10.1145/3240323.3241611},
+            doi = {10.1145/3240323.3241611},
+            acmid = {3241611},
+            publisher = {ACM},
+            address = {New York, NY, USA},
+            keywords = {framework, python, recommender systems},
+        } 
+
 # Help CaseRecommender
 
 To help the project with contributions follow the steps:
