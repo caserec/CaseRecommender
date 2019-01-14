@@ -37,8 +37,8 @@ setup(
     author='Arthur Fortes <fortes.arthur@gmail.com>',
     author_email='fortes.arthur@gmail.com',
 
-    url='https://github.com/caserec/CaseRecommender',
-    download_url='https://github.com/caserec/CaseRecommender/archive/master.zip',
+    # url='https://github.com/caserec/CaseRecommender',
+    # download_url='https://github.com/caserec/CaseRecommender/archive/master.zip',
 
     keywords=['recommender systems', 'framework', 'collaborative filtering', 'content-based filtering',
               'recommendation'],
