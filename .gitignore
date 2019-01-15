@@ -44,3 +44,5 @@ Temporary Items
 
 .idea/*
 .vscode/*
+
+*.ipynb_checkpoints
