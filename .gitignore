@@ -46,3 +46,8 @@ Temporary Items
 .vscode/*
 
 *.ipynb_checkpoints
+
+# Ignoring wheel folders
+build/
+dist/
+CaseRecommender.egg-info/
