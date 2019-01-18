@@ -18,7 +18,7 @@ __author__ = 'Arthur Fortes <fortes.arthur@gmail.com>'
 
 
 class BaseEvaluation(object):
-    def __init__(self, sep='\t', metrics=None, all_but_one_eval=False, verbose=True, as_table=False, table_sep='\t'):
+    def __init__(self, sep='\t', metrics=None, all_but_one_eval=False, verbose=True, as_table=False, table_sep='\t', save_eval_file = None):
         """
         Class to be base for evaluation strategies
 
@@ -143,7 +143,7 @@ class BaseEvaluation(object):
 
         return folds_results
 
-    def print_results(self, evaluation_results):
+    def print_results(self, evaluation_results, save_eval_file = None):
         """
         Method to print the results
 

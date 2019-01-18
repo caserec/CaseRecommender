@@ -15,7 +15,8 @@ te = '../../datasets/ml-100k/folds/0/test.dat'
 predictions_output_filepath = './predictions_output.dat'
 
 # Creating model and computing train / test sets
-model = MatrixFactorization(tr, te, output_file = predictions_output_filepath)
+# model = MatrixFactorization(tr, te, output_file = predictions_output_filepath)
+model = NNMF(tr, te, output_file = predictions_output_filepath)
 
 model.compute(verbose=False)
 

@@ -37,6 +37,8 @@ Rating Prediction:
 
 - SVD
 
+- Non-negative Matrix Factorization
+
 - SVD++
 
 - ItemKNN
