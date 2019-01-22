@@ -120,8 +120,8 @@ class RatingPredictionEvaluation(BaseEvaluation):
             new_test_set['items_seen_by_user'] = new_test_set
             new_test_set['users'] = test_set['users']
 
-            ItemRecommendationEvaluation(n_ranks=self.n_rank,
-                                         all_but_one_eval=self.all_but_one_eval).evaluate_recommender(
-                new_predict_set, new_test_set)
+            eval_results = ItemRecommendationEvaluation(n_ranks=self.n_rank,
+                                         all_but_one_eval=self.all_but_one_eval,
+                                         metrics=self.metrics).evaluate_recommender(new_predict_set, new_test_set)
 
         return eval_results

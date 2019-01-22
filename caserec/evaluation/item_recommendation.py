@@ -125,6 +125,12 @@ class ItemRecommendationEvaluation(BaseEvaluation):
 
             })
 
+        # if (self.save_eval_file is not None):
+        #     # Saving evaluations to a file 
+        #     from caserec.utils.process_data import WriteFile
+
+        #     WriteFile(output_file=save_eval_file, data=)
+
         if self.verbose:
             self.print_results(eval_results)
 

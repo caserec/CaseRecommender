@@ -74,10 +74,15 @@ class BaseRatingPrediction(object):
 
         """
 
-        self.train_set = ReadFile(self.train_file, sep=self.sep).read()
+        # Getting train_set as a dict_file = {'feedback': dict_feedback, 'users': list_users, 'items': list_items, 
+        #               'sparsity': sparsity, 'number_interactions': number_interactions, 'users_viewed_item': users_viewed_item, 'items_unobserved': items_unobserved,
+        #               'items_seen_by_user': items_seen_by_user, 'mean_value': mean_value, 'max_value': max(list_feedback), 'min_value': min(list_feedback)}
+        self.train_set = ReadFile(self.train_file, sep=self.sep).read() 
 
         if self.test_file is not None:
             self.test_set = ReadFile(self.test_file, sep=self.sep).read()
+
+            # Combining users/items from train and test set
             self.users = sorted(set(list(self.train_set['users']) + list(self.test_set['users'])))
             self.items = sorted(set(list(self.train_set['items']) + list(self.test_set['items'])))
         else:
@@ -93,7 +98,7 @@ class BaseRatingPrediction(object):
 
     def create_matrix(self):
         """
-        Method to create a feedback matrix
+        Method to create a feedback matrix having users as rows and items as columns
 
         """
 

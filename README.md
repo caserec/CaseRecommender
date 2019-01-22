@@ -35,6 +35,8 @@ Rating Prediction:
 
 - Matrix Factorization (with and without baseline)
 
+- Non-negative Matrix Factorization
+
 - SVD
 
 - SVD++

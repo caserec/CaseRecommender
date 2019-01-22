@@ -27,6 +27,7 @@ $RECYCLE.BIN/
 .DS_Store
 .AppleDouble
 .LSOverride
+*.ini
 
 # Thumbnails
 ._*
@@ -44,3 +45,12 @@ Temporary Items
 
 .idea/*
 .vscode/*
+*.pyc
+*.ipynb_checkpoints
+.ipynb_checkpoints
+
+
+# Ignoring wheel folders
+build/
+dist/
+CaseRecommender.egg-info/

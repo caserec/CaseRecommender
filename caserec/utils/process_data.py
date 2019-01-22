@@ -63,7 +63,7 @@ class ReadFile(object):
 
         list_feedback = []
 
-        dict_feedback = {}
+        dict_feedback = {} # To be filled as: {user_id: [item_id_1, item_id_2, ..., item_id_N]}
         items_unobserved = {}
         items_seen_by_user = {}
         users_viewed_item = {}
