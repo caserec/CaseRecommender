@@ -8,7 +8,12 @@
         CoRec: https://dl.acm.org/citation.cfm?doid=3167132.3167209
         ECoRec: https://doi.org/10.1016/j.eswa.2018.08.020
 
-    PS.: This algorithm was implemented with parallel processing.
+    PS.: 
+    
+    1. I'm still working in this implementation and this algorithm is not the same of the article. 
+    For this reason, this algoritm is not in pypi version.
+    2. Soon as possible, the new version will be uploaded.
+    3. This algorithm was implemented with parallel processing.
 
 """
 
