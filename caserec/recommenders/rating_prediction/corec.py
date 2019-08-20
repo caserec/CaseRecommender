@@ -6,7 +6,7 @@
     Literature:
         DA COSTA, ARTHUR F.; MANZATO, MARCELO G. ; CAMPELLO, RICARDO J.G.B.
         CoRec: https://dl.acm.org/citation.cfm?doid=3167132.3167209
-        ECoRec: https://doi.org/10.1016/j.eswa.2018.08.020
+        ECoRec: https://doi.org/10.1016/j.eswa.2019.08.020
 
     PS.: 
     
@@ -17,7 +17,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 from multiprocessing.pool import Pool
 from random import shuffle

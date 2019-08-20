@@ -11,7 +11,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 import random
 import numpy as np

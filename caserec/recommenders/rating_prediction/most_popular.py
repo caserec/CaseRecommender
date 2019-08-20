@@ -7,7 +7,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 from caserec.recommenders.rating_prediction.base_rating_prediction import BaseRatingPrediction
 from caserec.utils.extra_functions import timed

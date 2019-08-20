@@ -10,7 +10,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 import numpy as np
 
@@ -85,7 +85,8 @@ def kmedoids(distance_matrix, k, max_interactions=10000, random_seed=None):
 
         # update cluster medoids
         for label in range(k):
-            j_vector = np.mean(distance_matrix[np.ix_(clusters[label], clusters[label])], axis=1)
+            j_vector = np.mean(distance_matrix[np.ix_(
+                clusters[label], clusters[label])], axis=1)
             try:
                 j = np.argmin(j_vector)
                 new_support_matrix[label] = clusters[label][j]

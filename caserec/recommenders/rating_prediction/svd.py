@@ -11,7 +11,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 import numpy as np
 from scipy.sparse.linalg import svds

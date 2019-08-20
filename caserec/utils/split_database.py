@@ -5,7 +5,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 
 from sklearn.model_selection import KFold, ShuffleSplit

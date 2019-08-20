@@ -115,7 +115,7 @@ For more information about RiVal and the documentation, visit the Case Recommend
 Divide Database (Fold Cross Validation)
 
     >> from caserec.utils.split_database import SplitDatabase
-    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()
+    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).k_fold_cross_validation()
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)
 
@@ -146,7 +146,7 @@ The input-files of traditional have to be placed in the corresponding subdirecto
 
 If you use Case Recommender in a scientific publication, we would appreciate citations of our paper where this framework was first mentioned and used.
 
-To cite Case Recommender use: Arthur da Costa, Eduardo Fressato, Fernando Neto, Marcelo Manzato, and Ricardo Campello. 2018. Case recommender: a flexible and extensible python framework for recommender systems. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys '18). ACM, New York, NY, USA, 494-495. DOI: https://doi.org/10.1145/3240323.3241611.
+To cite Case Recommender use: Arthur da Costa, Eduardo Fressato, Fernando Neto, Marcelo Manzato, and Ricardo Campello. 2019. Case recommender: a flexible and extensible python framework for recommender systems. In Proceedings of the 12th ACM Conference on Recommender Systems (RecSys '18). ACM, New York, NY, USA, 494-495. DOI: https://doi.org/10.1145/3240323.3241611.
 
 For TeX/LaTeX (BibTex):
 

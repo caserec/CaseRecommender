@@ -9,7 +9,7 @@
 
 """
 
-# © 2018. Case Recommender (MIT License)
+# © 2019. Case Recommender (MIT License)
 
 from collections import defaultdict
 import numpy as np
