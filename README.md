@@ -4,11 +4,10 @@
 [![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 [![GitHub license](https://img.shields.io/github/license/caserec/CaseRecommender.svg)](https://github.com/caserec/CaseRecommender/blob/master/COPYING)
 
-
-Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and explicit feedback.  The framework aims to provide a rich set of components from which you can construct a customized recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating prediction approaches, and different metrics validation and evaluation.
-
+Case Recommender is a Python implementation of a number of popular recommendation algorithms for both implicit and explicit feedback. The framework aims to provide a rich set of components from which you can construct a customized recommender system from a set of algorithms. Case Recommender has different types of item recommendation and rating prediction approaches, and different metrics validation and evaluation.
 
 # Algorithms
+
 Item Recommendation:
 
 - BPRMF
@@ -95,8 +94,7 @@ For Linux and MAC use:
 
 For Windows use:
 
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
-
+    http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 # Installation
 
@@ -117,7 +115,7 @@ For more information about RiVal and the documentation, visit the Case Recommend
 Divide Database (Fold Cross Validation)
 
     >> from caserec.utils.split_database import SplitDatabase
-    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()             
+    >> SplitDatabase(input_file=dataset, dir_folds=dir_path, n_splits=10).kfoldcrossvalidation()
 
 Run Item Recommendation Algorithm (E.g: ItemKNN)
 
@@ -168,7 +166,7 @@ For TeX/LaTeX (BibTex):
             publisher = {ACM},
             address = {New York, NY, USA},
             keywords = {framework, python, recommender systems},
-        } 
+        }
 
 # Help CaseRecommender
 
@@ -188,10 +186,9 @@ To help the project with contributions follow the steps:
 
 For bugs or feedback use this link: https://github.com/caserec/CaseRecommender/issues
 
-
 # License (MIT)
 
-    © 2018. Case Recommender All Rights Reserved
+    © 2019. Case Recommender All Rights Reserved
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
     documentation files (the "Software"), to deal in the Software without restriction, including without limitation the

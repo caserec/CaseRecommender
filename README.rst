@@ -97,7 +97,7 @@ For Linux, Windows and MAC use:
 
 For Windows libraries help use:
 
-    http://www.lfd.uci.edu/~gohlke/pythonlibs/#matplotlib
+    http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 Quick Start and Guide
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -127,7 +127,7 @@ More Details
 License (MIT)
 ^^^^^^^^^^^^^^
 
-    © 2018. Case Recommender All Rights Reserved
+    © 2019. Case Recommender All Rights Reserved
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
     documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
