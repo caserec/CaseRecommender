@@ -28,7 +28,7 @@ REQUIRED_PACKAGES = [
 setup(
     name='CaseRecommender',
     packages=find_packages(),
-    version='1.0.1001_1',
+    version='1.1.0',
     license='MIT License',
     description='A recommender systems framework for Python',
     long_description=long_description,
