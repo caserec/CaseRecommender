@@ -315,7 +315,8 @@ class ECoRec(object):
                         final_dev[user][item] = (final_dev[user].get(item, 0) + conf)
                     else:
                         if conf > final_dev[user][item]:
-                            final_dev[user][item] = rui
+                            final_dev[user][item] = conf
+                            final_rui[user][item] = rui
 
         for user in final_rui:
             for item in final_rui[user]:
