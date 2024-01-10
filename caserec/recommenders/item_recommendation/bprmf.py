@@ -15,6 +15,7 @@
 
 import random
 import numpy as np
+from tqdm import tqdm
 
 from caserec.recommenders.item_recommendation.base_item_recommendation import BaseItemRecommendation
 from caserec.utils.extra_functions import timed
@@ -146,17 +147,23 @@ class BprMF(BaseItemRecommendation):
 
     def fit(self):
         """
-        This method performs iterations of stochastic gradient ascent over the training data. One iteration is samples
-        number of positive entries in the training matrix times, if batch size is 0, else we divide the number of
-        positive entries per batch size (see in the init_model).
-
+        This method performs iterations of stochastic gradient ascent over the training data.
+        One iteration is samples number of positive entries in the training matrix times,
+        if batch size is 0, else we divide the number of positive entries per batch size (see in the init_model).
         """
+        # Use tqdm for a progress bar
+        progress_bar = tqdm(total=self.epochs, desc='Training Progress', position=0)
 
         for n in range(self.epochs):
             random_users = random.choices(self.train_set['users'], k=self.num_interactions)
             for user in random_users:
                 i, j = self.sample_pair(user)
                 self.update_factors(self.user_to_user_id[user], self.item_to_item_id[i], self.item_to_item_id[j])
+
+            progress_bar.update(1)
+
+        progress_bar.close()
+
 
     def create_factors(self):
         """
@@ -231,9 +238,10 @@ class BprMF(BaseItemRecommendation):
 
     def predict(self):
         """
-        This method predict final result, building an rank of each user of the train set.
-
+        This method predict final result, building a rank of each user of the train set.
         """
+        # Use tqdm for a progress bar
+        progress_bar = tqdm(total=len(self.users), desc='Prediction Progress', position=0)
 
         w = self.bias.T + np.dot(self.p, self.q.T)
 
@@ -251,6 +259,10 @@ class BprMF(BaseItemRecommendation):
                     break
 
             self.ranking += partial_ranking
+            progress_bar.update(1)
+
+        progress_bar.close()
+
 
     def compute(self, verbose=True, metrics=None, verbose_evaluation=True, as_table=False, table_sep='\t'):
         """
